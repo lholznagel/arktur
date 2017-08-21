@@ -1,0 +1,6 @@
+[package]
+name = "blockchain_node"
+version = "0.1.0"
+authors = ["lholznagel <lars.holznagel@outlook.com>"]
+
+[dependencies]
