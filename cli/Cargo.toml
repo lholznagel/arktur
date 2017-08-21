@@ -1,0 +1,6 @@
+[package]
+name = "blockchain_cli"
+version = "0.1.0"
+authors = ["lholznagel <lars.holznagel@outlook.com>"]
+
+[dependencies]
