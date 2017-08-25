@@ -1,4 +1,5 @@
 extern crate crypto;
+extern crate time;
 
 mod block;
 
