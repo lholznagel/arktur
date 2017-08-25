@@ -1,11 +1,13 @@
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
+use time::get_time;
 
 #[derive(Debug)]
 pub struct Block {
     id: u16,
     nonce: u32,
     content: String,
+    timestamp: i64,
     prev: String,
     hash: String,
 }
@@ -16,6 +18,7 @@ impl Block {
             id: id,
             nonce: 0,
             content: content,
+            timestamp: get_time().sec,
             prev: prev,
             hash: String::from(""),
         }

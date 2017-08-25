@@ -2,6 +2,6 @@
 authors = ["lholznagel <lars.holznagel@outlook.com>"]
 name = "blockchain_peer"
 version = "0.1.0"
-
 [dependencies]
 rust-crypto = "0.2.36"
+time = "0.1.38"
