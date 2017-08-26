@@ -1,0 +1,7 @@
+[package]
+authors = ["lholznagel <lars.holznagel@outlook.com>"]
+name = "blockchain_example"
+version = "0.1.0"
+
+[dependencies]
+blockchain_lib = { version = "0.1.0", path = "../lib" }
