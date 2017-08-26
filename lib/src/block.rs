@@ -4,18 +4,18 @@ use time::get_time;
 
 #[derive(Debug)]
 pub struct Block {
-    id: u16,
-    nonce: u32,
-    content: String,
-    timestamp: i64,
-    prev: String,
-    hash: String,
+    pub id: usize,
+    pub nonce: u32,
+    pub content: String,
+    pub timestamp: i64,
+    pub prev: String,
+    pub hash: String,
 }
 
 impl Block {
-    pub fn new(id: u16, content: String, prev: String) -> Self {
+    pub fn new(content: String, prev: String) -> Self {
         Block {
-            id: id,
+            id: 0,
             nonce: 0,
             content: content,
             timestamp: get_time().sec,
@@ -24,7 +24,12 @@ impl Block {
         }
     }
 
-    pub fn generate_hash(mut self) -> Self {
+    pub fn set_id(mut self, id: usize) -> Self {
+        self.id = id;
+        self
+    }
+
+    pub fn generate_hash(mut self, signkey: String) -> Self {
         loop {
             let mut current = String::from("");
             current.push_str(self.id.to_string().as_str());
@@ -36,7 +41,7 @@ impl Block {
             hasher.input_str(current.as_str());
             let hex = hasher.result_str();
 
-            if "0000" == &hex[..4] {
+            if signkey == &hex[..signkey.len()] {
                 self.hash = hex.clone();
                 break;
             } else {
