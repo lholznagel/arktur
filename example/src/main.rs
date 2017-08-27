@@ -1,6 +1,11 @@
-extern crate blockchain_lib;
+extern crate crypto;
+extern crate time;
 
-use blockchain_lib::{Block, Blockchain};
+mod block;
+mod blockchain;
+
+use block::Block;
+use blockchain::Blockchain;
 
 fn main() {
     let mut empty_prev = String::from("");
@@ -12,7 +17,7 @@ fn main() {
     let second = Block::new(String::from("Even more conent"), first.hash.clone());
     let third = Block::new(String::from("Nothing"), second.hash.clone());
 
-    let blockchain = Blockchain::new(String::from("abcdef"))
+    let blockchain = Blockchain::new(String::from("abcd"))
         .add_block(first)
         .add_block(second)
         .add_block(third);

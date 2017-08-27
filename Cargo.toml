@@ -1,5 +1,5 @@
 [workspace]
 members = [
-  "lib/",
-  "example/"
+  "example/",
+  "peer"
 ]

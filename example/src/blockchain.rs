@@ -15,7 +15,7 @@ impl Blockchain {
     }
 
     pub fn add_block(mut self, block: Block) -> Self {
-        let block = block.set_id(self.blocks.len()).generate_hash(self.signkey.clone());
+        let block = block.set_index(self.blocks.len()).generate_hash(self.signkey.clone());
         self.blocks.push(block);
         self
     }
