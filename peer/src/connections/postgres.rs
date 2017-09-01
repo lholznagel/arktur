@@ -6,7 +6,7 @@ use std::io::Read;
 
 type Pool = r2d2::Pool<PostgresConnectionManager>;
 
-pub fn init_database() -> Pool {
+pub fn init() -> Pool {
     let config_r2d2 = r2d2::Config::default();
     let manager =
         PostgresConnectionManager::new("postgres://postgres:password@localhost", TlsMode::None)

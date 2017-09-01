@@ -2,6 +2,7 @@
 #![plugin(rocket_codegen)]
 
 extern crate crypto;
+extern crate mqtt;
 extern crate r2d2;
 extern crate r2d2_postgres;
 extern crate rocket;
@@ -14,7 +15,7 @@ extern crate serde_derive;
 
 mod block;
 mod blockchain;
-mod database;
+mod connections;
 mod guards;
 
 fn main() {
@@ -22,8 +23,10 @@ fn main() {
 }
 
 fn rocket() -> rocket::Rocket {
+    connections::mqtt::init();
+
     rocket::ignite()
-        .manage(database::connect::init_database())
+        .manage(connections::postgres::init())
         .mount(
             "/api/block",
             routes![block::resources::new],
