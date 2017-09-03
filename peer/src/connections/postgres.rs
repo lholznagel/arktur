@@ -14,12 +14,12 @@ pub fn init() -> Pool {
 
     let pool = r2d2::Pool::new(config_r2d2, manager).unwrap();
 
-    println!("Preparing database");
+    info!("Preparing database");
     pool.get().unwrap().execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;", &[]).unwrap();
 
     prepare_database(pool.get().unwrap(), "queries/create_block.sql");
     prepare_database(pool.get().unwrap(), "queries/create_blockchain.sql");
-    println!("Done with preparing database");
+    info!("Done with preparing database");
 
     return pool;
 }
