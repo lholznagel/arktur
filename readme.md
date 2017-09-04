@@ -43,9 +43,9 @@ The goal is to explore blockchain and rust :)
 - an example entry in JSON:
 ``` json
 {
+  "id": "UUID of the element",
   "content": "content as JSON object",
   "hash": "SHA256 hash to identify the message (contains all fields of this object)",
-  "peer": "Identification of the peer (did not decide how it should be generated)",
   "timestamp": 0
 }
 ```

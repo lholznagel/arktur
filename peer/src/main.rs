@@ -34,7 +34,7 @@ fn main() {
 }
 
 fn rocket() -> rocket::Rocket {
-    config::Config::new();
+    let config = config::Config::new();
 
     rocket::ignite()
         .manage(connections::postgres::init())
