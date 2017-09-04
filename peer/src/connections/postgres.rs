@@ -19,6 +19,7 @@ pub fn init() -> Pool {
 
     prepare_database(pool.get().unwrap(), "queries/create_block.sql");
     prepare_database(pool.get().unwrap(), "queries/create_blockchain.sql");
+    prepare_database(pool.get().unwrap(), "queries/create_message.sql");
     info!("Done with preparing database");
 
     return pool;
