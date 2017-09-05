@@ -49,10 +49,10 @@ impl Block {
 
             let mut hasher = Sha3::sha3_256();
             hasher.input_str(current.as_str());
-            let hex = hasher.result_str();
+            let hash = hasher.result_str();
 
-            if signkey == &hex[..signkey.len()] {
-                self.hash = hex.clone();
+            if signkey == &hash[..signkey.len()] {
+                self.hash = hash.clone();
                 break;
             } else {
                 self.nonce = self.nonce + 1;
