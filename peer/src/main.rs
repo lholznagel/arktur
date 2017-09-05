@@ -17,8 +17,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
-mod block;
-mod blockchain;
+mod api;
 mod config;
 mod connections;
 mod guards;
@@ -38,11 +37,15 @@ fn rocket() -> rocket::Rocket {
 
     rocket::ignite()
         .manage(connections::postgres::init())
-        .mount("/api/block", routes![block::resources::new])
+        .mount("/api/block", routes![api::block::resources::new])
         .mount(
             "/api/blockchain",
-            routes![blockchain::resources::new, blockchain::resources::overview],
+            routes![
+                api::blockchain::resources::new,
+                api::blockchain::resources::overview,
+            ],
         )
+        .mount("/api/message", routes![api::message::resources::new])
 }
 
 fn prepare_logger() {

@@ -1,4 +1,4 @@
-use block::{Block, BlockApi, ResultLastBlock};
+use api::block::{Block, BlockApi, ResultLastBlock};
 use guards::DBConnection;
 use rocket_contrib::Json;
 use uuid::Uuid;
