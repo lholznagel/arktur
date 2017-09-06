@@ -1,3 +1,3 @@
 pub mod block;
 pub mod blockchain;
-pub mod message;
+pub mod peer;
