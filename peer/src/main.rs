@@ -45,7 +45,10 @@ fn rocket() -> rocket::Rocket {
                 api::blockchain::resources::overview,
             ],
         )
-        .mount("/api/peer", routes![api::peer::resources::register])
+        .mount(
+            "/api/peer",
+            routes![api::peer::resources::list, api::peer::resources::register],
+        )
 }
 
 fn prepare_logger() {

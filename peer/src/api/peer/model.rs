@@ -40,6 +40,16 @@ impl <T: Messegable> Message<T> {
     }
 }
 
+impl Register {
+    pub fn as_json(&self) -> String {
+        let mut result = String::from("{");
+        result.push_str("\"name\": \"");
+        result.push_str(self.name.as_str());
+        result.push_str("\"}");
+        result
+    }
+}
+
 impl Messegable for Register {
     fn model_as_str(&self) -> String {
         let mut result = String::from("");
