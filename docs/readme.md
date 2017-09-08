@@ -58,6 +58,14 @@ CREATE TABLE IF NOT EXISTS "peers" (
   -- timestamp when the peer as registered itself
   registered_at BIGINT            NOT NULL,
   -- timestamp when the last message was send fromt this peer
-  last_seen     BIGINT            NOT NULL
-);s
+  last_seen     BIGINT            NOT NULL,
+  -- true if this peer is directly connected and should be notified on change
+  -- example: On a change we notify on peer this peer notifes two others
+  notify_on_change BOOLEAN DEFAULT false
+);
+```
+
+- last give the new user permission to select, update and insert data into the tables:
+``` sql
+GRANT SELECT, UPDATE, INSERT ON peers, block, blockchain TO "<USERNAME>";
 ```
