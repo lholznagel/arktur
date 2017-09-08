@@ -36,7 +36,7 @@ fn rocket() -> rocket::Rocket {
     let config = config::Config::new();
 
     rocket::ignite()
-        .manage(connections::postgres::init())
+        .manage(connections::postgres::init(&config.database))
         .mount("/api/block", routes![api::block::resources::new])
         .mount(
             "/api/blockchain",

@@ -14,6 +14,6 @@ impl PeerService {
         ($1, $2, $2)
         ",
             &[&message.name, &get_time().sec],
-        );
+        ).unwrap();
     }
 }

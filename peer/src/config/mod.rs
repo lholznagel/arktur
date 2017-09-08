@@ -1,3 +1,3 @@
 mod model;
 
-pub use self::model::{Config};
+pub use self::model::{Config, Database};

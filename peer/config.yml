@@ -1,4 +1,10 @@
 %YAML 1.2
 ---
+database:
+  address: "localhost"
+  port: 5432
+  user: "peer1"
+  password: "peer1"
+
 info: 
   name: "Peer 1"
