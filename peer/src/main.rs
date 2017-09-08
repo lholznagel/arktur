@@ -22,7 +22,8 @@ mod config;
 mod connections;
 mod guards;
 
-use simplelog::{Config, TermLogger, LogLevelFilter};
+use simplelog::{Config as SConfig, TermLogger, LogLevelFilter};
+use rocket::config::{Config as RConfig, Environment};
 
 fn main() {
     prepare_logger();
@@ -34,8 +35,9 @@ fn main() {
 
 fn rocket() -> rocket::Rocket {
     let config = config::Config::new();
+    let rocket_config = RConfig::build(Environment::Development).port(config.port).finalize().unwrap();
 
-    rocket::ignite()
+    rocket::custom(rocket_config, true)
         .manage(connections::postgres::init(&config.database))
         .mount("/api/block", routes![api::block::resources::new])
         .mount(
@@ -52,5 +54,5 @@ fn rocket() -> rocket::Rocket {
 }
 
 fn prepare_logger() {
-    TermLogger::init(LogLevelFilter::Info, Config::default()).expect("Could not initialize logger");
+    TermLogger::init(LogLevelFilter::Info, SConfig::default()).expect("Could not initialize logger");
 }

@@ -1,9 +1,11 @@
+use serde_yaml::from_str as load_from_str;
+use std::env;
 use std::fs::File;
 use std::io::Read;
-use serde_yaml::from_str as load_from_str;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    pub port: u16,
     pub database: Database,
     pub info: Info,
 }
@@ -23,7 +25,14 @@ pub struct Database {
 
 impl Config {
     pub fn new() -> Self {
-        let mut file = File::open("config.yml").unwrap();
+        let args: Vec<String> = env::args().collect();
+        let mut config_file_name = "config.yml";
+
+        if args.len() > 1 && args[1] == "--config" {
+            config_file_name = args[2].as_str();
+        }
+
+        let mut file = File::open(config_file_name).unwrap();
         let mut content = String::new();
 
         file.read_to_string(&mut content).expect(

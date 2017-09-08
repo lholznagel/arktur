@@ -1,4 +1,4 @@
-use api::peer::{Message, PeerService, Register};
+use api::peer::{Message, service as PeerService, Register};
 use guards::DBConnection;
 use rocket::http::Status;
 use rocket::response::status;
@@ -21,30 +21,7 @@ use rocket::response::content;
 /// ```
 #[get("/")]
 pub fn list(db: DBConnection) -> status::Custom<content::Json<String>> {
-    let mut is_first: bool = true;
-    let mut result: String = String::from("[");
-
-    for row in &db.0
-        .query(
-            "SELECT name
-            FROM peers",
-            &[],
-        )
-        .unwrap()
-    {
-        if !is_first {
-            result.push_str(",");
-        }
-
-        let register = Register {
-            name: row.get(0)
-        };
-
-        result.push_str(register.as_json().as_str());
-        is_first = false;
-    }
-
-    result.push_str("]");
+    let result = PeerService::get_all_peers(&db);
     status::Custom(Status::Ok, content::Json(result))
 }
 
