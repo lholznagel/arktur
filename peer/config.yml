@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-port: 8001
+port: 8000
 
 database:
   address: "localhost"

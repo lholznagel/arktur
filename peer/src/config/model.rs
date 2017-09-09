@@ -8,6 +8,7 @@ pub struct Config {
     pub port: u16,
     pub database: Database,
     pub info: Info,
+    pub peers: Vec<Peer>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -21,6 +22,13 @@ pub struct Database {
     pub password: String,
     pub port: u32,
     pub user: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Peer {
+    pub address: String,
+    pub port: u16,
+    pub name: String,
 }
 
 impl Config {

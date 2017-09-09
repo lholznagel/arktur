@@ -1,0 +1,20 @@
+%YAML 1.2
+---
+port: 8003
+
+database:
+  address: "localhost"
+  port: 5432
+  user: "peer3"
+  password: "peer3"
+
+info: 
+  name: "Peer 3"
+
+peers:
+  - address: "localhost"
+    port: 8001
+    name: "Peer 1"
+  - address: "localhost"
+    port: 8002
+    name: "Peer 2"
