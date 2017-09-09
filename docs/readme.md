@@ -53,15 +53,19 @@ CREATE TABLE IF NOT EXISTS "blockchain" (
 
 ``` sql
 CREATE TABLE IF NOT EXISTS "peers" (
+  -- address of the peer (TODO check the max size for the string)
+  address           VARCHAR(26)               NOT NULL,
+  -- port of the peer
+  port              INTEGER                   NOT NULL,
   -- name of the peer
-  name          TEXT PRIMARY KEY  NOT NULL,
+  name              TEXT PRIMARY KEY          NOT NULL,
   -- timestamp when the peer as registered itself
-  registered_at BIGINT            NOT NULL,
+  registered_at     BIGINT                    NOT NULL,
   -- timestamp when the last message was send fromt this peer
-  last_seen     BIGINT            NOT NULL,
+  last_seen         BIGINT                    NOT NULL,
   -- true if this peer is directly connected and should be notified on change
   -- example: On a change we notify on peer this peer notifes two others
-  notify_on_change BOOLEAN DEFAULT false
+  notify_on_change  BOOLEAN DEFAULT false     NOT NULL
 );
 ```
 
