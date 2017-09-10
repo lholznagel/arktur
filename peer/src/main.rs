@@ -5,7 +5,6 @@ extern crate crypto;
 extern crate r2d2;
 extern crate r2d2_postgres;
 extern crate rocket;
-extern crate rocket_contrib;
 extern crate serde_yaml;
 extern crate simplelog;
 extern crate time;
@@ -16,6 +15,9 @@ extern crate log;
 
 #[macro_use]
 extern crate serde_derive;
+
+#[macro_use]
+extern crate rocket_contrib;
 
 extern crate futures;
 extern crate hyper;
@@ -34,9 +36,11 @@ use hyper::{Client, Method, Request};
 use hyper::header::{ContentLength, ContentType};
 use tokio_core::reactor::Core;
 
+use api::peer::{Message, Register};
+
 fn main() {
     prepare_logger();
-    test_register();
+    //test_register();
 
     rocket().launch();
 
@@ -77,8 +81,33 @@ fn test_register() {
 
     let uri = "http://localhost:8002/api/peer".parse().unwrap();
 
-    let json = r#"{"name":"Peer1","id":"SomeId"}"#;
-    println!("{:?}", json.len() as u64);
+    let id = uuid::Uuid::new_v4();
+    let test: Message<Register> = Message {
+        content: Register {
+            name: String::from("Test"),
+            address: String::from("localhost"),
+            port: 8001
+        },
+        id: id,
+        timestamp: 0,
+        hash: String::from("asd"),
+        is_valid_hash: true
+    };
+
+    let json: String = json!({
+        "content": {
+            "name": String::from("Test"),
+            "address": String::from("localhost"),
+            "port": 8001
+        },
+        "id": id,
+        "timestamp": 0,
+        "hash": test.get_hash()
+    }).to_string();
+
+    println!("{:?}", json);
+    //let json = r#"{"name":"Peer1","id":"SomeId"}"#;
+    //println!("{:?}", json.len() as u64);
     let mut req = Request::new(Method::Post, uri);
     req.headers_mut().set(ContentType::json());
     req.headers_mut().set(ContentLength(json.len() as u64));
