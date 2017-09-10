@@ -8,7 +8,7 @@ pub fn get_all_peers(db: &DBConnection) -> String {
 
     for row in &db.0
         .query(
-            "SELECT name
+            "SELECT address, name, port
             FROM peers",
             &[],
         )
@@ -19,7 +19,9 @@ pub fn get_all_peers(db: &DBConnection) -> String {
         }
 
         let register = Register {
-            name: row.get(0)
+            address: row.get(0),
+            name: row.get(1),
+            port: row.get(2)
         };
 
         result.push_str(register.as_json().as_str());
@@ -34,10 +36,10 @@ pub fn save_peer(db: &DBConnection, message: &Register) {
     db.0.execute(
         "
     INSERT INTO peers
-    (name, registered_at, last_seen)
+    (address, name, port, registered_at, last_seen)
     VALUES
-    ($1, $2, $2)
+    ($1, $2, $3, $4, $4)
     ",
-        &[&message.name, &get_time().sec],
+        &[&message.address, &message.name, &message.port, &get_time().sec],
     ).unwrap();
 }
