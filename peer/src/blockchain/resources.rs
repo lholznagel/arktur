@@ -1,4 +1,4 @@
-use api::blockchain::Blockchain;
+use blockchain::Blockchain;
 use guards::DBConnection;
 use rocket_contrib::Json;
 

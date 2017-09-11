@@ -23,10 +23,12 @@ extern crate futures;
 extern crate hyper;
 extern crate tokio_core;
 
-mod api;
+mod block;
+mod blockchain;
 mod config;
 mod connections;
 mod guards;
+mod peer;
 
 use simplelog::{Config as SConfig, TermLogger, LogLevelFilter};
 use rocket::config::{Config as RConfig, Environment};
@@ -36,11 +38,11 @@ use hyper::{Client, Method, Request};
 use hyper::header::{ContentLength, ContentType};
 use tokio_core::reactor::Core;
 
-use api::peer::{Message, Messagable, Register};
+use peer::{Message, Messagable, Register};
 
 fn main() {
     prepare_logger();
-    test_register();
+    register_at_peers();
 
     rocket().launch();
 
@@ -56,17 +58,17 @@ fn rocket() -> rocket::Rocket {
 
     rocket::custom(rocket_config, true)
         .manage(connections::postgres::init(&config.database))
-        .mount("/api/block", routes![api::block::resources::new])
+        .mount("/api/block", routes![block::resources::new])
         .mount(
             "/api/blockchain",
             routes![
-                api::blockchain::resources::new,
-                api::blockchain::resources::overview,
+                blockchain::resources::new,
+                blockchain::resources::overview,
             ],
         )
         .mount(
             "/api/peer",
-            routes![api::peer::resources::list, api::peer::resources::register],
+            routes![peer::resources::list, peer::resources::register],
         )
 }
 
@@ -75,7 +77,7 @@ fn prepare_logger() {
         .expect("Could not initialize logger");
 }
 
-fn test_register() {
+fn register_at_peers() {
     let mut core = Core::new().unwrap();
     let client = Client::new(&core.handle());
 

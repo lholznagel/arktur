@@ -28,7 +28,6 @@ pub struct Database {
 pub struct Peer {
     pub address: String,
     pub port: u16,
-    pub name: String,
 }
 
 impl Config {

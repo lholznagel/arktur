@@ -14,7 +14,5 @@ info:
 peers:
   - address: "localhost"
     port: 8002
-    name: "Peer 2"
   - address: "localhost"
     port: 8003
-    name: "Peer 3"
