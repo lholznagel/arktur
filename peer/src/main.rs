@@ -36,11 +36,11 @@ use hyper::{Client, Method, Request};
 use hyper::header::{ContentLength, ContentType};
 use tokio_core::reactor::Core;
 
-use api::peer::{Message, Register};
+use api::peer::{Message, Messagable, Register};
 
 fn main() {
     prepare_logger();
-    //test_register();
+    test_register();
 
     rocket().launch();
 
@@ -81,33 +81,19 @@ fn test_register() {
 
     let uri = "http://localhost:8002/api/peer".parse().unwrap();
 
-    let id = uuid::Uuid::new_v4();
-    let test: Message<Register> = Message {
+    let json: String = Message {
         content: Register {
             name: String::from("Test"),
             address: String::from("localhost"),
-            port: 8001
+            port: 8001,
+            unique_id: uuid::Uuid::new_v4(),
         },
-        id: id,
+        id: uuid::Uuid::new_v4(),
         timestamp: 0,
         hash: String::from("asd"),
-        is_valid_hash: true
-    };
+        is_valid_hash: true,
+    }.as_json_string();
 
-    let json: String = json!({
-        "content": {
-            "name": String::from("Test"),
-            "address": String::from("localhost"),
-            "port": 8001
-        },
-        "id": id,
-        "timestamp": 0,
-        "hash": test.get_hash()
-    }).to_string();
-
-    println!("{:?}", json);
-    //let json = r#"{"name":"Peer1","id":"SomeId"}"#;
-    //println!("{:?}", json.len() as u64);
     let mut req = Request::new(Method::Post, uri);
     req.headers_mut().set(ContentType::json());
     req.headers_mut().set(ContentLength(json.len() as u64));
@@ -119,5 +105,8 @@ fn test_register() {
         res.body().concat2()
     });
 
-    core.run(post).unwrap();
+    match core.run(post) {
+        Ok(_) => println!("Ok"),
+        Err(_) => println!("Could not reach host"),
+    };
 }

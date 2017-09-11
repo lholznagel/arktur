@@ -55,10 +55,12 @@ CREATE TABLE IF NOT EXISTS "blockchain" (
 CREATE TABLE IF NOT EXISTS "peers" (
   -- address of the peer (TODO check the max size for the string)
   address           VARCHAR(26)               NOT NULL,
-  -- port of the peer
-  port              INTEGER                   NOT NULL,
   -- name of the peer
   name              TEXT PRIMARY KEY          NOT NULL,
+  -- port of the peer
+  port              INTEGER                   NOT NULL,
+  -- unique id for the peer
+  unique_id         UUID                      NOT NULL,
   -- timestamp when the peer as registered itself
   registered_at     BIGINT                    NOT NULL,
   -- timestamp when the last message was send fromt this peer

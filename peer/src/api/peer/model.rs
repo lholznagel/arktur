@@ -3,6 +3,7 @@ use crypto::sha3::Sha3;
 use uuid::Uuid;
 
 pub trait Messagable {
+    fn as_json_string(&self) -> String;
     fn to_string(&self) -> String;
 }
 
@@ -20,10 +21,11 @@ pub struct Message<T> {
 
 #[derive(Clone, Deserialize, Debug)]
 pub struct Register {
-    pub name: String,
     pub address: String,
+    pub name: String,
     // this should be u16 but rust-postgres does not support it
-    pub port: i32
+    pub port: i32,
+    pub unique_id: Uuid,
 }
 
 impl<T: Messagable> Message<T> {
@@ -44,18 +46,33 @@ impl<T: Messagable> Message<T> {
     }
 }
 
-impl Register {
-    pub fn as_json(&self) -> String {
+impl<T: Messagable> Messagable for Message<T> {
+    fn as_json_string(&self) -> String {
         json!({
-            "address": self.address,
-            "name": self.name,
-            "port": self.port
-        })
-        .to_string()
+            "content": self.content.as_json_string(),
+            "id": self.id,
+            "timestamp": self.timestamp,
+            "hash": self.get_hash()
+        }).to_string()
+    }
+
+    fn to_string(&self) -> String {
+        // this function is only for generating a hash
+        // the message struct does not need to implement that
+        unimplemented!();
     }
 }
 
 impl Messagable for Register {
+    fn as_json_string(&self) -> String {
+        json!({
+            "address": self.address,
+            "name": self.name,
+            "port": self.port,
+            "unique_id": self.unique_id
+        }).to_string()
+    }
+
     fn to_string(&self) -> String {
         let mut result = String::from("");
         result.push_str(self.address.as_str());
