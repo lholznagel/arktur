@@ -1,4 +1,4 @@
-use api::peer::{Message, service as PeerService, Register};
+use peer::{Message, service as PeerService, Register};
 use guards::DBConnection;
 use rocket::http::Status;
 use rocket::response::status;
