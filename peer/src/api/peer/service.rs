@@ -1,4 +1,4 @@
-use api::peer::Register;
+use api::peer::{Messagable, Register};
 use guards::DBConnection;
 use time::get_time;
 
@@ -8,7 +8,7 @@ pub fn get_all_peers(db: &DBConnection) -> String {
 
     for row in &db.0
         .query(
-            "SELECT address, name, port
+            "SELECT address, name, port, unique_id
             FROM peers",
             &[],
         )
@@ -21,10 +21,11 @@ pub fn get_all_peers(db: &DBConnection) -> String {
         let register = Register {
             address: row.get(0),
             name: row.get(1),
-            port: row.get(2)
+            port: row.get(2),
+            unique_id: row.get(3)
         };
 
-        result.push_str(register.as_json().as_str());
+        result.push_str(register.as_json_string().as_str());
         is_first = false;
     }
 
@@ -36,10 +37,10 @@ pub fn save_peer(db: &DBConnection, message: &Register) {
     db.0.execute(
         "
     INSERT INTO peers
-    (address, name, port, registered_at, last_seen)
+    (address, name, port, unique_id, registered_at, last_seen)
     VALUES
-    ($1, $2, $3, $4, $4)
+    ($1, $2, $3, $4, $5, $5)
     ",
-        &[&message.address, &message.name, &message.port, &get_time().sec],
+        &[&message.address, &message.name, &message.port, &message.unique_id, &get_time().sec],
     ).unwrap();
 }
