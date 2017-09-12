@@ -1,9 +1,10 @@
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use uuid::Uuid;
+use rocket_contrib::Value;
 
 pub trait Messagable {
-    fn as_json_string(&self) -> String;
+    fn as_json(&self) -> Value;
     fn to_string(&self) -> String;
 }
 
@@ -19,13 +20,12 @@ pub struct Message<T> {
     pub is_valid_hash: bool,
 }
 
-#[derive(Clone, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Register {
     pub address: String,
     pub name: String,
     // this should be u16 but rust-postgres does not support it
-    pub port: i32,
-    pub unique_id: Uuid,
+    pub port: i32
 }
 
 impl<T: Messagable> Message<T> {
@@ -47,13 +47,13 @@ impl<T: Messagable> Message<T> {
 }
 
 impl<T: Messagable> Messagable for Message<T> {
-    fn as_json_string(&self) -> String {
+    fn as_json(&self) -> Value {
         json!({
-            "content": self.content.as_json_string(),
+            "content": self.content.as_json(),
             "id": self.id,
             "timestamp": self.timestamp,
             "hash": self.get_hash()
-        }).to_string()
+        })
     }
 
     fn to_string(&self) -> String {
@@ -64,13 +64,12 @@ impl<T: Messagable> Messagable for Message<T> {
 }
 
 impl Messagable for Register {
-    fn as_json_string(&self) -> String {
+    fn as_json(&self) -> Value {
         json!({
             "address": self.address,
             "name": self.name,
-            "port": self.port,
-            "unique_id": self.unique_id
-        }).to_string()
+            "port": self.port
+        })
     }
 
     fn to_string(&self) -> String {
