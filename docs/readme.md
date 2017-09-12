@@ -59,8 +59,6 @@ CREATE TABLE IF NOT EXISTS "peers" (
   name              TEXT PRIMARY KEY          NOT NULL,
   -- port of the peer
   port              INTEGER                   NOT NULL,
-  -- unique id for the peer
-  unique_id         UUID                      NOT NULL,
   -- timestamp when the peer as registered itself
   registered_at     BIGINT                    NOT NULL,
   -- timestamp when the last message was send fromt this peer

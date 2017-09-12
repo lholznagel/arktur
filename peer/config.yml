@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-port: 8000
+port: 8001
 
 database:
   address: "localhost"
@@ -10,3 +10,9 @@ database:
 
 info: 
   name: "Peer 1"
+
+peers:
+  - address: "localhost"
+    port: 8002
+  - address: "localhost"
+    port: 8003
