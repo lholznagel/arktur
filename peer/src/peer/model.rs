@@ -25,7 +25,8 @@ pub struct Register {
     pub address: String,
     pub name: String,
     // this should be u16 but rust-postgres does not support it
-    pub port: i32
+    pub port: i32,
+    pub peer_id: Uuid
 }
 
 impl<T: Messagable> Message<T> {
@@ -42,6 +43,11 @@ impl<T: Messagable> Message<T> {
 
     pub fn validate_hash(mut self) -> Self {
         self.is_valid_hash = self.hash.clone() == self.get_hash();
+        self
+    }
+
+    pub fn generate_hash(mut self) -> Self {
+        self.hash = self.get_hash();
         self
     }
 }
@@ -68,7 +74,8 @@ impl Messagable for Register {
         json!({
             "address": self.address,
             "name": self.name,
-            "port": self.port
+            "port": self.port,
+            "peer_id": self.peer_id
         })
     }
 
@@ -77,6 +84,7 @@ impl Messagable for Register {
         result.push_str(self.address.as_str());
         result.push_str(self.name.as_str());
         result.push_str(self.port.to_string().as_str());
+        result.push_str(self.peer_id.to_string().as_str());
         result
     }
 }

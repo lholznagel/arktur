@@ -10,33 +10,44 @@ pub fn register_at_peers(config: &Config) {
     let mut core = Core::new().unwrap();
     let client = Client::new(&core.handle());
 
-    let uri = "http://localhost:8002/api/peer".parse().unwrap();
+    let message_id = Uuid::new_v4();
+    let peer_id = Uuid::new_v4();
 
-    let json = Message {
-        content: Register {
-            name: String::from("Test"),
-            address: String::from("localhost"),
-            port: 8001,
-        },
-        id: Uuid::new_v4(),
-        timestamp: 0,
-        hash: String::from("asd"),
-        is_valid_hash: true,
-    }.as_json().to_string();
+    for peer in &config.peers {
+        let mut connection_string = String::from("http://");
+        connection_string.push_str(config.info.address.as_str());
+        connection_string.push_str(":");
+        connection_string.push_str(peer.port.to_string().as_str());
+        connection_string.push_str("/api/peer");
+        let connection_string = connection_string.parse().unwrap();
 
-    let mut req = Request::new(Method::Post, uri);
-    req.headers_mut().set(ContentType::json());
-    req.headers_mut().set(ContentLength(json.len() as u64));
-    req.set_body(json);
+        let json = Message {
+            content: Register {
+                name: config.info.name.clone(),
+                address: config.info.address.clone(),
+                port: config.port as i32,
+                peer_id: peer_id,
+            },
+            id: message_id,
+            timestamp: 0,
+            hash: String::from(""),
+            is_valid_hash: false
+        };
+        let json = json.generate_hash().as_json().to_string();
 
-    let post = client.request(req).and_then(|res| {
-        println!("POST: {}", res.status());
+        let mut req = Request::new(Method::Post, connection_string);
+        req.headers_mut().set(ContentType::json());
+        req.headers_mut().set(ContentLength(json.len() as u64));
+        req.set_body(json);
 
-        res.body().concat2()
-    });
+        let post = client.request(req).and_then(|res| {
+            println!("{}", res.status());
+            res.body().concat2()
+        });
 
-    match core.run(post) {
-        Ok(_) => {},
-        Err(_) => println!("Could not reach host"),
-    };
+        match core.run(post) {
+            Ok(_) => {}
+            Err(_) => println!("Error during registration."),
+        };
+    }
 }

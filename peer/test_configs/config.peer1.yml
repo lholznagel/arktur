@@ -9,6 +9,7 @@ database:
   password: "peer1"
 
 info: 
+  address: "localhost"
   name: "Peer 1"
 
 peers:
