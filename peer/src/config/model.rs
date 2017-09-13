@@ -14,6 +14,7 @@ pub struct Config {
 #[derive(Debug, Deserialize)]
 pub struct Info {
     pub name: String,
+    pub address: String,
 }
 
 #[derive(Debug, Deserialize)]
