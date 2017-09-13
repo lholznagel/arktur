@@ -1,10 +1,11 @@
+use config::Config;
 use futures::{Future, Stream};
-use hyper::{Client, Method, Request};
 use hyper::header::{ContentLength, ContentType};
+use hyper::{Client, Method, Request};
+use peer::{Message, Messagable, Register};
+use time::get_time;
 use tokio_core::reactor::Core;
 use uuid::Uuid;
-use config::Config;
-use peer::{Message, Messagable, Register};
 
 pub fn register_at_peers(config: &Config) {
     let mut core = Core::new().unwrap();
@@ -27,9 +28,10 @@ pub fn register_at_peers(config: &Config) {
                 address: config.info.address.clone(),
                 port: config.port as i32,
                 peer_id: peer_id,
+                notify_on_change: true
             },
             id: message_id,
-            timestamp: 0,
+            timestamp: get_time().sec,
             hash: String::from(""),
             is_valid_hash: false
         };
@@ -41,12 +43,11 @@ pub fn register_at_peers(config: &Config) {
         req.set_body(json);
 
         let post = client.request(req).and_then(|res| {
-            println!("{}", res.status());
             res.body().concat2()
         });
 
         match core.run(post) {
-            Ok(_) => {}
+            Ok(_) => {},
             Err(_) => println!("Error during registration."),
         };
     }
