@@ -1,4 +1,5 @@
-use peer::{Messagable, Register};
+use message::Messagable;
+use peer::Register;
 use guards::DBConnection;
 use time::get_time;
 
