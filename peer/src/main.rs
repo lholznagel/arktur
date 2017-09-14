@@ -28,8 +28,8 @@ mod blockchain;
 mod config;
 mod connections;
 mod guards;
-mod peer;
 mod message;
+mod peer;
 
 use simplelog::{Config as SConfig, TermLogger, LogLevelFilter};
 use rocket::config::{Config as RConfig, Environment};
