@@ -1,3 +1,7 @@
+## Building up a network
+
+Initialy run `make init` this will create all needed users, tables and permission in the database. After that run `make build`. This will start docker-compose and start a network of 3 peers.
+
 ## Creating a new user in the database
 
 - Login with a superadmin

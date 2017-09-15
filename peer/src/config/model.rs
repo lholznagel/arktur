@@ -34,7 +34,7 @@ pub struct Peer {
 impl Config {
     pub fn new() -> Self {
         let args: Vec<String> = env::args().collect();
-        let mut config_file_name = "config.yml";
+        let mut config_file_name = "config.peer1.yml";
 
         if args.len() > 1 && args[1] == "--config" {
             config_file_name = args[2].as_str();

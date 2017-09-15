@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  peer_1:
+    build:
+      context: .
+      dockerfile: dockerfile
+    links: 
+      - db
+    environment:
+      - CONFIG_FILE=./config.peer1.yml
+    networks:
+      - network_1
+    ports:
+      - 8001:8001
+
+  peer_2:
+    build:
+      context: .
+      dockerfile: dockerfile
+    links: 
+      - db
+    environment:
+      - CONFIG_FILE=./config.peer2.yml
+    networks:
+      - network_1
+    ports:
+      - 8002:8002
+
+  peer_3:
+    build:
+      context: .
+      dockerfile: dockerfile
+    links: 
+      - db
+    environment:
+      - CONFIG_FILE=./config.peer3.yml
+    networks:
+      - network_1
+    ports:
+      - 8003:8003      
+
+  db:
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+    networks:
+      - network_1
+
+networks:
+  network_1: 
+    driver: bridge

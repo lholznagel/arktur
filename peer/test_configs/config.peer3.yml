@@ -3,17 +3,17 @@
 port: 8003
 
 database:
-  address: "localhost"
+  address: "db"
   port: 5432
   user: "peer3"
   password: "peer3"
 
 info: 
-  address: "localhost"
+  address: "peer_3"
   name: "Peer 3"
 
 peers:
-  - address: "localhost"
+  - address: "peer_1"
     port: 8001
-  - address: "localhost"
+  - address: "peer_2"
     port: 8002
