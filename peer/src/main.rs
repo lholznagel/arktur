@@ -38,16 +38,17 @@ use config::Config;
 fn main() {
     let config = config::Config::new();
 
-    prepare_logger();
+    //prepare_logger();
     message::register_at_peers(&config);
 
     rocket(&config).launch();
 
-    info!("Peer ready.");
+    println!("Peer ready.");
 }
 
 fn rocket(config: &Config) -> rocket::Rocket {
     let rocket_config = RConfig::build(Environment::Development)
+        .address("0.0.0.0")
         .port(config.port)
         .finalize()
         .unwrap();
