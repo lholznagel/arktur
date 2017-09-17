@@ -27,7 +27,7 @@ pub fn get_all_peers(db: &DBConnection) -> String {
             notify_on_change: row.get(4),
         };
 
-        result.push_str(register.as_json().as_str().unwrap());
+        result.push_str(register.as_json().to_string().as_str());
         is_first = false;
     }
 
