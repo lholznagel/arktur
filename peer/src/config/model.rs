@@ -3,7 +3,7 @@ use std::env;
 use std::fs::File;
 use std::io::Read;
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Config {
     pub port: u16,
     pub database: Database,
@@ -11,13 +11,13 @@ pub struct Config {
     pub peers: Vec<Peer>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Info {
     pub name: String,
     pub address: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Database {
     pub address: String,
     pub password: String,
@@ -25,7 +25,7 @@ pub struct Database {
     pub user: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Peer {
     pub address: String,
     pub port: u16,

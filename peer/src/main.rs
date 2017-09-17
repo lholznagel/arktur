@@ -35,18 +35,24 @@ use simplelog::{Config as SConfig, TermLogger, LogLevelFilter};
 use rocket::config::{Config as RConfig, Environment};
 use config::Config;
 
+use std::thread;
+
 fn main() {
     let config = config::Config::new();
+    let rocket_config = config.clone();
 
     //prepare_logger();
+    // set rocket into background so that we can register the peer
+    let rocket = thread::spawn(move || rocket(rocket_config).launch());
     message::register_at_peers(&config);
 
-    rocket(&config).launch();
+    // get rocket back into the foreground
+    rocket.join().unwrap();
 
     println!("Peer ready.");
 }
 
-fn rocket(config: &Config) -> rocket::Rocket {
+fn rocket(config: Config) -> rocket::Rocket {
     let rocket_config = RConfig::build(Environment::Development)
         .address("0.0.0.0")
         .port(config.port)
