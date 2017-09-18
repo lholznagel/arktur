@@ -12,5 +12,8 @@ pub fn init(config: &Database) -> Pool {
         PostgresConnectionManager::new(connection_string, TlsMode::None)
             .unwrap();
 
-    r2d2::Pool::new(config_r2d2, manager).unwrap()
+    let pool = r2d2::Pool::new(config_r2d2, manager).unwrap();
+    pool.get().unwrap().execute("DELETE FROM peers;", &[]).unwrap();
+
+    pool
 }

@@ -55,5 +55,5 @@ for i in "${USERS[@]}"; do
       notify_on_change  BOOLEAN DEFAULT false     NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "GRANT SELECT, UPDATE, INSERT ON peers, block, blockchain TO $i;" -U postgres $i
+    docker-compose exec db psql -c "GRANT SELECT, UPDATE, INSERT, DELETE ON peers, block, blockchain TO $i;" -U postgres $i
 done
