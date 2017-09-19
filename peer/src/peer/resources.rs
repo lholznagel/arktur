@@ -35,7 +35,7 @@ pub fn register(
     let message = message.0.validate_hash();
 
     if message.is_valid_hash {
-        PeerService::save_peer(&db, &message.content);
+        PeerService::save_peer(&db, &message);
         status::Custom(Status::Ok, "")
     } else {
         info!("Bad hash!");
