@@ -1,6 +1,6 @@
 #!/bin/bash
 
-USERS=('peer1' 'peer2' 'peer3')
+USERS=('peer1' 'peer2' 'peer3' 'peer1_1')
 
 for i in "${USERS[@]}"; do
     docker-compose exec db psql -c "CREATE USER $i PASSWORD '$i';" -U postgres
@@ -55,5 +55,10 @@ for i in "${USERS[@]}"; do
       notify_on_change  BOOLEAN DEFAULT false     NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "GRANT SELECT, UPDATE, INSERT, DELETE ON peers, block, blockchain TO $i;" -U postgres $i
+    docker-compose exec db psql -c "CREATE TABLE IF NOT EXISTS messages (
+      hash              VARCHAR(64)               NOT NULL,
+      id                UUID                      NOT NULL
+    );" -U postgres $i
+
+    docker-compose exec db psql -c "GRANT SELECT, UPDATE, INSERT, DELETE ON peers, block, blockchain, messages TO $i;" -U postgres $i
 done

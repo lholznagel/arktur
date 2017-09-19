@@ -28,7 +28,7 @@ pub struct Database {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Peer {
     pub address: String,
-    pub port: u16,
+    pub port: i32,
 }
 
 impl Config {
