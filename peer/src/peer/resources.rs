@@ -1,9 +1,9 @@
 use message::Message;
 use peer::{service as PeerService, Register};
-use guards::DBConnection;
-use rocket::http::Status;
-use rocket::response::status;
-use rocket_contrib::Json;
+//use guards::DBConnection;
+//use rocket::http::Status;
+//use rocket::response::status;
+//use rocket_contrib::Json;
 
 use rocket::response::content;
 
@@ -31,14 +31,14 @@ pub fn list(db: DBConnection) -> status::Custom<content::Json<String>> {
 pub fn register(
     db: DBConnection,
     message: Json<Message<Register>>,
-) -> status::Custom<&'static str> {
+) -> String {
     let message = message.0.validate_hash();
 
     if message.is_valid_hash {
         PeerService::save_peer(&db, &message);
-        status::Custom(Status::Ok, "")
+        String:.from("")
     } else {
-        info!("Bad hash!");
-        status::Custom(Status::BadRequest, "")
+        println!("Bad hash!");
+        String::from("Bad hash")
     }
 }

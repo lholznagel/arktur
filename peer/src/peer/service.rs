@@ -1,14 +1,15 @@
 use message::{Message, Messagable, notify_new_peer};
 use peer::Register;
-use guards::DBConnection;
+//use guards::DBConnection;
 use time::get_time;
+use connections::postgres::Pool;
 use uuid::Uuid;
 
-pub fn get_all_peers(db: &DBConnection) -> String {
+pub fn get_all_peers(pool: &Pool) -> String {
     let mut is_first: bool = true;
     let mut result: String = String::from("[");
 
-    for row in &db.0
+    for row in &pool.get().unwrap()
         .query(
             "SELECT address, name, port, peer_id, notify_on_change
             FROM peers",
@@ -36,11 +37,11 @@ pub fn get_all_peers(db: &DBConnection) -> String {
     result
 }
 
-pub fn save_peer(db: &DBConnection, message: &Message<Register>) {
-    if !is_message_known(&db, &message) {
+pub fn save_peer(pool: &Pool, message: &Message<Register>) {
+    if !is_message_known(&pool, &message) {
 
-        if !is_peer_known(&db, &message) {
-        db.0
+        if !is_peer_known(&pool, &message) {
+        pool.get().unwrap()
             .execute(
                 "
                     INSERT INTO peers
@@ -60,7 +61,7 @@ pub fn save_peer(db: &DBConnection, message: &Message<Register>) {
             .unwrap();
         }
 
-        db.0
+        pool.get().unwrap()
             .execute(
                 "
                     INSERT INTO messages
@@ -71,12 +72,12 @@ pub fn save_peer(db: &DBConnection, message: &Message<Register>) {
                 &[&message.id, &message.hash],
             )
             .unwrap();
-        notify_new_peer(&db, &message);
+        notify_new_peer(&pool, &message);
     }
 }
 
-fn is_message_known(db: &DBConnection, message: &Message<Register>) -> bool {
-    let result = &db.0
+fn is_message_known(pool: &Pool, message: &Message<Register>) -> bool {
+    let result = &pool.get().unwrap()
         .query(
             "SELECT id FROM messages WHERE id = $1 AND hash = $2;",
             &[&message.id, &message.hash],
@@ -87,8 +88,8 @@ fn is_message_known(db: &DBConnection, message: &Message<Register>) -> bool {
     return if result >= &1 { true } else { false };
 }
 
-fn is_peer_known(db: &DBConnection, message: &Message<Register>) -> bool {
-    let result = &db.0
+fn is_peer_known(pool: &Pool, message: &Message<Register>) -> bool {
+    let result = &pool.get().unwrap()
         .query(
             "SELECT peer_id FROM peers WHERE peer_id = $1;",
             &[&message.content.peer_id],

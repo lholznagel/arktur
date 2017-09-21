@@ -10,3 +10,7 @@ init:
 	docker-compose up -d
 	./scripts/init_database.sh
 	docker-compose stop
+
+release:
+	cargo build --release
+	strip ./target/release/blockchain_peer
