@@ -1,8 +1,8 @@
 use message::Messagable;
 use uuid::Uuid;
-use rocket_contrib::Value;
+use serde_json::Value;
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Register {
     pub address: String,
     pub name: String,

@@ -1,6 +1,6 @@
 use config::Config;
 use futures::{Future, Stream};
-use guards::DBConnection;
+//use guards::DBConnection;
 use hyper::header::{ContentLength, ContentType};
 use hyper::{Client, Method, Request, Uri};
 use message::{Messagable, Message};
@@ -9,17 +9,18 @@ use std::{thread, time};
 use time::get_time;
 use tokio_core::reactor::Core;
 use uuid::Uuid;
+use connections::Pool;
 
 struct PeerToNotify {
     address: String,
     port: i32,
 }
 
-pub fn notify_new_peer(db: &DBConnection, message: &Message<Register>) {
+pub fn notify_new_peer(pool: &Pool, message: &Message<Register>) {
     let mut core = Core::new().unwrap();
     let client = Client::new(&core.handle());
 
-    for row in &db.0
+    for row in &pool.get().unwrap()
         .query(
             "SELECT address, port FROM peers WHERE notify_on_change = true",
             &[],

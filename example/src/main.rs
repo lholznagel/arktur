@@ -17,7 +17,7 @@ fn main() {
     let second = Block::new(String::from("Even more conent"), first.hash.clone());
     let third = Block::new(String::from("Nothing"), second.hash.clone());
 
-    let blockchain = Blockchain::new(String::from("abcd"))
+    let blockchain = Blockchain::new(String::from("abcdef"))
         .add_block(first)
         .add_block(second)
         .add_block(third);

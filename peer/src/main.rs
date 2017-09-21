@@ -1,58 +1,49 @@
-#![feature(plugin)]
-#![plugin(rocket_codegen)]
-
 extern crate crypto;
+extern crate futures;
+extern crate hyper;
 extern crate r2d2;
 extern crate r2d2_postgres;
-extern crate rocket;
 extern crate serde_yaml;
-extern crate simplelog;
 extern crate time;
+extern crate tokio_core;
 extern crate uuid;
-
-#[macro_use]
-extern crate log;
 
 #[macro_use]
 extern crate serde_derive;
 
 #[macro_use]
-extern crate rocket_contrib;
+extern crate serde_json;
 
-extern crate futures;
-extern crate hyper;
-extern crate tokio_core;
-
-mod block;
-mod blockchain;
+//mod guards;
 mod config;
 mod connections;
-mod guards;
 mod message;
 mod peer;
+mod server;
 
-use simplelog::{Config as SConfig, TermLogger, LogLevelFilter};
-use rocket::config::{Config as RConfig, Environment};
+//use rocket::config::{Config as RConfig, Environment};
 use config::Config;
-
-use std::thread;
+use connections::Pool;
+use hyper::server::Http;
+use server::PeerService;
 
 fn main() {
     let config = config::Config::new();
-    let rocket_config = config.clone();
+    //let rocket_config = config.clone();
 
-    //prepare_logger();
+    let postgres = connections::postgres::init(&config.database);
+    start_server(postgres);
     // set rocket into background so that we can register the peer
-    let rocket = thread::spawn(move || rocket(rocket_config).launch());
+    //let rocket = thread::spawn(move || rocket(rocket_config).launch());
     message::register_at_peers(&config);
 
     // get rocket back into the foreground
-    rocket.join().unwrap();
+    //rocket.join().unwrap();
 
     println!("Peer ready.");
 }
 
-fn rocket(config: Config) -> rocket::Rocket {
+/*fn rocket(config: Config) -> rocket::Rocket {
     let rocket_config = RConfig::build(Environment::Development)
         .address("0.0.0.0")
         .port(config.port)
@@ -73,9 +64,15 @@ fn rocket(config: Config) -> rocket::Rocket {
             "/api/peer",
             routes![peer::resources::list, peer::resources::register],
         )
-}
+}*/
 
-fn prepare_logger() {
-    TermLogger::init(LogLevelFilter::Info, SConfig::default())
-        .expect("Could not initialize logger");
+fn start_server(postgres: Pool) {
+    let config = config::Config::new();
+
+    let mut url = String::from("0.0.0.0:");
+    url.push_str(config.port.to_string().as_str());
+
+    let address = url.parse().unwrap();
+    let server = Http::new().bind(&address, move || Ok(PeerService::new(postgres.clone()))).unwrap();
+    server.run().unwrap();
 }

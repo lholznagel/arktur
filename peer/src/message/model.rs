@@ -1,7 +1,7 @@
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use uuid::Uuid;
-use rocket_contrib::Value;
+use serde_json::Value;
 
 pub trait Messagable {
     fn as_json(&self) -> Value;
