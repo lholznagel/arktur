@@ -1,11 +1,12 @@
 use connections::Pool;
-use hyper::{Error, Get, Post, StatusCode};
+use hyper::{Chunk, Error, Get, Post, StatusCode};
 use hyper::server::{Service, Request, Response};
 use futures::future::{FutureResult, ok};
 use peer::service::{get_all_peers, save_peer};
 use peer::Register;
 use message::Message;
-use serde_json::from_str;
+use serde_json::{Value, from_slice};
+use futures::{Future, Stream};
 
 pub struct PeerService {
     pool: Pool,
@@ -33,14 +34,14 @@ impl Service for PeerService {
                 )
             },
             (&Post, "/api/peer") => {
-                let body: Message<Register> = from_str(request.body());
+                let response = Response::new().with_status(StatusCode::Ok);
+                request.body().concat2().and_then(move | body: Chunk | {
+                    let value: Message<Register> = from_slice(&body).unwrap();
+                    save_peer(&self.pool, &value);
+                    Ok({})
+                });
 
-                Response::new().with_status(StatusCode::Ok).with_body(
-                    save_peer(
-                        &self.pool,
-                        body
-                    ),
-                )
+                response
             }
             _ => Response::new().with_status(StatusCode::NotFound),
         })
