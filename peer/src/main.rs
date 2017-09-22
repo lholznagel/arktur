@@ -26,21 +26,21 @@ use config::Config;
 use connections::Pool;
 use hyper::server::Http;
 use server::PeerService;
+use std::thread;
 
 fn main() {
     let config = config::Config::new();
     //let rocket_config = config.clone();
 
     let postgres = connections::postgres::init(&config.database);
-    start_server(postgres);
+    let server = thread::spawn(move || start_server(postgres));
     // set rocket into background so that we can register the peer
     //let rocket = thread::spawn(move || rocket(rocket_config).launch());
     message::register_at_peers(&config);
 
     // get rocket back into the foreground
-    //rocket.join().unwrap();
-
     println!("Peer ready.");
+    server.join().unwrap();
 }
 
 /*fn rocket(config: Config) -> rocket::Rocket {

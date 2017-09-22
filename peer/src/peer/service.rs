@@ -38,8 +38,8 @@ pub fn get_all_peers(pool: &Pool) -> String {
 }
 
 pub fn save_peer(pool: &Pool, message: &Message<Register>) {
+    println!("{:?}", message);
     if !is_message_known(&pool, &message) {
-
         if !is_peer_known(&pool, &message) {
         pool.get().unwrap()
             .execute(
