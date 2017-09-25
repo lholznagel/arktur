@@ -14,15 +14,12 @@ extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 
-//mod guards;
 mod config;
 mod connections;
 mod message;
 mod peer;
 mod server;
 
-//use rocket::config::{Config as RConfig, Environment};
-use config::Config;
 use connections::Pool;
 use hyper::server::Http;
 use server::PeerService;
@@ -30,41 +27,15 @@ use std::thread;
 
 fn main() {
     let config = config::Config::new();
-    //let rocket_config = config.clone();
 
     let postgres = connections::postgres::init(&config.database);
     let server = thread::spawn(move || start_server(postgres));
-    // set rocket into background so that we can register the peer
-    //let rocket = thread::spawn(move || rocket(rocket_config).launch());
     message::register_at_peers(&config);
 
     // get rocket back into the foreground
     println!("Peer ready.");
     server.join().unwrap();
 }
-
-/*fn rocket(config: Config) -> rocket::Rocket {
-    let rocket_config = RConfig::build(Environment::Development)
-        .address("0.0.0.0")
-        .port(config.port)
-        .finalize()
-        .unwrap();
-
-    rocket::custom(rocket_config, true)
-        .manage(connections::postgres::init(&config.database))
-        .mount("/api/block", routes![block::resources::new])
-        .mount(
-            "/api/blockchain",
-            routes![
-                blockchain::resources::new,
-                blockchain::resources::overview,
-            ],
-        )
-        .mount(
-            "/api/peer",
-            routes![peer::resources::list, peer::resources::register],
-        )
-}*/
 
 fn start_server(postgres: Pool) {
     let config = config::Config::new();
