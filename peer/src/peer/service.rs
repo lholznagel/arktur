@@ -1,9 +1,7 @@
 use message::{Message, Messagable, notify_new_peer};
 use peer::Register;
-//use guards::DBConnection;
 use time::get_time;
 use connections::postgres::Pool;
-use uuid::Uuid;
 
 pub fn get_all_peers(pool: &Pool) -> String {
     let mut is_first: bool = true;
