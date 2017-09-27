@@ -3,7 +3,7 @@ use peer::Register;
 use time::get_time;
 use connections::postgres::Pool;
 
-pub fn get_all_peers(pool: &Pool) -> String {
+pub fn get_all_peers(pool: Pool) -> String {
     let mut is_first: bool = true;
     let mut result: String = String::from("[");
 
@@ -35,7 +35,7 @@ pub fn get_all_peers(pool: &Pool) -> String {
     result
 }
 
-pub fn save_peer(pool: &Pool, message: &Message<Register>) {
+pub fn save_peer(pool: Pool, message: &Message<Register>) {
     println!("{:?}", message);
     if !is_message_known(&pool, &message) {
         if !is_peer_known(&pool, &message) {
