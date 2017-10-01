@@ -50,8 +50,8 @@ impl Service for PeerService {
                     .and_then(move |chunks| {
                         let body = String::from_utf8(chunks).unwrap();
                         let converted: Message<Register> = from_str(&body).unwrap();
+                        println!("converted: {:?}", converted);
                         save_peer(postgres, &converted);
-                        println!("{:?}", converted);
                         Ok(res.with_status(StatusCode::Ok))
                     })
                     .boxed()

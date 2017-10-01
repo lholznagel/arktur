@@ -17,6 +17,7 @@ struct PeerToNotify {
 }
 
 pub fn notify_new_peer(pool: &Pool, message: &Message<Register>) {
+    println!("notify_new_peer START");
     let mut core = Core::new().unwrap();
     let client = Client::new(&core.handle());
 
@@ -28,22 +29,30 @@ pub fn notify_new_peer(pool: &Pool, message: &Message<Register>) {
         .unwrap()
     {
         loop {
+            println!("notify_new_peer LOOP START");
             let peer = PeerToNotify {
                 address: row.get(0),
                 port: row.get(1),
             };
 
             let json = message.as_json().to_string();
+            println!("notify_new_peer JSON {:?}", json);
 
             let mut req = Request::new(Method::Post, build_peer_uri(&peer.address, &peer.port));
             req.headers_mut().set(ContentType::json());
             req.headers_mut().set(ContentLength(json.len() as u64));
             req.set_body(json);
 
-            let post = client.request(req).and_then(|res| res.body().concat2());
+            let post = client.request(req).and_then(|res| {
+                println!("notify_new_peer EXEC");
+                res.body().concat2()
+            });
 
             match core.run(post) {
-                Ok(_) => break,
+                Ok(_) => {
+                    println!("notify_new_peer MESSAGE SUCCESS");
+                    break
+                },
                 Err(error) => {
                     println!("{:?}", error);
                     // TODO problem: the peer wont answer, possible timeout
@@ -51,8 +60,11 @@ pub fn notify_new_peer(pool: &Pool, message: &Message<Register>) {
                     thread::sleep(time::Duration::from_secs(1));
                 }
             }
+
+            println!("notify_new_peer LOOP END");
         }
     }
+    println!("notify_new_peer DONE");
 }
 
 pub fn register_at_peers(config: &Config) {
