@@ -1,49 +1,43 @@
-extern crate crypto;
-extern crate futures;
-extern crate hyper;
+extern crate iron;
+extern crate mount;
+extern crate persistent;
+extern crate plugin;
+extern crate postgres;
 extern crate r2d2;
 extern crate r2d2_postgres;
-extern crate serde_yaml;
-extern crate time;
-extern crate tokio_core;
-extern crate uuid;
 
-#[macro_use]
-extern crate serde_derive;
+mod network;
+mod connection;
 
-#[macro_use]
-extern crate serde_json;
+use connection::{Database, PostgresPool};
+use iron::prelude::{Chain, Iron, Request, Response, IronResult};
+use iron::status;
+use mount::Mount;
+use network::mount::foo;
+use persistent::Read;
+use r2d2_postgres::PostgresConnectionManager;
 
-mod config;
-mod connections;
-mod message;
-mod peer;
-mod server;
-
-use connections::Pool;
-use hyper::server::Http;
-use server::PeerService;
-use std::thread;
-
-fn main() {
-    let config = config::Config::new();
-
-    let postgres = connections::postgres::init(&config.database);
-    let server = thread::spawn(move || start_server(postgres));
-    message::register_at_peers(&config);
-
-    // get rocket back into the foreground
-    println!("Peer ready.");
-    server.join().unwrap();
+fn setup_connection_pool() -> PostgresPool {
+    let manager = PostgresConnectionManager::new(
+        "postgres://peer01:peer01@postgres:5432",
+        ::r2d2_postgres::TlsMode::None,
+    ).unwrap();
+    let config = ::r2d2::Config::builder().pool_size(6).build();
+    ::r2d2::Pool::new(config, manager).unwrap()
 }
 
-fn start_server(postgres: Pool) {
-    let config = config::Config::new();
+fn main() {
+    let pool = setup_connection_pool();
 
-    let mut url = String::from("0.0.0.0:");
-    url.push_str(config.port.to_string().as_str());
+    let mut mount = Mount::new();
+    mount.mount("/foo", foo).mount("bar", bar);
 
-    let address = url.parse().unwrap();
-    let server = Http::new().bind(&address, move || Ok(PeerService::new(postgres.clone()))).unwrap();
-    server.run().unwrap();
+    let mut chain = Chain::new(mount);
+    chain.link(Read::<Database>::both(pool));
+
+    Iron::new(chain).http("0.0.0.0:8000").unwrap();
+}
+
+fn bar(req: &mut Request) -> IronResult<Response> {
+    Ok(Response::with((status::Ok, "Hello bar")))
 }

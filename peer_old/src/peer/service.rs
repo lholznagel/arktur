@@ -7,7 +7,8 @@ pub fn get_all_peers(pool: Pool) -> String {
     let mut is_first: bool = true;
     let mut result: String = String::from("[");
 
-    for row in &pool.get().unwrap()
+    for row in &pool.get()
+        .unwrap()
         .query(
             "SELECT address, name, port, peer_id, notify_on_change
             FROM peers",
@@ -36,30 +37,34 @@ pub fn get_all_peers(pool: Pool) -> String {
 }
 
 pub fn save_peer(pool: Pool, message: &Message<Register>) {
-    println!("{:?}", message);
+    println!("save_peer START");
     if !is_message_known(&pool, &message) {
+        println!("save_peer MESSAGE_NOT_KNOWN");
         if !is_peer_known(&pool, &message) {
-        pool.get().unwrap()
-            .execute(
-                "
-                    INSERT INTO peers
-                    (address, name, port, peer_id, notify_on_change, registered_at, last_seen)
-                    VALUES
-                    ($1, $2, $3, $4, $5, $6, $6)
-                ",
-                &[
-                    &message.content.address,
-                    &message.content.name,
-                    &message.content.port,
-                    &message.content.peer_id,
-                    &message.content.notify_on_change,
-                    &get_time().sec,
-                ],
-            )
-            .unwrap();
+            println!("save_peer PEER_NOT_KNOWN");
+            pool.get()
+                .unwrap()
+                .execute(
+                    "
+                        INSERT INTO peers
+                        (address, name, port, peer_id, notify_on_change, registered_at, last_seen)
+                        VALUES
+                        ($1, $2, $3, $4, $5, $6, $6)
+                    ",
+                    &[
+                        &message.content.address,
+                        &message.content.name,
+                        &message.content.port,
+                        &message.content.peer_id,
+                        &message.content.notify_on_change,
+                        &get_time().sec,
+                    ],
+                )
+                .unwrap();
         }
 
-        pool.get().unwrap()
+        pool.get()
+            .unwrap()
             .execute(
                 "
                     INSERT INTO messages
@@ -72,10 +77,12 @@ pub fn save_peer(pool: Pool, message: &Message<Register>) {
             .unwrap();
         notify_new_peer(&pool, &message);
     }
+    println!("save_peer DONE");
 }
 
 fn is_message_known(pool: &Pool, message: &Message<Register>) -> bool {
-    let result = &pool.get().unwrap()
+    let result = &pool.get()
+        .unwrap()
         .query(
             "SELECT id FROM messages WHERE id = $1 AND hash = $2;",
             &[&message.id, &message.hash],
@@ -87,7 +94,8 @@ fn is_message_known(pool: &Pool, message: &Message<Register>) -> bool {
 }
 
 fn is_peer_known(pool: &Pool, message: &Message<Register>) -> bool {
-    let result = &pool.get().unwrap()
+    let result = &pool.get()
+        .unwrap()
         .query(
             "SELECT peer_id FROM peers WHERE peer_id = $1;",
             &[&message.content.peer_id],
