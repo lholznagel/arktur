@@ -3,13 +3,13 @@
 USERS=('peer1' 'peer2' 'peer3' 'peer1_1')
 
 for i in "${USERS[@]}"; do
-    docker-compose exec db psql -c "CREATE USER $i PASSWORD '$i';" -U postgres
+    docker-compose exec postgres psql -c "CREATE USER $i PASSWORD '$i';" -U postgres
 
-    docker-compose exec db psql -c "CREATE DATABASE $i;" -U postgres
+    docker-compose exec postgres psql -c "CREATE DATABASE $i;" -U postgres
 
-    docker-compose exec db psql -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;" -U postgres $i
+    docker-compose exec postgres psql -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;" -U postgres $i
 
-    docker-compose exec db psql -c "CREATE TABLE IF NOT EXISTS block (
+    docker-compose exec postgres psql -c "CREATE TABLE IF NOT EXISTS block (
       -- blockchain the block belongs
       blockchain  UUID          NOT NULL,
       -- index of the block
@@ -26,7 +26,7 @@ for i in "${USERS[@]}"; do
       hash        VARCHAR(64)   NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "CREATE TABLE IF NOT EXISTS blockchain (
+    docker-compose exec postgres psql -c "CREATE TABLE IF NOT EXISTS blockchain (
       -- id of the blockchain
       id    UUID        PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
       -- name of the chain
@@ -37,7 +37,7 @@ for i in "${USERS[@]}"; do
       signkey  VARCHAR(8)                                     NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "CREATE TABLE IF NOT EXISTS peers (
+    docker-compose exec postgres psql -c "CREATE TABLE IF NOT EXISTS peers (
       -- address of the peer (TODO check the max size for the string)
       address           VARCHAR(26)               NOT NULL,
       -- name of the peer
@@ -55,10 +55,10 @@ for i in "${USERS[@]}"; do
       notify_on_change  BOOLEAN DEFAULT false     NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "CREATE TABLE IF NOT EXISTS messages (
+    docker-compose exec postgres psql -c "CREATE TABLE IF NOT EXISTS messages (
       hash              VARCHAR(64)               NOT NULL,
       id                UUID                      NOT NULL
     );" -U postgres $i
 
-    docker-compose exec db psql -c "GRANT SELECT, UPDATE, INSERT, DELETE ON peers, block, blockchain, messages TO $i;" -U postgres $i
+    docker-compose exec postgres psql -c "GRANT SELECT, UPDATE, INSERT, DELETE ON peers, block, blockchain, messages TO $i;" -U postgres $i
 done

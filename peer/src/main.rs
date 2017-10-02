@@ -19,7 +19,7 @@ use r2d2_postgres::PostgresConnectionManager;
 
 fn setup_connection_pool() -> PostgresPool {
     let manager = PostgresConnectionManager::new(
-        "postgres://peer01:peer01@postgres:5432",
+        "postgres://peer1:peer1@postgres:5432",
         ::r2d2_postgres::TlsMode::None,
     ).unwrap();
     let config = ::r2d2::Config::builder().pool_size(6).build();
@@ -35,7 +35,7 @@ fn main() {
     let mut chain = Chain::new(mount);
     chain.link(Read::<Database>::both(pool));
 
-    Iron::new(chain).http("0.0.0.0:8000").unwrap();
+    Iron::new(chain).http("peer_1:8001").unwrap();
 }
 
 fn bar(req: &mut Request) -> IronResult<Response> {

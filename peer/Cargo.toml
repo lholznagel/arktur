@@ -1,5 +1,5 @@
 [package]
-name = "peer"
+name = "blockchain_peer"
 version = "0.1.0"
 authors = ["lholznagel"]
 
