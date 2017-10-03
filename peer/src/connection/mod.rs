@@ -1,3 +1,3 @@
 mod postgres;
 
-pub use self::postgres::{Database, PostgresPool};
+pub use self::postgres::{init_database, Database, PostgresPool};
