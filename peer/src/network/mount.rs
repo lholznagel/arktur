@@ -4,7 +4,7 @@ use persistent::Read;
 use plugin::Pluggable;
 use connection::Database;
 
-pub fn foo() -> IronResult<Response> {
+pub fn foo(req: &mut Request) -> IronResult<Response> {
     let pool = req.get::<Read<Database>>().unwrap();
     pool.get().unwrap().query("SELECT * FROM peers", &[]).unwrap();
     Ok(Response::with((status::Ok, "Hello foo")))
