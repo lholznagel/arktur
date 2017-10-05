@@ -1,9 +1,10 @@
 use config::Database as DatabaseConfig;
 use iron::typemap::Key;
-use r2d2::{Config, Pool};
+use r2d2::{Config, Pool, PooledConnection};
 use r2d2_postgres::{PostgresConnectionManager, TlsMode};
 
 pub type PostgresPool = Pool<PostgresConnectionManager>;
+pub type PostgresPooledConnection = PooledConnection<PostgresConnectionManager>;
 
 pub struct Database;
 

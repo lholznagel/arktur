@@ -3,11 +3,11 @@
 port: 8001
 
 database:
-  address: "db"
+  address: "localhost"
   port: 5432
-  user: "peer1"
-  password: "peer1"
+  user: "postgres"
+  password: "password"
 
 info: 
-  address: "peer_1"
+  address: "localhost"
   name: "Peer 1"
