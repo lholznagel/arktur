@@ -1,11 +1,17 @@
+use connection::Database;
 use iron::prelude::{Request, Response, IronResult};
 use iron::status;
+use network::NetworkService;
 use persistent::Read;
 use plugin::Pluggable;
-use connection::Database;
+use serde_json::to_string;
 
-pub fn foo(req: &mut Request) -> IronResult<Response> {
+pub fn get_peers(req: &mut Request) -> IronResult<Response> {
     let pool = req.get::<Read<Database>>().unwrap();
-    pool.get().unwrap().query("SELECT * FROM peers", &[]).unwrap();
-    Ok(Response::with((status::Ok, "Hello foo")))
+    let service = NetworkService::new(pool.get().unwrap());
+    Ok(Response::with((status::Ok, to_string(&service.get_peers()).unwrap())))
+}
+
+pub fn register_peer(req: &mut Request) -> IronResult<Response> {
+     Ok(Response::with((status::Ok, "Ok")))
 }
