@@ -1,6 +1,7 @@
+use config::Database as DatabaseConfig;
 use iron::typemap::Key;
 use r2d2::{Config, Pool};
-use r2d2_postgres::{PostgresConnectionManager};
+use r2d2_postgres::{PostgresConnectionManager, TlsMode};
 
 pub type PostgresPool = Pool<PostgresConnectionManager>;
 
@@ -10,10 +11,10 @@ impl Key for Database {
     type Value = PostgresPool;
 }
 
-pub fn init_database() -> PostgresPool {
+pub fn init_database(config: &DatabaseConfig) -> PostgresPool {
     let manager = PostgresConnectionManager::new(
-        "postgres://peer1:peer1@postgres:5432",
-        ::r2d2_postgres::TlsMode::None,
+        format!("postgres://{}:{}@{}:{}", config.user, config.password, config.address, config.port),
+        TlsMode::None,
     ).unwrap();
 
     let config = Config::builder().pool_size(6).build();
