@@ -17,7 +17,7 @@ mod network;
 use config::Config;
 use connection::{init_database, Database};
 use iron::prelude::{Chain, Iron};
-use network::mount::{get_peers, register_peer};
+use network::mount::{get_network, register_node};
 use persistent::Read;
 use router::Router;
 
@@ -27,8 +27,8 @@ fn main() {
     let pool = init_database(&config.database);
 
     let mut router = Router::new();
-    router.get("/peers", get_peers, "")
-        .post("/peers", register_peer, "");
+    router.get("/network", get_network, "get_network")
+        .post("/network/node", register_node, "post_network");
 
     let mut chain = Chain::new(router);
     chain.link(Read::<Database>::both(pool));
