@@ -1,4 +1,4 @@
 #[derive(Serialize, Deserialize)]
-pub struct Peer {
+pub struct Node {
     pub name: String
 }
