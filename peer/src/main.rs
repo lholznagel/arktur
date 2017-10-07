@@ -1,11 +1,12 @@
 extern crate iron;
-extern crate router;
 extern crate persistent;
 extern crate plugin;
 extern crate r2d2;
 extern crate r2d2_postgres;
+extern crate router;
 extern crate serde_json;
 extern crate serde_yaml;
+extern crate uuid;
 
 #[macro_use]
 extern crate serde_derive;

@@ -28,6 +28,6 @@ RUN mkdir -p /rust/app
 WORKDIR /rust/app
 
 COPY ./target/debug/blockchain_peer /rust/app
-COPY ./peer/test_configs /rust/app
+COPY ./peer/config.yml /rust/app
 
 CMD ./blockchain_peer --config $CONFIG_FILE

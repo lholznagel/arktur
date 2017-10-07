@@ -5,9 +5,9 @@ port: 8001
 database:
   address: "localhost"
   port: 5432
-  user: "postgres"
-  password: "password"
+  user: "node_1"
+  password: "node_1"
 
 info: 
   address: "localhost"
-  name: "Peer 1"
+  name: "Node 1"
