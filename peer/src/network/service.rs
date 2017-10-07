@@ -15,9 +15,11 @@ impl NetworkService {
     pub fn get_nodes(self) -> Vec<Node> {
         let mut nodes = Vec::new();
 
-        for row in &self.connection.query("SELECT name FROM nodes", &[]).unwrap() {
+        for row in &self.connection.query("SELECT name, node_id, registered_at FROM nodes", &[]).unwrap() {
             let node = Node {
-                name: row.get(0)
+                name: row.get(0),
+                node_id: row.get(1),
+                registered_at: row.get(2)
             };
 
             nodes.push(node);

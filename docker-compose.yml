@@ -1,13 +1,13 @@
 version: '3'
 services:
-  peer_1:
+  node_1:
     build:
       context: .
       dockerfile: dockerfile
     links:
       - postgres
     environment:
-      - CONFIG_FILE=./config.peer1.yml
+      - CONFIG_FILE=./config.yml
     networks:
       - network_1
     ports:
