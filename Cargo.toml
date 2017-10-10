@@ -2,5 +2,6 @@
 members = [
   "example/",
   "peer",
-  "network"
+  "network",
+  "network-cli"
 ]

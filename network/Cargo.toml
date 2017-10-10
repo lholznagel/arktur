@@ -1,6 +1,6 @@
 [package]
 authors = ["lholznagel"]
-name = "lib_blockchain_network"
+name = "blockchain_network"
 version = "0.1.0"
 
 [dependencies]
