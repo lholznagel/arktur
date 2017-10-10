@@ -1,0 +1,7 @@
+[package]
+authors = ["lholznagel"]
+name = "blockchain_network_cli"
+version = "0.1.0"
+
+[dependencies]
+blockchain_network = { version = "0.1.0",  path = "../network/" }
