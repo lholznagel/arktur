@@ -1,7 +1,6 @@
 [workspace]
 members = [
   "example/",
-  "peer",
   "network",
   "network-cli"
 ]

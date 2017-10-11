@@ -25,4 +25,9 @@ impl NetworkConnect {
     pub fn port(&self) -> u16 {
         self.port
     }
+
+    pub fn set_port(mut self, port: u16) -> Self {
+        self.port = port;
+        self
+    }
 }

@@ -1,6 +1,0 @@
-*/target/
-**/*.rs.bk
-example/
-docs
-target/*
-!target/debug/blockchain_peer
