@@ -1,12 +1,12 @@
 extern crate blockchain_network;
 
-use blockchain_network::NetworkConnect;
+use blockchain_network::UdpClient;
 use std::net::UdpSocket;
 use std::str;
 use std::thread;
 
 fn main() {
-    let network = NetworkConnect::new();
+    let network = UdpClient::new();
     let udp = network.start();
     println!("Running on port {:?}", udp.local_addr().unwrap().port());
 
