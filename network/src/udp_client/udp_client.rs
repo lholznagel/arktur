@@ -79,4 +79,23 @@ impl UdpClient {
     pub fn ip(self) -> IpAddr {
         self.udp.local_addr().unwrap().ip()
     }
+
+    /// Listens to new UDP packages
+    ///
+    /// When a new command is identified the given callback is called
+    ///
+    /// This function is blocking!
+    pub fn listen(self) {
+        println!("starting listener");
+        loop {
+            let mut buffer = [0; 4096];
+
+            match self.udp.recv_from(&mut buffer) {
+                Ok((_, src)) => {
+                    // todo do somethinf
+                },
+                Err(e) => println!("Error: {:?}", e)
+            }
+        }
+    }
 }
