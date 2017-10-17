@@ -8,6 +8,8 @@ pub struct UdpClientBuilder {
     ip: IpAddr,
     /// Port the client listens to
     port: u16,
+    /// handler for register requests
+    register_handler: fn(String)
 }
 
 impl UdpClientBuilder {
@@ -26,9 +28,12 @@ impl UdpClientBuilder {
     ///
     /// Updated instance of the `UdpClientBuilder`
     pub fn new() -> Self {
+        fn empty(value: String) {}
+
         UdpClientBuilder {
             ip: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
             port: 0,
+            register_handler: empty
         }
     }
 
@@ -55,7 +60,7 @@ impl UdpClientBuilder {
         let socket = SocketAddr::new(self.ip, self.port);
         let socket = UdpSocket::bind(socket).unwrap();
 
-        UdpClient::new(socket)
+        UdpClient::new(socket, self.register_handler)
     }
 
     /// Sets the port for udp
@@ -158,6 +163,31 @@ impl UdpClientBuilder {
     /// ```
     pub fn set_ipv6(self, ip: Ipv6Addr) -> Self {
         self.set_ip(IpAddr::V6(ip))
+    }
+
+    /// Sets a function to call it when a register request is made
+    ///
+    /// # Parameters
+    ///
+    /// `functon` - function that should be called
+    ///
+    /// # Returns
+    ///
+    /// Updated version of the struct itself
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::udp_client::UdpClientBuilder;
+    /// 
+    /// fn call_me_maybe(value: String) { }
+    ///
+    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = udp_client_builder.set_register_handler(call_me_maybe);
+    /// ```
+    pub fn set_register_handler(mut self, function: fn(String)) -> Self {
+        self.register_handler = function;
+        self
     }
 }
 
