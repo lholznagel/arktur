@@ -169,7 +169,7 @@ impl UdpClientBuilder {
     ///
     /// # Parameters
     ///
-    /// `functon` - function that should be called
+    /// `function` - function that should be called
     ///
     /// # Returns
     ///
