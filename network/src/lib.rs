@@ -2,5 +2,7 @@
 
 //! Starting point for blockchain_network
 
-/// UdpClient
+/// Handles UDP
 pub mod udp_client;
+/// Handles everything for commands
+pub mod commands;
