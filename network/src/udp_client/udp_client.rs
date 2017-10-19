@@ -1,4 +1,4 @@
-use commands::CommandHandler;
+use event::EventHandler;
 use std::net::{IpAddr, UdpSocket};
 use std::str;
 
@@ -6,8 +6,8 @@ use std::str;
 pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
-    /// Handler for the register command
-    handlers: CommandHandler
+    /// Handler for the register events
+    handlers: EventHandler
 }
 
 impl UdpClient {
@@ -16,7 +16,7 @@ impl UdpClient {
     /// # Returns
     ///
     /// New instance of `UdpClient`
-    pub fn new(udp: UdpSocket, handlers: CommandHandler) -> Self {
+    pub fn new(udp: UdpSocket, handlers: EventHandler) -> Self {
         UdpClient {
             udp: udp,
             handlers: handlers
@@ -33,9 +33,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
-    /// use blockchain_network::commands::CommandHandler;
+    /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
+    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// let data = [0; 10];
@@ -56,9 +56,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
-    /// use blockchain_network::commands::CommandHandler;
+    /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
+    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// println!("Port: {:?}", udp_client.port());
@@ -77,9 +77,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
-    /// use blockchain_network::commands::CommandHandler;
+    /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
+    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// println!("IP-Address: {:?}", udp_client.ip());
@@ -90,7 +90,7 @@ impl UdpClient {
 
     /// Listens to new UDP packages
     ///
-    /// When a new command is identified the given callback is called
+    /// When a new event is identified the given callback is called
     ///
     /// This function is blocking!
     pub fn listen(self) {
