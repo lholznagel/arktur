@@ -1,3 +1,4 @@
+use commands::CommandHandler;
 use std::net::{IpAddr, UdpSocket};
 use std::str;
 
@@ -6,7 +7,7 @@ pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
     /// Handler for the register command
-    register_handler: fn(String)
+    handlers: CommandHandler
 }
 
 impl UdpClient {
@@ -15,10 +16,10 @@ impl UdpClient {
     /// # Returns
     ///
     /// New instance of `UdpClient`
-    pub fn new(udp: UdpSocket, register_handler: fn(String)) -> Self {
+    pub fn new(udp: UdpSocket, handlers: CommandHandler) -> Self {
         UdpClient {
             udp: udp,
-            register_handler: register_handler
+            handlers: handlers
         }
     }
 
@@ -32,8 +33,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::commands::CommandHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// let data = [0; 10];
@@ -54,8 +56,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::commands::CommandHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// println!("Port: {:?}", udp_client.port());
@@ -74,8 +77,9 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::commands::CommandHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// println!("IP-Address: {:?}", udp_client.ip());
@@ -95,7 +99,7 @@ impl UdpClient {
             let mut buffer = [0; 4096];
 
             match self.udp.recv_from(&mut buffer) {
-                Ok((_, src)) => (self.register_handler)(String::from(str::from_utf8(&buffer).unwrap_or(""))),
+                Ok((_, src)) => (self.handlers.register_handler)(String::from(str::from_utf8(&buffer).unwrap_or(""))),
                 Err(e) => println!("Error: {:?}", e)
             }
         }
