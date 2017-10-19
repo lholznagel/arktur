@@ -1,4 +1,5 @@
 use udp_client::UdpClient;
+use commands::CommandHandler;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, UdpSocket, SocketAddr};
 
 #[derive(Copy, Clone, Debug)]
@@ -9,7 +10,7 @@ pub struct UdpClientBuilder {
     /// Port the client listens to
     port: u16,
     /// handler for register requests
-    register_handler: fn(String)
+    handlers: CommandHandler
 }
 
 impl UdpClientBuilder {
@@ -27,13 +28,11 @@ impl UdpClientBuilder {
     /// # Return
     ///
     /// Updated instance of the `UdpClientBuilder`
-    pub fn new() -> Self {
-        fn empty(value: String) {}
-
+    pub fn new(handlers: CommandHandler) -> Self {
         UdpClientBuilder {
             ip: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
             port: 0,
-            register_handler: empty
+            handlers: handlers
         }
     }
 
@@ -46,9 +45,10 @@ impl UdpClientBuilder {
     /// # Example
     ///
     /// ```
+    /// use blockchain_network::commands::CommandHandler;
     /// use blockchain_network::udp_client::UdpClientBuilder;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client = udp_client_builder.build();
     ///
     /// // with calling build you get a `std::net::UdpSocket` from rust
@@ -60,7 +60,7 @@ impl UdpClientBuilder {
         let socket = SocketAddr::new(self.ip, self.port);
         let socket = UdpSocket::bind(socket).unwrap();
 
-        UdpClient::new(socket, self.register_handler)
+        UdpClient::new(socket, self.handlers)
     }
 
     /// Sets the port for udp
@@ -77,9 +77,10 @@ impl UdpClientBuilder {
     /// # Example
     ///
     /// ```
+    /// use blockchain_network::commands::CommandHandler;
     /// use blockchain_network::udp_client::UdpClientBuilder;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client_builder = udp_client_builder.set_port(50000);
     /// let udp_client = udp_client_builder.build();
     /// println!("UDP is running on port: {:?}", udp_client.port());
@@ -102,10 +103,11 @@ impl UdpClientBuilder {
     /// # Example
     ///
     /// ```
+    /// use blockchain_network::commands::CommandHandler;
     /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use std::net::{IpAddr, Ipv4Addr};
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client_builder = udp_client_builder.set_ip(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
     /// let udp_client = udp_client_builder.build();
     /// println!("UDP is running on port: {:?}", udp_client.port());
@@ -128,10 +130,11 @@ impl UdpClientBuilder {
     /// # Example
     ///
     /// ```
+    /// use blockchain_network::commands::CommandHandler;
     /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use std::net::Ipv4Addr;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client_builder = udp_client_builder.set_ipv4(Ipv4Addr::new(0, 0, 0, 0));
     /// let udp_client = udp_client_builder.build();
     /// println!("UDP is running on ip: {:?}", udp_client.ip());
@@ -153,10 +156,11 @@ impl UdpClientBuilder {
     /// # Example
     ///
     /// ```
+    /// use blockchain_network::commands::CommandHandler;
     /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use std::net::Ipv6Addr;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client_builder = UdpClientBuilder::new(CommandHandler::new());
     /// let udp_client_builder = udp_client_builder.set_ipv6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0));
     /// let udp_client = udp_client_builder.build();
     /// println!("UDP is running on ip: {:?}", udp_client.ip());
@@ -164,47 +168,23 @@ impl UdpClientBuilder {
     pub fn set_ipv6(self, ip: Ipv6Addr) -> Self {
         self.set_ip(IpAddr::V6(ip))
     }
-
-    /// Sets a function to call it when a register request is made
-    ///
-    /// # Parameters
-    ///
-    /// `function` - function that should be called
-    ///
-    /// # Returns
-    ///
-    /// Updated version of the struct itself
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use blockchain_network::udp_client::UdpClientBuilder;
-    /// 
-    /// fn call_me_maybe(value: String) { }
-    ///
-    /// let udp_client_builder = UdpClientBuilder::new();
-    /// let udp_client_builder = udp_client_builder.set_register_handler(call_me_maybe);
-    /// ```
-    pub fn set_register_handler(mut self, function: fn(String)) -> Self {
-        self.register_handler = function;
-        self
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::UdpClientBuilder;
+    use commands::CommandHandler;
     use std::net::{Ipv6Addr};
 
     #[test]
     fn start_basic_udp_client() {
-        let udp_client = UdpClientBuilder::new();
+        let udp_client = UdpClientBuilder::new(CommandHandler::new());
         udp_client.build();
     }
 
     #[test]
     fn set_specific_port() {
-        let udp_client = UdpClientBuilder::new().set_port(50000);
+        let udp_client = UdpClientBuilder::new(CommandHandler::new()).set_port(50000);
         let udp = udp_client.build();
 
         assert_eq!(udp_client.port, 50000);
@@ -214,7 +194,7 @@ mod tests {
     #[test]
     fn set_port_and_ip() {
         let ip = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
-        let udp_client = UdpClientBuilder::new().set_ipv6(ip).set_port(50000);
+        let udp_client = UdpClientBuilder::new(CommandHandler::new()).set_ipv6(ip).set_port(50000);
         let udp = udp_client.build();
         let udp = udp.connection();
 
