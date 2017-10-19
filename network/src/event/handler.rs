@@ -1,19 +1,19 @@
 /// Holds all handler
 #[derive(Copy, Clone, Debug)]
-pub struct CommandHandler {
+pub struct EventHandler {
     /// TODO: documentation
     pub register_handler: fn(String),
     /// TODO: documentation
     pub register_ack_handler: fn(String)
 }
 
-/// Contains all handler for commands
-impl CommandHandler {
+/// Contains all handler for events
+impl EventHandler {
     /// Creates a new instance of handlers
     pub fn new() -> Self {
         fn empty(_: String) {}
 
-        CommandHandler {
+        EventHandler {
             register_handler: empty,
             register_ack_handler: empty
         }

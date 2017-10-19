@@ -4,5 +4,5 @@
 
 /// Handles UDP
 pub mod udp_client;
-/// Handles everything for commands
-pub mod commands;
+/// Handles everything for event
+pub mod event;
