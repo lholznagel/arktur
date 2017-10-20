@@ -7,7 +7,7 @@ pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
     /// Handler for the register events
-    handlers: EventHandler
+    handlers: EventHandler,
 }
 
 impl UdpClient {
@@ -19,7 +19,7 @@ impl UdpClient {
     pub fn new(udp: UdpSocket, handlers: EventHandler) -> Self {
         UdpClient {
             udp: udp,
-            handlers: handlers
+            handlers: handlers,
         }
     }
 
@@ -32,11 +32,11 @@ impl UdpClient {
     /// # Example
     ///
     /// ```
-    /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
-    /// let udp_client = udp_client_builder.build();
+    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client = udp_client_builder.build(EventHandler::new());
     ///
     /// let data = [0; 10];
     /// let address = "0.0.0.0:50000";
@@ -55,11 +55,11 @@ impl UdpClient {
     /// # Example
     ///
     /// ```
-    /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
-    /// let udp_client = udp_client_builder.build();
+    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client = udp_client_builder.build(EventHandler::new());
     ///
     /// println!("Port: {:?}", udp_client.port());
     /// ```
@@ -76,11 +76,11 @@ impl UdpClient {
     /// # Example
     ///
     /// ```
-    /// use blockchain_network::udp_client::{UdpClient, UdpClientBuilder};
+    /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use blockchain_network::event::EventHandler;
     ///
-    /// let udp_client_builder = UdpClientBuilder::new(EventHandler::new());
-    /// let udp_client = udp_client_builder.build();
+    /// let udp_client_builder = UdpClientBuilder::new();
+    /// let udp_client = udp_client_builder.build(EventHandler::new());
     ///
     /// println!("IP-Address: {:?}", udp_client.ip());
     /// ```
@@ -96,11 +96,25 @@ impl UdpClient {
     pub fn listen(self) {
         println!("starting listener");
         loop {
-            let mut buffer = [0; 4096];
+            let mut buffer = [0; 1024];
 
             match self.udp.recv_from(&mut buffer) {
-                Ok((_, src)) => (self.handlers.register_handler)(String::from(str::from_utf8(&buffer).unwrap_or(""))),
-                Err(e) => println!("Error: {:?}", e)
+                Ok((_, source)) => {
+                    let message: &str = str::from_utf8(&buffer).unwrap_or("");
+                    let event: Vec<&str> = message.split(" |").collect();
+                    println!("Message: {:?}", event[0]);
+
+                    match event[0] {
+                        "REGISTER" => {
+                            (self.handlers.register_handler)(source, String::from(message))
+                        }
+                        "ACK_REGISTER" => {
+                            (self.handlers.register_handler)(source, String::from(message))
+                        }
+                        _ => {}
+                    }
+                }
+                Err(e) => println!("Error: {:?}", e),
             }
         }
     }
