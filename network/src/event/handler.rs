@@ -3,18 +3,16 @@ use std::net::SocketAddr;
 /// Holds all handler
 pub struct EventHandler {
     /// TODO: documentation
-    pub register_handler: fn(SocketAddr, String),
+    pub register_handler: fn(SocketAddr, String) -> &'static str,
     /// TODO: documentation
-    pub register_ack_handler: fn(SocketAddr, String)
+    pub register_ack_handler: fn(SocketAddr, String) -> &'static str
 }
 
 /// Contains all handler for events
 impl EventHandler {
     /// Creates a new instance of handlers
     pub fn new() -> Self {
-        fn empty(_: SocketAddr, _: String) {
-            println!("DEFAULT");
-        }
+        fn empty(_: SocketAddr, _: String) -> &'static str { "" }
 
         EventHandler {
             register_handler: empty,
@@ -25,20 +23,15 @@ impl EventHandler {
     /// Registeres a new handler that fires on `REGISTER`
     ///
     /// TODO: more docu
-    pub fn set_register_handler(mut self, function: fn(SocketAddr, String)) -> Self {
+    pub fn set_register_handler(mut self, function: fn(SocketAddr, String) -> &'static str) -> Self {
         self.register_handler = function;
         self
-    }
-
-    /// TODO: documentation
-    pub fn register_handler(self) -> fn(SocketAddr, String) {
-        self.register_handler
     }
 
     /// Registeres a new handler that fires on `REGISTER_ACK`
     ///
     /// TODO: more docu
-    pub fn set_register_ack_handler(mut self, function: fn(SocketAddr, String)) -> Self {
+    pub fn set_register_ack_handler(mut self, function: fn(SocketAddr, String) -> &'static str) -> Self {
         self.register_ack_handler = function;
         self
     }
