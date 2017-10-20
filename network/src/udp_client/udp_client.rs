@@ -94,25 +94,28 @@ impl UdpClient {
     ///
     /// This function is blocking!
     pub fn listen(self) {
-        println!("starting listener");
         loop {
             let mut buffer = [0; 1024];
 
             match self.udp.recv_from(&mut buffer) {
-                Ok((_, source)) => {
-                    let message: &str = str::from_utf8(&buffer).unwrap_or("");
+                Ok((bytes, source)) => {
+                    let mut updated_buffer = Vec::new();
+                    for i in 0..bytes {
+                        updated_buffer.push(buffer[i])
+                    }
+                    let updated_buffer = updated_buffer.as_slice();
+
+                    let message: &str = str::from_utf8(updated_buffer).unwrap_or("");
                     let event: Vec<&str> = message.split(" |").collect();
                     println!("Message: {:?}", event[0]);
 
-                    match event[0] {
-                        "REGISTER" => {
-                            (self.handlers.register_handler)(source, String::from(message))
-                        }
-                        "ACK_REGISTER" => {
-                            (self.handlers.register_handler)(source, String::from(message))
-                        }
-                        _ => {}
-                    }
+                    let result = match event[0] {
+                        "REGISTER" => (self.handlers.register_handler)(source, String::from(message)),
+                        "ACK_REGISTER" => (self.handlers.register_handler)(source, String::from(message)),
+                        _ => "ERROR_NO_VALID_COMMAND"
+                    };
+
+                    self.udp.send_to(result.as_bytes(), source);
                 }
                 Err(e) => println!("Error: {:?}", e),
             }
