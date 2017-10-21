@@ -1,5 +1,6 @@
 [workspace]
 members = [
   "hole_puncher",
-  "network"
+  "network",
+  "network_cli"
 ]
