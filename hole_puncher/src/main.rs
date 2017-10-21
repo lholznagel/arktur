@@ -18,7 +18,7 @@ fn main() {
     
     UdpClientBuilder::new()
         .set_port(45000)
-        .build(event_handlers, SocketAddr::new(IpAddr::from(Ipv4Addr::new(0,0,0,0)), 45000))
+        .build(event_handlers)
         .listen();
 }
 
