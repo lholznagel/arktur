@@ -109,13 +109,11 @@ impl UdpClient {
                     let event: Vec<&str> = message.split(" |").collect();
                     println!("Message: {:?}", event[0]);
 
-                    let result = match event[0] {
-                        "REGISTER" => (self.handlers.register_handler)(source, message),
-                        "ACK_REGISTER" => (self.handlers.register_handler)(source, message),
-                        _ => "ERROR_NO_VALID_COMMAND"
+                    match event[0] {
+                        "REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
+                        "ACK_REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
+                        _ => {}
                     };
-
-                    self.udp.send_to(result.as_bytes(), source);
                 }
                 Err(e) => println!("Error: {:?}", e),
             }
