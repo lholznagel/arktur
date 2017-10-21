@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+
 extern crate blockchain_network;
 
 use blockchain_network::udp_client::UdpClientBuilder;
@@ -5,12 +7,13 @@ use blockchain_network::event::EventHandler;
 
 use std::fs::{File, remove_file};
 use std::io::{Read, Write};
-use std::net::{UdpSocket, IpAddr, Ipv4Addr, SocketAddr};
+use std::net::{UdpSocket, SocketAddr};
 
 /// Starting point
 fn main() {
-    remove_file("last_peer");
-    File::create("last_peer");
+    remove_file("last_peer").unwrap();
+    File::create("last_peer").unwrap();
+
     println!("Starting hole puncher!");
 
     let event_handlers = EventHandler::new()
@@ -26,7 +29,7 @@ fn main() {
 fn register_handler(source: SocketAddr, udp: &UdpSocket, message: &str) {
     let mut file = File::open("last_peer").unwrap();
     let mut content = String::from("");
-    let mut response = "";
+    let response;
     println!("Hole puncher: {:?}", message);
     
     file.read_to_string(&mut content).unwrap();
@@ -38,7 +41,7 @@ fn register_handler(source: SocketAddr, udp: &UdpSocket, message: &str) {
     }
 
     let mut file = File::create("last_peer").unwrap();
-    file.write_all(source.to_string().as_bytes());
+    file.write_all(source.to_string().as_bytes()).unwrap();
 
     println!("Hole puncher response {:?}", "ACK_REGISTER | ".to_owned() + response);
     // for now we use static ip and port
