@@ -23,9 +23,28 @@ impl UdpClient {
         }
     }
 
-    /// TODO: documentation
-    pub fn notify_hole_puncher(self, hole_puncher_addr: SocketAddr) -> Self {
-        self.udp.send_to((String::from("REGISTER | ".to_owned() + self.udp.local_addr().unwrap().to_string().as_str())).as_bytes(), hole_puncher_addr).unwrap();
+    /// Notifies the hole puncher one th given address
+    ///
+    /// # Parameter
+    ///
+    /// `address` - Address of the hole puncher server
+    ///
+    /// # Return
+    ///
+    /// Instance of the `UdpClient`
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use blockchain_network::udp_client::UdpClientBuilder;
+    /// use std::net::{SocketAddr, IpAddr, Ipv4Addr};
+    ///
+    /// let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+    /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
+    /// ```
+    pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
+        self.udp.send_to((String::from("REGISTER | ".to_owned() + self.udp.local_addr().unwrap().to_string().as_str())).as_bytes(), address).unwrap();
         self
     }
 

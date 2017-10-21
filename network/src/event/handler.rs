@@ -2,13 +2,37 @@ use std::net::{UdpSocket, SocketAddr};
 
 /// Holds all handler
 pub struct EventHandler {
-    /// TODO: documentation
+    /// Function that should be called on a PING-event
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - message that was send with the event
     pub ping_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// TODO: documentation
+    /// Function that should be called on a PONG-event
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - message that was send with the event
     pub pong_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// TODO: documentation
+    /// Function that should be called on a ACK_REGISTER-event
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - message that was send with the event
     pub register_ack_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// TODO: documentation
+    /// Function that should be called on a REGISTER-event
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - message that was send with the event
     pub register_handler: fn(SocketAddr, &UdpSocket, &str)
 }
 
@@ -26,29 +50,97 @@ impl EventHandler {
         }
     }
 
-    /// TODO: documentation
+    /// Sets the `PING` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// fn ping_handler(_: SocketAddr, _: &UdpSocket, _: &str) {
+    ///     // do something
+    /// }
+    ///
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_ping_handler(ping_handler);
+    /// ```
     pub fn set_ping_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
         self.ping_handler = function;
         self
     }
 
-    /// TODO: documentation
+    /// Sets the `PONG` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// fn pong_handler(_: SocketAddr, _: &UdpSocket, _: &str) {
+    ///     // do something
+    /// }
+    ///
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_pong_handler(pong_handler);
+    /// ```
     pub fn set_pong_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
         self.pong_handler = function;
         self
     }
 
-    /// Registeres a new handler that fires on `REGISTER_ACK`
+    /// Sets the `ACK_REGISTER` event handler
     ///
-    /// TODO: more docu
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// fn register_ack_handler(_: SocketAddr, _: &UdpSocket, _: &str) {
+    ///     // do something
+    /// }
+    ///
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_register_ack_handler(register_ack_handler);
+    /// ```
     pub fn set_register_ack_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
         self.register_ack_handler = function;
         self
     }
 
-    /// Registeres a new handler that fires on `REGISTER`
+    /// Sets the `REGISTER` event handler
     ///
-    /// TODO: more docu
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// fn register_handler(_: SocketAddr, _: &UdpSocket, _: &str) {
+    ///     // do something
+    /// }
+    ///
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_register_handler(register_handler);
+    /// ```
     pub fn set_register_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
         self.register_handler = function;
         self
