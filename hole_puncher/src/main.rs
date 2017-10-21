@@ -19,7 +19,7 @@ fn main() {
 }
 
 /// Handler for the REGISTER event
-fn register_handler(_: SocketAddr, _: String) -> &'static str {
+fn register_handler(_: SocketAddr, _: &str) -> &'static str {
     // for now we use static ip and port
     "127.0.0.1:45001"
 }

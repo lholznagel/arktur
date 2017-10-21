@@ -110,8 +110,8 @@ impl UdpClient {
                     println!("Message: {:?}", event[0]);
 
                     let result = match event[0] {
-                        "REGISTER" => (self.handlers.register_handler)(source, String::from(message)),
-                        "ACK_REGISTER" => (self.handlers.register_handler)(source, String::from(message)),
+                        "REGISTER" => (self.handlers.register_handler)(source, message),
+                        "ACK_REGISTER" => (self.handlers.register_handler)(source, message),
                         _ => "ERROR_NO_VALID_COMMAND"
                     };
 
