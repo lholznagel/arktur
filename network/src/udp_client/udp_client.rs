@@ -1,5 +1,5 @@
 use event::EventHandler;
-use std::net::{IpAddr, UdpSocket};
+use std::net::{IpAddr, UdpSocket, SocketAddr};
 use std::str;
 
 /// Stores all needed infomration about a udp client
@@ -7,7 +7,7 @@ pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
     /// Handler for the register events
-    handlers: EventHandler,
+    handlers: EventHandler
 }
 
 impl UdpClient {
@@ -19,8 +19,14 @@ impl UdpClient {
     pub fn new(udp: UdpSocket, handlers: EventHandler) -> Self {
         UdpClient {
             udp: udp,
-            handlers: handlers,
+            handlers: handlers
         }
+    }
+
+    /// TODO: documentation
+    pub fn notify_hole_puncher(self, hole_puncher_addr: SocketAddr) -> Self {
+        self.udp.send_to((String::from("REGISTER | ".to_owned() + self.udp.local_addr().unwrap().to_string().as_str())).as_bytes(), hole_puncher_addr).unwrap();
+        self
     }
 
     /// Gets the open socket connection
@@ -93,7 +99,9 @@ impl UdpClient {
     /// When a new event is identified the given callback is called
     ///
     /// This function is blocking!
-    pub fn listen(self) {
+    pub fn listen(self) -> Self {
+        //self.notify_hole_puncher();
+
         loop {
             let mut buffer = [0; 1024];
 
@@ -107,11 +115,11 @@ impl UdpClient {
 
                     let message: &str = str::from_utf8(updated_buffer).unwrap_or("");
                     let event: Vec<&str> = message.split(" |").collect();
-                    println!("Message: {:?}", event[0]);
+                    println!("Message lib: {:?}", event[0]);
 
                     match event[0] {
                         "REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
-                        "ACK_REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
+                        "ACK_REGISTER" => (self.handlers.register_ack_handler)(source, &self.udp, message),
                         _ => {}
                     };
                 }
