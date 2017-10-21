@@ -137,6 +137,8 @@ impl UdpClient {
                     println!("Message lib: {:?}", event[0]);
 
                     match event[0] {
+                        "PING" => (self.handlers.ping_handler)(source, &self.udp, message),
+                        "PONG" => (self.handlers.pong_handler)(source, &self.udp, message),
                         "REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
                         "ACK_REGISTER" => (self.handlers.register_ack_handler)(source, &self.udp, message),
                         _ => {}

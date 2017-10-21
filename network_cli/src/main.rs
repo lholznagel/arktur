@@ -10,7 +10,10 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
 
 fn main() {
     let event_handler = EventHandler::new();
-    let event_handler = event_handler.set_register_ack_handler(register_ack_handler);
+    let event_handler = event_handler
+        .set_ping_handler(ping_handler)
+        .set_pong_handler(pong_handler)
+        .set_register_ack_handler(register_ack_handler);
 
     //UdpClientBuilder::new(event_handler);
     let udp_client = UdpClientBuilder::new().build(event_handler);
@@ -20,14 +23,25 @@ fn main() {
     //build_command();
 }
 
-fn register_ack_handler(_: SocketAddr, _: &UdpSocket, message: &str) {
+fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
     println!("Got messag: {:?}", message);
 
      if message.replace("ACK_REGISTER | ", "") == "NO_PEER" {
          println!("No peer");
      } else {
         println!("Peer: {}", message.replace("ACK_REGISTER | ", ""));
+        udp.send_to(b"PING |", message.replace("ACK_REGISTER | ", "").parse::<SocketAddr>().unwrap()).unwrap();
      }
+}
+
+fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: &str) {
+    println!("PING from {:?}", source.to_string());
+    udp.send_to(b"PONG |", source).unwrap();
+    println!("Send PONG");
+}
+
+fn pong_handler(source: SocketAddr, _: &UdpSocket, _: &str) {
+    println!("PONG from {:?}", source.to_string());
 }
 
 fn build_command() {

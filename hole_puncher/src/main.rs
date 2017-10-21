@@ -1,5 +1,8 @@
 #![deny(missing_docs)]
 
+//! Hole puncher service
+//!
+//! Saved the last address that registered itself
 extern crate blockchain_network;
 
 use blockchain_network::udp_client::UdpClientBuilder;
