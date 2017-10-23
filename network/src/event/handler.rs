@@ -2,7 +2,7 @@ use std::net::{UdpSocket, SocketAddr};
 
 /// Holds all handler
 pub struct EventHandler {
-    /// Function that should be called on a PING-event
+    /// Function that is called on a PING-event
     ///
     /// # Parameters
     ///
@@ -10,7 +10,8 @@ pub struct EventHandler {
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - message that was send with the event
     pub ping_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// Function that should be called on a PONG-event
+
+    /// Function is be called on a PONG-event
     ///
     /// # Parameters
     ///
@@ -18,7 +19,17 @@ pub struct EventHandler {
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - message that was send with the event
     pub pong_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// Function that should be called on a ACK_REGISTER-event
+
+    /// Function that is called on a PEER_REGISTERING event
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - message that was send with the event
+    pub peer_registering_handler: fn(SocketAddr, &UdpSocket, &str),
+
+    /// Function that is called on a ACK_REGISTER-event
     ///
     /// # Parameters
     ///
@@ -26,7 +37,8 @@ pub struct EventHandler {
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - message that was send with the event
     pub register_ack_handler: fn(SocketAddr, &UdpSocket, &str),
-    /// Function that should be called on a REGISTER-event
+
+    /// Function that is called on a REGISTER-event
     ///
     /// # Parameters
     ///
@@ -45,6 +57,7 @@ impl EventHandler {
         EventHandler {
             ping_handler: empty,
             pong_handler: empty,
+            peer_registering_handler: empty,
             register_ack_handler: empty,
             register_handler: empty
         }
@@ -95,6 +108,30 @@ impl EventHandler {
     /// ```
     pub fn set_pong_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
         self.pong_handler = function;
+        self
+    }
+
+    /// Sets the `PEER_REGISTERING` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// fn peer_registering_handler(_: SocketAddr, _: &UdpSocket, _: &str) {
+    ///     // do something
+    /// }
+    ///
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_pong_handler(peer_registering_handler);
+    /// ```
+    pub fn set_peer_registering_handler(mut self, function: fn(SocketAddr, &UdpSocket, &str)) -> Self {
+        self.peer_registering_handler = function;
         self
     }
 

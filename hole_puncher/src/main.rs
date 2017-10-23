@@ -41,6 +41,7 @@ fn register_handler(source: SocketAddr, udp: &UdpSocket, message: &str) {
         response = "NO_PEER";
     } else {
         response = content.as_str();
+        udp.send_to(("PEER_REGISTERING | ".to_owned() + source.to_string().as_str()).as_bytes(), response.parse::<SocketAddr>().unwrap()).unwrap();
     }
 
     let mut file = File::create("last_peer").unwrap();
