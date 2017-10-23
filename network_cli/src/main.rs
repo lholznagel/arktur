@@ -38,6 +38,7 @@ fn connect(addr: SocketAddr) {
     let event_handler = event_handler
         .set_ping_handler(ping_handler)
         .set_pong_handler(pong_handler)
+        .set_peer_registering_handler(peer_registering_handler)
         .set_register_ack_handler(register_ack_handler);
 
     let udp_client = UdpClientBuilder::new().build(event_handler);
@@ -64,4 +65,10 @@ fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: &str) {
 
 fn pong_handler(source: SocketAddr, _: &UdpSocket, _: &str) {
     println!("PONG from {:?}", source.to_string());
+}
+
+fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
+    println!("New peer registering");
+    println!("Sending ping to new peer: {:?}", message.replace("PEER_REGISTERING | ", ""));
+    udp.send_to(b"PING |", message.replace("PEER_REGISTERING | ", "").parse::<SocketAddr>().unwrap()).unwrap();
 }
