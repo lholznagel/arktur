@@ -134,7 +134,6 @@ impl UdpClient {
 
                     let message: &str = str::from_utf8(updated_buffer).unwrap_or("");
                     let event: Vec<&str> = message.split(" |").collect();
-                    println!("Message lib: {:?}", event[0]);
 
                     match event[0] {
                         "PING" => (self.handlers.ping_handler)(source, &self.udp, message),
