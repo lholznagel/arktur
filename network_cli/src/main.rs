@@ -46,29 +46,30 @@ fn connect(addr: SocketAddr) {
     udp_client.listen();
 }
 
-fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
-    println!("Got messag: {:?}", message);
-
-     if message.replace("ACK_REGISTER | ", "") == "NO_PEER" {
-         println!("No peer");
-     } else {
-        println!("Sending PING to Peer: {}", message.replace("ACK_REGISTER | ", ""));
-        udp.send_to(b"PING |", message.replace("ACK_REGISTER | ", "").parse::<SocketAddr>().unwrap()).unwrap();
-     }
-}
-
 fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: &str) {
-    println!("PING from {:?}", source.to_string());
+    println!("\x1B[0;36mEvent - PING from peer {:?} \x1B[0m", source.to_string());
+    println!("\x1B[0;35mSending - PONG to peer {:?} \x1B[0m", source.to_string());
     udp.send_to(b"PONG |", source).unwrap();
-    println!("Send PONG");
+    println!("\x1B[0;32mSuccessful - Send PONG\x1B[0m");
 }
 
 fn pong_handler(source: SocketAddr, _: &UdpSocket, _: &str) {
-    println!("PONG from {:?}", source.to_string());
+    println!("\x1B[0;36mEvent - PONG from peer {:?} \x1B[0m", source.to_string());
 }
 
 fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
-    println!("New peer registering");
-    println!("Sending ping to new peer: {:?}", message.replace("PEER_REGISTERING | ", ""));
+    println!("\x1B[0;36mEvent - PEER_REGISTERING {:?} \x1B[0m", message.replace("PEER_REGISTERING | ", ""));
+    println!("\x1B[0;35mSending - PING to new peer {:?} \x1B[0m", message.replace("PEER_REGISTERING | ", ""));
     udp.send_to(b"PING |", message.replace("PEER_REGISTERING | ", "").parse::<SocketAddr>().unwrap()).unwrap();
+    println!("\x1B[0;32mSuccessful - Send PING\x1B[0m");
+}
+
+fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
+     if message.replace("ACK_REGISTER | ", "") == "NO_PEER" {
+         println!("\x1B[0;32mNo peer\x1B[0m");
+     } else {
+        println!("\x1B[0;35mSending - PONG to peer {:?} \x1B[0m", message.replace("ACK_REGISTER | ", ""));
+        udp.send_to(b"PING |", message.replace("ACK_REGISTER | ", "").parse::<SocketAddr>().unwrap()).unwrap();
+        println!("\x1B[0;32mSuccessful - Send PING\x1B[0m");
+     }
 }
