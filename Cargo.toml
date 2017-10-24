@@ -1,6 +1,11 @@
+[profile.release]
+lto = true
+panic = 'abort'
+
 [workspace]
 members = [
   "hole_puncher",
+  "logging",
   "network",
   "network_cli"
 ]

@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate clap;
 
@@ -29,7 +31,7 @@ fn main() {
     combined.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
     combined.push_str(":");
     combined.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
-    println!("{:?}", combined);
+    info!(format!("Hole puncher: {:?}", combined));
     connect(combined.parse::<SocketAddr>().unwrap());
 }
 
@@ -47,29 +49,29 @@ fn connect(addr: SocketAddr) {
 }
 
 fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: &str) {
-    println!("\x1B[0;36mEvent - PING from peer {:?} \x1B[0m", source.to_string());
-    println!("\x1B[0;35mSending - PONG to peer {:?} \x1B[0m", source.to_string());
+    event!(format!("PING from peer {:?}", source.to_string()));
+    sending!(format!("PONG to peer {:?}", source.to_string()));
     udp.send_to(b"PONG |", source).unwrap();
-    println!("\x1B[0;32mSuccessful - Send PONG\x1B[0m");
+    success!("Send PONG");
 }
 
 fn pong_handler(source: SocketAddr, _: &UdpSocket, _: &str) {
-    println!("\x1B[0;36mEvent - PONG from peer {:?} \x1B[0m", source.to_string());
+    event!(format!("PONG from peer {:?}", source.to_string()));
 }
 
 fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
-    println!("\x1B[0;36mEvent - PEER_REGISTERING {:?} \x1B[0m", message.replace("PEER_REGISTERING | ", ""));
-    println!("\x1B[0;35mSending - PING to new peer {:?} \x1B[0m", message.replace("PEER_REGISTERING | ", ""));
+    event!(format!("PEER_REGISTERING {:?}", message.replace("PEER_REGISTERING | ", "")));
+    sending!(format!("PING to new peer {:?}", message.replace("PEER_REGISTERING | ", "")));
     udp.send_to(b"PING |", message.replace("PEER_REGISTERING | ", "").parse::<SocketAddr>().unwrap()).unwrap();
-    println!("\x1B[0;32mSuccessful - Send PING\x1B[0m");
+    success!(format!("Send PING {:?}", message.replace("PEER_REGISTERING | ", "")));
 }
 
 fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: &str) {
      if message.replace("ACK_REGISTER | ", "") == "NO_PEER" {
-         println!("\x1B[0;32mNo peer\x1B[0m");
+         error!("No peer");
      } else {
-        println!("\x1B[0;35mSending - PONG to peer {:?} \x1B[0m", message.replace("ACK_REGISTER | ", ""));
+        sending!(format!("PONG to peer {:?}", message.replace("ACK_REGISTER | ", "")));
         udp.send_to(b"PING |", message.replace("ACK_REGISTER | ", "").parse::<SocketAddr>().unwrap()).unwrap();
-        println!("\x1B[0;32mSuccessful - Send PING\x1B[0m");
+        success!(format!("Send PING to {:?}", message.replace("ACK_REGISTER | ", "")));
      }
 }

@@ -4,5 +4,6 @@ name = "blockchain_network_cli"
 version = "0.1.0"
 
 [dependencies]
+blockchain_logging = { path = "../logging" }
 blockchain_network = { path = "../network" }
 clap = "2.26.2"
