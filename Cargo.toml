@@ -7,5 +7,6 @@ members = [
   "hole_puncher",
   "logging",
   "network",
-  "network_cli"
+  "network_cli",
+  "protocol"
 ]
