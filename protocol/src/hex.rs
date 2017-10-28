@@ -14,82 +14,90 @@
 //! converting a hex string to byte vector
 const CHARS: &'static [u8] = b"0123456789ABCDEF";
 
-/// Converts a byte array to a hex string
-///
-/// # Parameters
-///
-/// `bytes` - byte array that should be converted
-///
-/// # Return
-/// 
-/// Hex string, see example
-///
-/// # Example
-/// ```
-/// use blockchain_protocol::hex::to_hex;
-///
-/// let bytes = &[1, 2, 255, 255, 5, 57, 0, 0];
-/// assert_eq!(to_hex(bytes), "0102FFFF05390000");
-/// ```
-pub fn to_hex(bytes: &[u8]) -> String {
-    let mut v = Vec::with_capacity(bytes.len() * 2);
+/// A trait for converting a value to hexadecimal encoding
+pub trait ToHex {
+    /// Converts the value of `self` to a hex value, returning the owned
+    /// string.
+    fn to_hex(&self) -> String;
+}
 
-    for &byte in bytes.iter() {
-        v.push(CHARS[(byte >> 4) as usize]);
-        v.push(CHARS[(byte & 0xf) as usize]);
-    }
+/// A trait for converting hexadecimal encoded values
+pub trait FromHex {
+    /// Converts the value of `self`, interpreted as hexadecimal encoded data,
+    /// into an owned vector of bytes, returning the vector.
+    fn from_hex(&self) -> Vec<u8>;
+}
 
-    unsafe {
-        String::from_utf8_unchecked(v)
+impl ToHex for [u8] {
+    /// Converts a byte array to a hex string
+    ///
+    /// # Return
+    ///
+    /// Hex string, see example
+    ///
+    /// # Example
+    /// ```
+    /// use blockchain_protocol::hex::ToHex;
+    ///
+    /// let bytes = &[1, 2, 255, 255, 5, 57, 0, 0];
+    /// assert_eq!(bytes.to_hex(), "0102FFFF05390000");
+    /// ```
+    fn to_hex(&self) -> String {
+        let mut v = Vec::with_capacity(self.len() * 2);
+
+        for &byte in self.iter() {
+            v.push(CHARS[(byte >> 4) as usize]);
+            v.push(CHARS[(byte & 0xf) as usize]);
+        }
+
+        unsafe { String::from_utf8_unchecked(v) }
     }
 }
 
-/// Converts a byte array to a hex string
-///
-/// # Parameters
-///
-/// `content` - string that contains hex values
-///
-/// # Return
-/// 
-/// Vector containing the hex values to numbers
-///
-/// # Example
-/// ```
-/// use blockchain_protocol::hex::from_hex;
-///
-/// let content = "0102FFFF05390000";
-/// assert_eq!(from_hex(content), &[1, 2, 255, 255, 5, 57, 0, 0]);
-/// ```
-pub fn from_hex(content: &str) -> Vec<u8> {
-    let mut b = Vec::with_capacity(content.len() / 2);
-    let mut modulus = 0;
-    let mut buf = 0;
+impl FromHex for str {
+    /// Converts a byte array to a hex string
+    ///
+    /// # Return
+    ///
+    /// Vector containing the hex values to numbers
+    ///
+    /// # Example
+    /// ```
+    /// use blockchain_protocol::hex::FromHex;
+    ///
+    /// let content = "0102FFFF05390000";
+    /// assert_eq!(content.from_hex(), &[1, 2, 255, 255, 5, 57, 0, 0]);
+    /// ```
+    fn from_hex(&self) -> Vec<u8> {
+        let mut b = Vec::with_capacity(self.len() / 2);
+        let mut modulus = 0;
+        let mut buf = 0;
 
-    for (idx, byte) in content.bytes().enumerate() {
-        buf <<= 4;
+        for (idx, byte) in self.bytes().enumerate() {
+            buf <<= 4;
 
-        match byte {
-            b'A'...b'F' => buf |= byte - b'A' + 10,
-            b'a'...b'f' => buf |= byte - b'a' + 10,
-            b'0'...b'9' => buf |= byte - b'0',
-            b' ' | b'\r' | b'\n' | b'\t' => {
-                buf >>= 4;
-                continue;
+            match byte {
+                b'A'...b'F' => buf |= byte - b'A' + 10,
+                b'a'...b'f' => buf |= byte - b'a' + 10,
+                b'0'...b'9' => buf |= byte - b'0',
+                b' ' | b'\r' | b'\n' | b'\t' => {
+                    buf >>= 4;
+                    continue;
+                }
+                _ => {
+                    let ch = self[idx..].chars().next().unwrap();
+                    //return Err(InvalidHexCharacter(ch, idx));
+                    println!("Give me error handling, from_hex {:?}", ch);
+                }
             }
-            _ => {
-                let ch = content[idx..].chars().next().unwrap();
-                //return Err(InvalidHexCharacter(ch, idx));
-                println!("Give me error handling, from_hex {:?}", ch);
+
+            modulus += 1;
+            if modulus == 2 {
+                modulus = 0;
+                b.push(buf);
             }
         }
 
-        modulus += 1;
-        if modulus == 2 {
-            modulus = 0;
-            b.push(buf);
-        }
+        b.into_iter().collect()
     }
-
-    b.into_iter().collect()
 }

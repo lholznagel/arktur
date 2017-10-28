@@ -83,7 +83,7 @@ pub fn parse(bytes: &[u8]) -> BlockchainProtocol {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hex::*;
+    use hex::{FromHex, ToHex};
 
     #[test]
     fn test_simple_u8() {
@@ -126,8 +126,8 @@ mod tests {
         };
 
         let data = &[1, 2, 255, 255, 5, 57, 0, 0];
-        let data = to_hex(data);
-        let data = from_hex(data.as_str());
+        let data = data.to_hex();
+        let data = data.as_str().from_hex();
         let result = parse(data.as_slice());
         assert_eq!(result, expected);
     }
