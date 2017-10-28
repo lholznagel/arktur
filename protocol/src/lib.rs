@@ -73,7 +73,6 @@ mod tests {
 
         let data = &[1, 2, 255, 255, 5, 57, 0, 0];
         let data = to_hex(data);
-        println!("{:?}", data);
         let data = from_hex(data.as_str());
         let result = parse(data.as_slice());
         assert_eq!(result, expected);
