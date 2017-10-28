@@ -3,6 +3,5 @@ name = "blockchain_protocol"
 version = "0.1.0"
 authors = ["lholznagel <lars.holznagel@outlook.com>"]
 
-[dependencies.nom]
-version = "3.2.1"
-features = ["nightly"]
+[dependencies]
+nom = "3.2.1"
