@@ -1,5 +1,5 @@
 [root]
-name = "protocol"
+name = "blockchain_protocol"
 version = "0.1.0"
 dependencies = [
  "nom 3.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
