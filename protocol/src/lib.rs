@@ -5,6 +5,9 @@
 extern crate nom;
 
 pub mod hex;
+pub mod enums;
+
+use enums::events::{as_enum, EventCodes};
 
 /// Parser for the protocol
 named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u8, 8), take_bits!(u8, 8), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u16, 16))));
@@ -31,7 +34,7 @@ named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u
 #[derive(Debug, PartialEq)]
 pub struct BlockchainProtocol {
     /// Event that is fired, defined by a number between 0 and 255
-    pub event_code: u8,
+    pub event_code: EventCodes,
     /// Status of this message, defined by a number between 0 and 255
     pub status_code: u8,
     /// Identification of this message
@@ -55,9 +58,10 @@ pub struct BlockchainProtocol {
 /// # Example
 /// ```
 /// use blockchain_protocol::{BlockchainProtocol, parse};
+/// use blockchain_protocol::enums::events::EventCodes;
 ///
 /// let expected = BlockchainProtocol {
-///     event_code: 1,
+///     event_code: EventCodes::Pong,
 ///     status_code: 2,
 ///     id: 65535,
 ///     ttl: 1337,
@@ -72,7 +76,7 @@ pub fn parse(bytes: &[u8]) -> BlockchainProtocol {
     let parsed = parse_protocol(bytes).to_result().unwrap();
 
     BlockchainProtocol {
-        event_code: parsed.0,
+        event_code: as_enum(parsed.0),
         status_code: parsed.1,
         id: parsed.2,
         ttl: parsed.3,
@@ -83,12 +87,13 @@ pub fn parse(bytes: &[u8]) -> BlockchainProtocol {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use enums::events::EventCodes;
     use hex::{FromHex, ToHex};
 
     #[test]
     fn test_simple_u8() {
         let expected = BlockchainProtocol {
-            event_code: 1,
+            event_code: EventCodes::Pong,
             status_code: 2,
             id: 65535,
             ttl: 1337,
@@ -103,7 +108,7 @@ mod tests {
     #[test]
     fn test_simple_hex() {
         let expected = BlockchainProtocol {
-            event_code: 1,
+            event_code: EventCodes::Pong,
             status_code: 2,
             id: 65535,
             ttl: 1337,
@@ -118,7 +123,7 @@ mod tests {
     #[test]
     fn test_simple_string_u8() {
         let expected = BlockchainProtocol {
-            event_code: 1,
+            event_code: EventCodes::Pong,
             status_code: 2,
             id: 65535,
             ttl: 1337,
