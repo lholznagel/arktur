@@ -9,8 +9,28 @@
 // <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
+
+//! Helper for converting a byt array to hex string and
+//! converting a hex string to byte vector
 const CHARS: &'static [u8] = b"0123456789ABCDEF";
 
+/// Converts a byte array to a hex string
+///
+/// # Parameters
+///
+/// `bytes` - byte array that should be converted
+///
+/// # Return
+/// 
+/// Hex string, see example
+///
+/// # Example
+/// ```
+/// use blockchain_protocol::hex::to_hex;
+///
+/// let bytes = &[1, 2, 255, 255, 5, 57, 0, 0];
+/// assert_eq!(to_hex(bytes), "0102FFFF05390000");
+/// ```
 pub fn to_hex(bytes: &[u8]) -> String {
     let mut v = Vec::with_capacity(bytes.len() * 2);
 
@@ -24,6 +44,23 @@ pub fn to_hex(bytes: &[u8]) -> String {
     }
 }
 
+/// Converts a byte array to a hex string
+///
+/// # Parameters
+///
+/// `content` - string that contains hex values
+///
+/// # Return
+/// 
+/// Vector containing the hex values to numbers
+///
+/// # Example
+/// ```
+/// use blockchain_protocol::hex::from_hex;
+///
+/// let content = "0102FFFF05390000";
+/// assert_eq!(from_hex(content), &[1, 2, 255, 255, 5, 57, 0, 0]);
+/// ```
 pub fn from_hex(content: &str) -> Vec<u8> {
     let mut b = Vec::with_capacity(content.len() / 2);
     let mut modulus = 0;
