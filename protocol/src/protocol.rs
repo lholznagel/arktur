@@ -2,6 +2,7 @@
 use enums::events::{as_number, EventCodes};
 use std::{slice, mem};
 use parser::parse;
+use hex::FromHex;
 
 /// Struct of the protocol
 ///
@@ -78,6 +79,36 @@ impl BlockchainProtocol {
     /// TODO: example
     pub fn from_u8(data: &[u8]) -> Self {
         parse(data)
+    }
+
+    /// Parses a string reference to the BlockchainProtocol struct
+    ///
+    /// # Parameter
+    ///
+    /// - `data` - string reference that should be parsed
+    ///
+    /// # Return
+    ///
+    /// Parsed result of the string reference
+    ///
+    /// TODO: example
+    pub fn from_str(data: &str) -> Self {
+        BlockchainProtocol::from_vec(data.from_hex())
+    }
+
+    /// Parses a String to the BlockchainProtocol struct
+    ///
+    /// # Parameter
+    ///
+    /// - `data` - String that should be parsed
+    ///
+    /// # Return
+    ///
+    /// Parsed result of the String
+    ///
+    /// TODO: example
+    pub fn from_string(data: String) -> Self {
+        BlockchainProtocol::from_vec(data.as_str().from_hex())
     }
 
     /// Sets the event code
