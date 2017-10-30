@@ -1,6 +1,7 @@
 //! Contains the protocol model and a builder for the protocol
 use enums::events::{as_number, EventCodes};
 use std::{slice, mem};
+use parser::parse;
 
 /// Struct of the protocol
 ///
@@ -47,6 +48,36 @@ impl BlockchainProtocol {
             data_length: 0,
             data: String::from(""),
         }
+    }
+
+    /// Parses a vector to the BlockchainProtocol struct
+    ///
+    /// # Parameter
+    ///
+    /// - `data` - byte vector that should be parsed
+    ///
+    /// # Return
+    ///
+    /// Parsed result from the vector
+    ///
+    /// TODO: example
+    pub fn from_vec(data: Vec<u8>) -> Self {
+        parse(data.as_slice())
+    }
+
+    /// Parses a byte array to the BlockchainProtocol struct
+    ///
+    /// # Parameter
+    ///
+    /// - `data` - byte array that should be parsed
+    ///
+    /// # Return
+    ///
+    /// Parsed result of the byte array
+    ///
+    /// TODO: example
+    pub fn from_u8(data: &[u8]) -> Self {
+        parse(data)
     }
 
     /// Sets the event code
