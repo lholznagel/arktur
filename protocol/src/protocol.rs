@@ -65,7 +65,25 @@ impl BlockchainProtocol {
     ///
     /// Parsed result from the vector
     ///
-    /// TODO: example
+    /// # Example
+    /// ```
+    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::enums::events::EventCodes;
+    /// use blockchain_protocol::enums::status::StatusCodes;
+    ///
+    /// let expected = BlockchainProtocol {
+    ///     event_code: EventCodes::Pong,
+    ///     status_code: StatusCodes::Ok,
+    ///     id: 65535,
+    ///     ttl: 1337,
+    ///     data_length: 0,
+    ///     data: String::from("")
+    /// };
+    ///
+    /// let data = vec![1, 0, 255, 255, 5, 57, 0, 0];
+    /// let result = BlockchainProtocol::from_vec(data);
+    /// assert_eq!(result, expected);
+    /// ```
     pub fn from_vec(data: Vec<u8>) -> Self {
         BlockchainProtocol::parse(data.as_slice())
     }
@@ -80,7 +98,25 @@ impl BlockchainProtocol {
     ///
     /// Parsed result of the byte array
     ///
-    /// TODO: example
+    /// # Example
+    /// ```
+    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::enums::events::EventCodes;
+    /// use blockchain_protocol::enums::status::StatusCodes;
+    ///
+    /// let expected = BlockchainProtocol {
+    ///     event_code: EventCodes::Pong,
+    ///     status_code: StatusCodes::Ok,
+    ///     id: 65535,
+    ///     ttl: 1337,
+    ///     data_length: 0,
+    ///     data: String::from("")
+    /// };
+    ///
+    /// let data = &[1, 0, 255, 255, 5, 57, 0, 0];
+    /// let result = BlockchainProtocol::from_u8(data);
+    /// assert_eq!(result, expected);
+    /// ```
     pub fn from_u8(data: &[u8]) -> Self {
         BlockchainProtocol::parse(data)
     }
