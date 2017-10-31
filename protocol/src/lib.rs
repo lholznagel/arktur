@@ -7,8 +7,6 @@ extern crate nom;
 pub mod enums;
 pub mod hex;
 
-mod parser;
 mod protocol;
 
-pub use parser::parse;
 pub use protocol::BlockchainProtocol;
