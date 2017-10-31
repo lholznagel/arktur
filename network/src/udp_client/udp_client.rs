@@ -1,13 +1,14 @@
+use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::enums::events::EventCodes;
 use event::EventHandler;
 use std::net::{IpAddr, UdpSocket, SocketAddr};
-use std::str;
 
 /// Stores all needed infomration about a udp client
 pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
     /// Handler for the register events
-    handlers: EventHandler
+    handlers: EventHandler,
 }
 
 impl UdpClient {
@@ -19,7 +20,7 @@ impl UdpClient {
     pub fn new(udp: UdpSocket, handlers: EventHandler) -> Self {
         UdpClient {
             udp: udp,
-            handlers: handlers
+            handlers: handlers,
         }
     }
 
@@ -44,7 +45,14 @@ impl UdpClient {
     /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
-        self.udp.send_to((String::from("REGISTER | ".to_owned() + self.udp.local_addr().unwrap().to_string().as_str())).as_bytes(), address).unwrap();
+        let message = BlockchainProtocol::new()
+            .set_event_code(EventCodes::Register)
+            .set_data(String::from(
+                self.udp.local_addr().unwrap().to_string().as_str(),
+            ))
+            .build();
+
+        self.udp.send_to(message.as_slice(), address).unwrap();
         self
     }
 
@@ -130,18 +138,25 @@ impl UdpClient {
                     for i in 0..bytes {
                         updated_buffer.push(buffer[i])
                     }
-                    let updated_buffer = updated_buffer.as_slice();
+                    let protocol = BlockchainProtocol::from_vec(updated_buffer);
 
-                    let message: &str = str::from_utf8(updated_buffer).unwrap_or("");
-                    let event: Vec<&str> = message.split(" |").collect();
-
-                    match event[0] {
-                        "PING" => (self.handlers.ping_handler)(source, &self.udp, message),
-                        "PONG" => (self.handlers.pong_handler)(source, &self.udp, message),
-                        "PEER_REGISTERING" => (self.handlers.peer_registering_handler)(source, &self.udp, message),
-                        "REGISTER" => (self.handlers.register_handler)(source, &self.udp, message),
-                        "ACK_REGISTER" => (self.handlers.register_ack_handler)(source, &self.udp, message),
-                        _ => {}
+                    match protocol.event_code {
+                        EventCodes::Ping => {
+                            (self.handlers.ping_handler)(source, &self.udp, protocol)
+                        }
+                        EventCodes::Pong => {
+                            (self.handlers.pong_handler)(source, &self.udp, protocol)
+                        }
+                        EventCodes::Register => {
+                            (self.handlers.register_handler)(source, &self.udp, protocol)
+                        }
+                        EventCodes::AckRegister => {
+                            (self.handlers.register_ack_handler)(source, &self.udp, protocol)
+                        }
+                        EventCodes::PeerRegistering => {
+                            (self.handlers.peer_registering_handler)(source, &self.udp, protocol)
+                        }
+                        EventCodes::NotAValidEvent => {}
                     };
                 }
                 Err(e) => println!("Error: {:?}", e),
