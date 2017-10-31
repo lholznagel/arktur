@@ -10,48 +10,13 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-//! Helper for converting a byt array to hex string and
-//! converting a hex string to byte vector
-const CHARS: &'static [u8] = b"0123456789ABCDEF";
-
-/// A trait for converting a value to hexadecimal encoding
-pub trait ToHex {
-    /// Converts the value of `self` to a hex value, returning the owned
-    /// string.
-    fn to_hex(&self) -> String;
-}
+//! Helper for converting a hex string to byte vector
 
 /// A trait for converting hexadecimal encoded values
 pub trait FromHex {
     /// Converts the value of `self`, interpreted as hexadecimal encoded data,
     /// into an owned vector of bytes, returning the vector.
     fn from_hex(&self) -> Vec<u8>;
-}
-
-impl ToHex for [u8] {
-    /// Converts a byte array to a hex string
-    ///
-    /// # Return
-    ///
-    /// Hex string, see example
-    ///
-    /// # Example
-    /// ```
-    /// use blockchain_protocol::hex::ToHex;
-    ///
-    /// let bytes = &[1, 2, 255, 255, 5, 57, 0, 0];
-    /// assert_eq!(bytes.to_hex(), "0102FFFF05390000");
-    /// ```
-    fn to_hex(&self) -> String {
-        let mut v = Vec::with_capacity(self.len() * 2);
-
-        for &byte in self.iter() {
-            v.push(CHARS[(byte >> 4) as usize]);
-            v.push(CHARS[(byte & 0xf) as usize]);
-        }
-
-        unsafe { String::from_utf8_unchecked(v) }
-    }
 }
 
 impl FromHex for str {
