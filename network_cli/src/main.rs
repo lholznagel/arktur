@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
+extern crate blockchain_protocol;
 extern crate clap;
 
 use blockchain_network::udp_client::UdpClientBuilder;

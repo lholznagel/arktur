@@ -25,6 +25,7 @@ version = "0.1.0"
 dependencies = [
  "blockchain_logging 0.1.0",
  "blockchain_network 0.1.0",
+ "blockchain_protocol 0.1.0",
 ]
 
 [[package]]
@@ -34,6 +35,9 @@ version = "0.1.0"
 [[package]]
 name = "blockchain_network"
 version = "0.1.0"
+dependencies = [
+ "blockchain_protocol 0.1.0",
+]
 
 [[package]]
 name = "blockchain_network_cli"
@@ -41,6 +45,7 @@ version = "0.1.0"
 dependencies = [
  "blockchain_logging 0.1.0",
  "blockchain_network 0.1.0",
+ "blockchain_protocol 0.1.0",
  "clap 2.26.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

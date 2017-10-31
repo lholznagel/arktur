@@ -167,6 +167,12 @@ impl BlockchainProtocol {
         result.push(converted_slice[3]);
         result.push(converted_slice[4]);
         result.push(converted_slice[5]);
+
+        let data_converted = self.data.as_bytes();
+        for index in data_converted {
+            result.push(*index);
+        }
+
         result
     }
 }
