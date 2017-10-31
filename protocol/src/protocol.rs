@@ -1,5 +1,6 @@
 //! Contains the protocol model and a builder for the protocol
-use enums::events::{as_enum, as_number, EventCodes};
+use enums::events::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
+use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
 use hex::FromHex;
 use nom::GetInput;
 use std::{slice, mem};
@@ -31,7 +32,7 @@ pub struct BlockchainProtocol {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: EventCodes,
     /// Status of this message, defined by a number between 0 and 255
-    pub status_code: u8,
+    pub status_code: StatusCodes,
     /// Identification of this message
     pub id: u16,
     /// TTL of this message
@@ -47,7 +48,7 @@ impl BlockchainProtocol {
     pub fn new() -> Self {
         BlockchainProtocol {
             event_code: EventCodes::NotAValidEvent,
-            status_code: 0,
+            status_code: StatusCodes::Undefined,
             id: 0,
             ttl: 0,
             data_length: 0,
@@ -123,13 +124,31 @@ impl BlockchainProtocol {
     ///
     /// # Parameters
     ///
-    /// - `data` - payload that should be send
+    /// - `event_code` - Event code
     ///
     /// # Return
     ///
     /// Updated instance of the struct
     pub fn set_event_code(mut self, event_code: EventCodes) -> Self {
         self.event_code = event_code;
+        self
+    }
+
+    /// Sets the status code
+    ///
+    /// # Default
+    ///
+    /// StatusCodes::Undefined
+    ///
+    /// # Parameters
+    ///
+    /// - `status_code` - status code of the message
+    ///
+    /// # Return
+    ///
+    /// Updated instance of the struct
+    pub fn set_status_code(mut self, status_code: StatusCodes) -> Self {
+        self.status_code = status_code;
         self
     }
 
@@ -163,8 +182,8 @@ impl BlockchainProtocol {
         };
 
         let mut result: Vec<u8> = Vec::new();
-        result.push(as_number(self.event_code));
-        result.push(self.status_code);
+        result.push(as_number_event(self.event_code));
+        result.push(as_number_status(self.status_code));
         result.push(converted_slice[0]);
         result.push(converted_slice[1]);
         result.push(converted_slice[2]);
@@ -194,17 +213,18 @@ impl BlockchainProtocol {
     /// ```
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
+    /// use blockchain_protocol::enums::status::StatusCodes;
     ///
     /// let expected = BlockchainProtocol {
     ///     event_code: EventCodes::Pong,
-    ///     status_code: 2,
+    ///     status_code: StatusCodes::Ok,
     ///     id: 65535,
     ///     ttl: 1337,
     ///     data_length: 0,
     ///     data: String::from("")
     /// };
     ///
-    /// let data = &[1, 2, 255, 255, 5, 57, 0, 0];
+    /// let data = &[1, 0, 255, 255, 5, 57, 0, 0];
     /// let result = BlockchainProtocol::from_u8(data);
     /// assert_eq!(result, expected);
     /// ```
@@ -214,8 +234,8 @@ impl BlockchainProtocol {
         let remaining = parsed.remaining_input().unwrap();
 
         BlockchainProtocol {
-            event_code: as_enum(result.0),
-            status_code: result.1,
+            event_code: as_enum_event(result.0),
+            status_code: as_enum_status(result.1),
             id: result.2,
             ttl: result.3,
             data_length: result.4,
@@ -228,19 +248,20 @@ impl BlockchainProtocol {
 mod tests {
     use super::*;
     use enums::events::EventCodes;
+    use enums::status::StatusCodes;
 
     #[test]
     fn test_u8() {
         let expected = BlockchainProtocol {
             event_code: EventCodes::Pong,
-            status_code: 2,
+            status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
             data_length: 0,
             data: String::from(""),
         };
 
-        let data = &[1, 2, 255, 255, 5, 57, 0, 0];
+        let data = &[1, 255, 255, 255, 5, 57, 0, 0];
         let result = BlockchainProtocol::from_u8(data);
         assert_eq!(result, expected);
     }
@@ -249,14 +270,14 @@ mod tests {
     fn test_hex() {
         let expected = BlockchainProtocol {
             event_code: EventCodes::Pong,
-            status_code: 2,
+            status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
             data_length: 0,
             data: String::from(""),
         };
 
-        let data = &[0x01, 0x02, 0xFF, 0xFF, 0x05, 0x39, 0x00, 0x00];
+        let data = &[0x01, 0xFF, 0xFF, 0xFF, 0x05, 0x39, 0x00, 0x00];
         let result = BlockchainProtocol::from_u8(data);
         assert_eq!(result, expected);
     }
@@ -265,14 +286,14 @@ mod tests {
     fn test_with_data() {
         let expected = BlockchainProtocol {
             event_code: EventCodes::Pong,
-            status_code: 2,
+            status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
             data_length: 0,
             data: String::from("I am a test message"),
         };
 
-        let data = &[1, 2, 255, 255, 5, 57, 0, 0, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101];
+        let data = &[1, 255, 255, 255, 5, 57, 0, 0, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101];
         let result = BlockchainProtocol::from_u8(data);
         assert_eq!(result, expected);
     }
