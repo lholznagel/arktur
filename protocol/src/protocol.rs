@@ -1,7 +1,6 @@
 //! Contains the protocol model and a builder for the protocol
 use enums::events::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
-use hex::FromHex;
 use nom::GetInput;
 use std::{slice, mem};
 use std::str;
@@ -84,36 +83,6 @@ impl BlockchainProtocol {
     /// TODO: example
     pub fn from_u8(data: &[u8]) -> Self {
         BlockchainProtocol::parse(data)
-    }
-
-    /// Parses a string reference to the BlockchainProtocol struct
-    ///
-    /// # Parameter
-    ///
-    /// - `data` - string reference that should be parsed
-    ///
-    /// # Return
-    ///
-    /// Parsed result of the string reference
-    ///
-    /// TODO: example
-    pub fn from_str(data: &str) -> Self {
-        BlockchainProtocol::from_vec(data.from_hex())
-    }
-
-    /// Parses a String to the BlockchainProtocol struct
-    ///
-    /// # Parameter
-    ///
-    /// - `data` - String that should be parsed
-    ///
-    /// # Return
-    ///
-    /// Parsed result of the String
-    ///
-    /// TODO: example
-    pub fn from_string(data: String) -> Self {
-        BlockchainProtocol::from_vec(data.as_str().from_hex())
     }
 
     /// Sets the event code

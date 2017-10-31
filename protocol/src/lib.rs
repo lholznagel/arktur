@@ -5,7 +5,6 @@
 extern crate nom;
 
 pub mod enums;
-pub mod hex;
 
 mod protocol;
 
