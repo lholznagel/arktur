@@ -1,6 +1,6 @@
 #![deny(missing_docs)]
 
-//! Helper library for parsng the protocol (still needs a name) that is used in this project
+//! Helper library for parsing the protocol (still needs a better name) that is used in this project
 #[macro_use]
 extern crate nom;
 

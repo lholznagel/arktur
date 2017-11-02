@@ -3,7 +3,7 @@ use blockchain_protocol::enums::events::EventCodes;
 use event::EventHandler;
 use std::net::{IpAddr, UdpSocket, SocketAddr};
 
-/// Stores all needed infomration about a udp client
+/// Stores all needed information about a udp client
 pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
@@ -60,7 +60,7 @@ impl UdpClient {
     ///
     /// # Return
     ///
-    /// `UdpSocket` - Open UdpSocet
+    /// `UdpSocket` - Open UdpSocket
     ///
     /// # Example
     ///

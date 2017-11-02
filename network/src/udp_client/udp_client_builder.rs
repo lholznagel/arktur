@@ -5,7 +5,7 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, UdpSocket, SocketAddr};
 #[derive(Copy, Clone, Debug)]
 /// Stores all needed information about the udp connection
 pub struct UdpClientBuilder {
-    /// IP-Adress, represented as a ipv6 address
+    /// IP-Address, represented as a ipv6 address
     ip: IpAddr,
     /// Port the client listens to
     port: u16
@@ -17,7 +17,7 @@ impl UdpClientBuilder {
     /// # Defaults
     ///
     /// Per default the port is set to 0, this forces the kernel to select a port
-    /// Per default all IP-Adresses are saved as IPv6 addresses
+    /// Per default all IP-Addresses are saved as IPv6 addresses
     /// for setting a specific port call `set_port()`
     ///
     /// Per default the UDP Client listenes on 0.0.0.0
