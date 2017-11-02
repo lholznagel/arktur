@@ -6,7 +6,7 @@
 /// See the fields for documentation
 #[derive(Debug, PartialEq)]
 pub enum EventCodes {
-    /// This event shoudl be fired to check if another peer
+    /// This event should be fired to check if another peer
     /// is active.
     ///
     /// Listen to the PONG event for an answer.

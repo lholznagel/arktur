@@ -13,7 +13,7 @@ named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u
 /// ```
 /// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // | Eventcode             | Status                |                 ID                            |
+/// // | Event code            | Status                |                 ID                            |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // |                 TTL                           |                 Data length                   |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -212,7 +212,7 @@ impl BlockchainProtocol {
     ///
     /// # Return
     ///
-    /// BLockchainProtocl struct. See struct for more information
+    /// BlockchainProtocol struct. See struct for more information
     ///
     /// # Example
     /// ```

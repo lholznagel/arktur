@@ -8,7 +8,7 @@ pub struct EventHandler {
     ///
     /// # Parameters
     ///
-    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
     pub ping_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol),
@@ -18,7 +18,7 @@ pub struct EventHandler {
     ///
     /// # Parameters
     ///
-    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
     pub pong_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol),
@@ -28,7 +28,7 @@ pub struct EventHandler {
     ///
     /// # Parameters
     ///
-    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
     pub register_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol),
@@ -38,7 +38,7 @@ pub struct EventHandler {
     ///
     /// # Parameters
     ///
-    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
     pub register_ack_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol),
@@ -48,7 +48,7 @@ pub struct EventHandler {
     ///
     /// # Parameters
     ///
-    /// - `socketAddr` - socket address fromt he peer that send the message
+    /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
     pub peer_registering_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol)

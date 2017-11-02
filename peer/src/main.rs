@@ -14,7 +14,7 @@ use std::net::SocketAddr;
 pub mod handlers;
 
 fn main() {
-    let matches = App::new("Blochain network cli")
+    let matches = App::new("Blockchain network cli")
         .version("0.1.0")
         .author("Lars Holznagel")
         .about("Client tool using the blockchain_network library")
