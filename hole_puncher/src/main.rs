@@ -54,6 +54,8 @@ use blockchain_network::event::EventHandler;
 use blockchain_network::udp_client::UdpClientBuilder;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
+use blockchain_protocol::enums::status::StatusCodes;
+use blockchain_protocol::payload::{PayloadParser, PeerRegisteringPayload, RegisterPayload, RegisterAckPayload};
 
 use std::fs::{File, remove_file};
 use std::io::{Read, Write};
@@ -77,21 +79,20 @@ fn main() {
 }
 
 /// Handler for the REGISTER event
-fn register_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol) {
+fn register_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<RegisterPayload>) {
     let mut file = File::open("last_peer").unwrap();
     let mut content = String::from("");
-    let response;
+    let mut status = StatusCodes::Ok;
 
     file.read_to_string(&mut content).unwrap();
 
     if content == "" {
-        response = "NO_PEER";
+        status = StatusCodes::NoPeer;
     } else {
-        response = content.as_str();
-
+        let payload = PeerRegisteringPayload::new().set_addr(source.to_string());
         let message = BlockchainProtocol::new()
             .set_event_code(EventCodes::PeerRegistering)
-            .set_data(source.to_string())
+            .set_payload(payload)
             .build();
         udp.send_to(message.as_slice(), content.parse::<SocketAddr>().unwrap())
             .unwrap();
@@ -100,11 +101,12 @@ fn register_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol) 
     let mut file = File::create("last_peer").unwrap();
     file.write_all(source.to_string().as_bytes()).unwrap();
 
-    sending!(format!("ACK_REGISTER | {}", response));
-
+    let payload = RegisterAckPayload::new().set_addr(content);
+    sending!(format!("ACK_REGISTER | {:?}", payload));
     let message = BlockchainProtocol::new()
         .set_event_code(EventCodes::AckRegister)
-        .set_data(String::from(response))
+        .set_status_code(status)
+        .set_payload(payload)
         .build();
     udp.send_to(message.as_slice(), source).unwrap();
 }
