@@ -51,7 +51,7 @@ impl UdpClientBuilder {
     /// // with calling build you get a `std::net::UdpSocket` from rust
     /// let data = [0; 10];
     /// let address = "0.0.0.0:50000";
-    /// udp_client.connection().send_to(&data, address);
+    /// udp_client.connection().send_to(&data, address).unwrap();
     /// ```
     pub fn build(self, handlers: EventHandler) -> UdpClient {
         let socket = SocketAddr::new(self.ip, self.port);

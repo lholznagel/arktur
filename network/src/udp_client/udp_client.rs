@@ -1,7 +1,9 @@
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::events::EventCodes;
+use blockchain_protocol::enums::events::{as_enum, EventCodes};
+use blockchain_protocol::payload::*;
 use event::EventHandler;
 use std::net::{IpAddr, UdpSocket, SocketAddr};
+use std::str;
 
 /// Stores all needed information about a udp client
 pub struct UdpClient {
@@ -45,11 +47,11 @@ impl UdpClient {
     /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
-        let message = BlockchainProtocol::new()
+        let payload = RegisterPayload::new().set_addr(self.udp.local_addr().unwrap().to_string());
+
+        let message = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::Register)
-            .set_data(String::from(
-                self.udp.local_addr().unwrap().to_string().as_str(),
-            ))
+            .set_payload(payload)
             .build();
 
         self.udp.send_to(message.as_slice(), address).unwrap();
@@ -73,7 +75,7 @@ impl UdpClient {
     ///
     /// let data = [0; 10];
     /// let address = "0.0.0.0:50000";
-    /// udp_client.connection().send_to(&data, address);
+    /// udp_client.connection().send_to(&data, address).unwrap();
     /// ```
     pub fn connection(self) -> UdpSocket {
         self.udp
@@ -138,23 +140,25 @@ impl UdpClient {
                     for i in 0..bytes {
                         updated_buffer.push(buffer[i])
                     }
-                    let protocol = BlockchainProtocol::from_vec(updated_buffer);
 
-                    match protocol.event_code {
+                    let event = str::from_utf8(&[updated_buffer[0]]).unwrap().parse::<u8>().unwrap();
+                    //slet protocol = BlockchainProtocol::from_vec(updated_buffer);
+
+                    match as_enum(event) {
                         EventCodes::Ping => {
-                            (self.handlers.ping_handler)(source, &self.udp, protocol)
+                            (self.handlers.ping_handler)(source, &self.udp, BlockchainProtocol::<PingPayload>::from_vec(updated_buffer))
                         }
                         EventCodes::Pong => {
-                            (self.handlers.pong_handler)(source, &self.udp, protocol)
+                            (self.handlers.pong_handler)(source, &self.udp, BlockchainProtocol::<PongPayload>::from_vec(updated_buffer))
                         }
                         EventCodes::Register => {
-                            (self.handlers.register_handler)(source, &self.udp, protocol)
+                            (self.handlers.register_handler)(source, &self.udp, BlockchainProtocol::<RegisterPayload>::from_vec(updated_buffer))
                         }
                         EventCodes::AckRegister => {
-                            (self.handlers.register_ack_handler)(source, &self.udp, protocol)
+                            (self.handlers.register_ack_handler)(source, &self.udp, BlockchainProtocol::<RegisterAckPayload>::from_vec(updated_buffer))
                         }
                         EventCodes::PeerRegistering => {
-                            (self.handlers.peer_registering_handler)(source, &self.udp, protocol)
+                            (self.handlers.peer_registering_handler)(source, &self.udp, BlockchainProtocol::<PeerRegisteringPayload>::from_vec(updated_buffer))
                         }
                         EventCodes::NotAValidEvent => {}
                     };

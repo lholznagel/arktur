@@ -1,12 +1,13 @@
 //! Contains the protocol model and a builder for the protocol
 use enums::events::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
+use payload::PayloadParser;
 use nom::GetInput;
 use std::{slice, mem};
-use std::str;
 
 /// Parser for the protocol
 named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u8, 8), take_bits!(u8, 8), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u16, 16))));
+named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), is_not!("~"), char!('~'))));
 
 /// Struct of the protocol
 ///
@@ -27,7 +28,7 @@ named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u
 ///
 /// - TODO: add checksum
 #[derive(Debug, PartialEq)]
-pub struct BlockchainProtocol {
+pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: EventCodes,
     /// Status of this message, defined by a number between 0 and 255
@@ -36,13 +37,13 @@ pub struct BlockchainProtocol {
     pub id: u16,
     /// TTL of this message
     pub ttl: u16,
-    /// Length of the added data field
-    pub data_length: u16,
-    /// Contains the content of the data field
-    pub data: String,
+    /// Length of the added payload field
+    pub payload_length: u16,
+    /// Contains the content of the payload field
+    pub payload: T,
 }
 
-impl BlockchainProtocol {
+impl<T: PayloadParser> BlockchainProtocol<T> {
     /// Creates a new instance of the protocol information
     pub fn new() -> Self {
         BlockchainProtocol {
@@ -50,8 +51,8 @@ impl BlockchainProtocol {
             status_code: StatusCodes::Undefined,
             id: 0,
             ttl: 0,
-            data_length: 0,
-            data: String::from(""),
+            payload_length: 0,
+            payload: T::new(),
         }
     }
 
@@ -59,7 +60,7 @@ impl BlockchainProtocol {
     ///
     /// # Parameter
     ///
-    /// - `data` - byte vector that should be parsed
+    /// - `payload` - byte vector that should be parsed
     ///
     /// # Return
     ///
@@ -70,29 +71,31 @@ impl BlockchainProtocol {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
+    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
     ///
+    /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
     ///     event_code: EventCodes::Pong,
     ///     status_code: StatusCodes::Ok,
     ///     id: 65535,
     ///     ttl: 1337,
-    ///     data_length: 0,
-    ///     data: String::from("")
+    ///     payload_length: 0,
+    ///     payload: payload
     /// };
     ///
-    /// let data = vec![1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::from_vec(data);
+    /// let payload = vec![1, 0, 255, 255, 5, 57, 0, 0];
+    /// let result = BlockchainProtocol::<PingPayload>::from_vec(payload);
     /// assert_eq!(result, expected);
     /// ```
-    pub fn from_vec(data: Vec<u8>) -> Self {
-        BlockchainProtocol::parse(data.as_slice())
+    pub fn from_vec(payload: Vec<u8>) -> Self {
+        BlockchainProtocol::parse(payload.as_slice())
     }
 
     /// Parses a byte array to the BlockchainProtocol struct
     ///
     /// # Parameter
     ///
-    /// - `data` - byte array that should be parsed
+    /// - `payload` - byte array that should be parsed
     ///
     /// # Return
     ///
@@ -103,22 +106,24 @@ impl BlockchainProtocol {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
+    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
     ///
+    /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
     ///     event_code: EventCodes::Pong,
     ///     status_code: StatusCodes::Ok,
     ///     id: 65535,
     ///     ttl: 1337,
-    ///     data_length: 0,
-    ///     data: String::from("")
+    ///     payload_length: 0,
+    ///     payload: payload
     /// };
     ///
-    /// let data = &[1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::from_u8(data);
+    /// let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    /// let result = BlockchainProtocol::from_u8(payload);
     /// assert_eq!(result, expected);
     /// ```
-    pub fn from_u8(data: &[u8]) -> Self {
-        BlockchainProtocol::parse(data)
+    pub fn from_u8(payload: &[u8]) -> Self {
+        BlockchainProtocol::parse(payload)
     }
 
     /// Sets the event code
@@ -157,7 +162,7 @@ impl BlockchainProtocol {
         self
     }
 
-    /// Sets the data that should be send as payload
+    /// Sets the payload that should be send as payload
     ///
     /// # Default
     ///
@@ -165,20 +170,19 @@ impl BlockchainProtocol {
     ///
     /// # Parameters
     ///
-    /// - `data` - payload that should be send
+    /// - `payload` - payload that should be send
     ///
     /// # Return
     ///
     /// Updated instance of the struct
-    pub fn set_data(mut self, data: String) -> Self {
-        self.data = data.clone();
-        self.data_length = data.len().to_string().parse::<u16>().unwrap();
+    pub fn set_payload(mut self, payload: T) -> Self {
+        self.payload = payload;
         self
     }
 
     /// Combines the struct to a vector of bytes
     pub fn build(self) -> Vec<u8> {
-        let slice_u16: &[u16] = &*vec![self.id, self.ttl, self.data_length];
+        let slice_u16: &[u16] = &*vec![self.id, self.ttl, self.payload.length()];
         let converted_slice: &[u8] = unsafe {
             slice::from_raw_parts(
                 slice_u16.as_ptr() as *const u8,
@@ -196,9 +200,9 @@ impl BlockchainProtocol {
         result.push(converted_slice[4]);
         result.push(converted_slice[5]);
 
-        let data_converted = self.data.as_bytes();
-        for index in data_converted {
-            result.push(*index);
+        let payload_converted = self.payload.as_bytes();
+        for index in payload_converted {
+            result.push(index);
         }
 
         result
@@ -219,32 +223,37 @@ impl BlockchainProtocol {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
+    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
     ///
+    /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
     ///     event_code: EventCodes::Pong,
     ///     status_code: StatusCodes::Ok,
     ///     id: 65535,
     ///     ttl: 1337,
-    ///     data_length: 0,
-    ///     data: String::from("")
+    ///     payload_length: 0,
+    ///     payload: payload
     /// };
     ///
-    /// let data = &[1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::from_u8(data);
+    /// let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    /// let result = BlockchainProtocol::from_u8(payload);
     /// assert_eq!(result, expected);
     /// ```
-    fn parse(bytes: &[u8]) -> BlockchainProtocol {
+    fn parse(bytes: &[u8]) -> BlockchainProtocol<T> {
         let parsed = parse_protocol(bytes);
         let result = parsed.clone().to_result().unwrap();
-        let remaining = parsed.remaining_input().unwrap();
+        let remaining = parse_delimited(parsed.remaining_input().unwrap())
+            .to_result()
+            .unwrap();
+        let payload = T::parse(remaining);
 
         BlockchainProtocol {
             event_code: as_enum_event(result.0),
             status_code: as_enum_status(result.1),
             id: result.2,
             ttl: result.3,
-            data_length: result.4,
-            data: str::from_utf8(remaining).unwrap().to_string(),
+            payload_length: result.4,
+            payload: payload
         }
     }
 }
@@ -254,52 +263,56 @@ mod tests {
     use super::*;
     use enums::events::EventCodes;
     use enums::status::StatusCodes;
+    use payload::{PayloadParser, PingPayload, PongPayload};
 
     #[test]
     fn test_u8() {
-        let expected = BlockchainProtocol {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
-            data_length: 0,
-            data: String::from(""),
+            payload_length: 0,
+            payload: payload,
         };
 
-        let data = &[1, 255, 255, 255, 5, 57, 0, 0];
-        let result = BlockchainProtocol::from_u8(data);
+        let payload = &[1, 255, 255, 255, 5, 57, 0, 0];
+        let result = BlockchainProtocol::<PingPayload>::from_u8(payload);
         assert_eq!(result, expected);
     }
 
     #[test]
     fn test_hex() {
-        let expected = BlockchainProtocol {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
-            data_length: 0,
-            data: String::from(""),
+            payload_length: 0,
+            payload: payload,
         };
 
-        let data = &[0x01, 0xFF, 0xFF, 0xFF, 0x05, 0x39, 0x00, 0x00];
-        let result = BlockchainProtocol::from_u8(data);
+        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x05, 0x39, 0x00, 0x00];
+        let result = BlockchainProtocol::<PingPayload>::from_u8(payload);
         assert_eq!(result, expected);
     }
 
     #[test]
-    fn test_with_data() {
-        let expected = BlockchainProtocol {
+    fn test_with_payload() {
+        let payload = PongPayload::new().set_addr(String::from("I am a test message"));
+        let expected = BlockchainProtocol::<PongPayload> {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
             ttl: 1337,
-            data_length: 0,
-            data: String::from("I am a test message"),
+            payload_length: 23,
+            payload: payload,
         };
 
-        let data = &[1, 255, 255, 255, 5, 57, 0, 0, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101];
-        let result = BlockchainProtocol::from_u8(data);
+        let data = vec![1, 255, 255, 255, 5, 57, 0, 23, 126, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101, 126];
+        let result = BlockchainProtocol::<PongPayload>::from_vec(data);
         assert_eq!(result, expected);
     }
 }
