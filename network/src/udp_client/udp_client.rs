@@ -3,7 +3,6 @@ use blockchain_protocol::enums::events::{as_enum, EventCodes};
 use blockchain_protocol::payload::*;
 use event::EventHandler;
 use std::net::{IpAddr, UdpSocket, SocketAddr};
-use std::str;
 
 /// Stores all needed information about a udp client
 pub struct UdpClient {
@@ -47,11 +46,8 @@ impl UdpClient {
     /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
-        let payload = RegisterPayload::new().set_addr(self.udp.local_addr().unwrap().to_string());
-
         let message = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::Register)
-            .set_payload(payload)
             .build();
 
         self.udp.send_to(message.as_slice(), address).unwrap();

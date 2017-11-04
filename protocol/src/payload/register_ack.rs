@@ -1,19 +1,30 @@
-use payload::PayloadParser;
+use payload::PayloadModel;
 use std::str;
 
+/// Model for the event `RegisterAck`
 #[derive(Debug, PartialEq)]
 pub struct RegisterAckPayload {
+    /// Address of another peer
     pub addr: String,
 }
 
 impl RegisterAckPayload {
+    /// Sets the address another peer
+    ///
+    /// # Parameter
+    ///
+    /// - `addr` - Address of another peer
+    ///
+    /// # Return
+    ///
+    /// Updated instance
     pub fn set_addr(mut self, addr: String) -> Self {
         self.addr = addr;
         self
     }
 }
 
-impl PayloadParser for RegisterAckPayload {
+impl PayloadModel for RegisterAckPayload {
     fn new() -> Self {
         RegisterAckPayload { addr: String::from("") }
     }

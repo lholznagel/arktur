@@ -55,7 +55,7 @@ use blockchain_network::udp_client::UdpClientBuilder;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PayloadParser, PeerRegisteringPayload, RegisterPayload, RegisterAckPayload};
+use blockchain_protocol::payload::{PayloadModel, PeerRegisteringPayload, RegisterPayload, RegisterAckPayload};
 
 use std::fs::{File, remove_file};
 use std::io::{Read, Write};
