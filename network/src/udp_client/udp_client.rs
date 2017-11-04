@@ -141,10 +141,7 @@ impl UdpClient {
                         updated_buffer.push(buffer[i])
                     }
 
-                    let event = str::from_utf8(&[updated_buffer[0]]).unwrap().parse::<u8>().unwrap();
-                    //slet protocol = BlockchainProtocol::from_vec(updated_buffer);
-
-                    match as_enum(event) {
+                    match as_enum(updated_buffer[0]) {
                         EventCodes::Ping => {
                             (self.handlers.ping_handler)(source, &self.udp, BlockchainProtocol::<PingPayload>::from_vec(updated_buffer))
                         }
