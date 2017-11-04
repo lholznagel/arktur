@@ -1,19 +1,30 @@
-use payload::PayloadParser;
+use payload::PayloadModel;
 use std::str;
 
+/// Model for the event `PeerRegistering`
 #[derive(Debug, PartialEq)]
 pub struct PeerRegisteringPayload {
+    /// Address of the peer that just registered
     pub addr: String,
 }
 
 impl PeerRegisteringPayload {
+    /// Sets the address of the peer
+    ///
+    /// # Parameters
+    ///
+    /// - `addr` - address of the peer containing the IP and port
+    ///
+    /// # Returns
+    ///
+    /// Updated model
     pub fn set_addr(mut self, addr: String) -> Self {
         self.addr = addr;
         self
     }
 }
 
-impl PayloadParser for PeerRegisteringPayload {
+impl PayloadModel for PeerRegisteringPayload {
     fn new() -> Self {
         PeerRegisteringPayload { addr: String::from("") }
     }

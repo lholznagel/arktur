@@ -1,7 +1,7 @@
 //! Contains the protocol model and a builder for the protocol
 use enums::events::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
-use payload::PayloadParser;
+use payload::PayloadModel;
 use nom::GetInput;
 use std::{slice, mem};
 
@@ -43,7 +43,7 @@ pub struct BlockchainProtocol<T> {
     pub payload: T,
 }
 
-impl<T: PayloadParser> BlockchainProtocol<T> {
+impl<T: PayloadModel> BlockchainProtocol<T> {
     /// Creates a new instance of the protocol information
     pub fn new() -> Self {
         BlockchainProtocol {
@@ -71,7 +71,7 @@ impl<T: PayloadParser> BlockchainProtocol<T> {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
-    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
+    /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
     /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
@@ -106,7 +106,7 @@ impl<T: PayloadParser> BlockchainProtocol<T> {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
-    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
+    /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
     /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
@@ -223,7 +223,7 @@ impl<T: PayloadParser> BlockchainProtocol<T> {
     /// use blockchain_protocol::BlockchainProtocol;
     /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
-    /// use blockchain_protocol::payload::{PayloadParser, PingPayload};
+    /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
     /// let payload = PingPayload::new();
     /// let expected = BlockchainProtocol {
@@ -263,7 +263,7 @@ mod tests {
     use super::*;
     use enums::events::EventCodes;
     use enums::status::StatusCodes;
-    use payload::{PayloadParser, PingPayload, PongPayload};
+    use payload::{PayloadModel, PingPayload, RegisterAckPayload};
 
     #[test]
     fn test_u8() {
@@ -301,8 +301,8 @@ mod tests {
 
     #[test]
     fn test_with_payload() {
-        let payload = PongPayload::new().set_addr(String::from("I am a test message"));
-        let expected = BlockchainProtocol::<PongPayload> {
+        let payload = RegisterAckPayload::new().set_addr(String::from("I am a test message"));
+        let expected = BlockchainProtocol::<RegisterAckPayload> {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
@@ -312,7 +312,7 @@ mod tests {
         };
 
         let data = vec![1, 255, 255, 255, 5, 57, 0, 23, 126, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101, 126];
-        let result = BlockchainProtocol::<PongPayload>::from_vec(data);
+        let result = BlockchainProtocol::<RegisterAckPayload>::from_vec(data);
         assert_eq!(result, expected);
     }
 }

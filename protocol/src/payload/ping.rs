@@ -1,9 +1,10 @@
-use payload::PayloadParser;
+use payload::PayloadModel;
 
+/// Model for the event `Ping`
 #[derive(Debug, PartialEq)]
 pub struct PingPayload;
 
-impl PayloadParser for PingPayload {
+impl PayloadModel for PingPayload {
     fn new() -> Self {
         PingPayload
     }
