@@ -125,8 +125,6 @@ impl UdpClient {
     ///
     /// This function is blocking!
     pub fn listen(self) -> Self {
-        //self.notify_hole_puncher();
-
         loop {
             let mut buffer = [0; 1024];
 
@@ -139,19 +137,24 @@ impl UdpClient {
 
                     match as_enum(updated_buffer[0]) {
                         EventCodes::Ping => {
-                            (self.handlers.ping_handler)(source, &self.udp, BlockchainProtocol::<PingPayload>::from_vec(updated_buffer))
+                            let data = BlockchainProtocol::<PingPayload>::from_vec(updated_buffer);
+                            (self.handlers.ping_handler)(source, &self.udp, data);
                         }
                         EventCodes::Pong => {
-                            (self.handlers.pong_handler)(source, &self.udp, BlockchainProtocol::<PongPayload>::from_vec(updated_buffer))
+                            let data = BlockchainProtocol::<PongPayload>::from_vec(updated_buffer);
+                            (self.handlers.pong_handler)(source, &self.udp, data);
                         }
                         EventCodes::Register => {
-                            (self.handlers.register_handler)(source, &self.udp, BlockchainProtocol::<RegisterPayload>::from_vec(updated_buffer))
+                            let data = BlockchainProtocol::<RegisterPayload>::from_vec(updated_buffer);
+                            (self.handlers.register_handler)(source, &self.udp, data);
                         }
                         EventCodes::AckRegister => {
-                            (self.handlers.register_ack_handler)(source, &self.udp, BlockchainProtocol::<RegisterAckPayload>::from_vec(updated_buffer))
+                            let data = BlockchainProtocol::<RegisterAckPayload>::from_vec(updated_buffer);
+                            (self.handlers.register_ack_handler)(source, &self.udp, data);
                         }
                         EventCodes::PeerRegistering => {
-                            (self.handlers.peer_registering_handler)(source, &self.udp, BlockchainProtocol::<PeerRegisteringPayload>::from_vec(updated_buffer))
+                            let data = BlockchainProtocol::<PeerRegisteringPayload>::from_vec(updated_buffer);
+                            (self.handlers.peer_registering_handler)(source, &self.udp, data);
                         }
                         EventCodes::NotAValidEvent => {}
                     };
