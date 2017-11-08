@@ -45,9 +45,12 @@ impl UdpClient {
     /// let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
     /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
     /// ```
-    pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
+    pub fn notify_hole_puncher(self, address: SocketAddr, name: String) -> Self {
+        let payload = RegisterPayload::new().set_name(name);
+
         let message = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::Register)
+            .set_payload(payload)
             .build();
 
         self.udp.send_to(message.as_slice(), address).unwrap();
