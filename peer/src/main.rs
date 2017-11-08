@@ -23,6 +23,11 @@ fn main() {
             .help("Sets the IP of the Hole puncher service")
             .takes_value(true)
             .required(true))
+        .arg(Arg::with_name("PEER_NAME")
+            .value_name("name")
+            .help("Name of the peer")
+            .takes_value(true)
+            .required(true))
         .arg(Arg::with_name("HOLE_PUNCHER_PORT")
             .value_name("port")
             .help("Sets the port of the Hole puncher service.")
@@ -35,10 +40,10 @@ fn main() {
     combined.push_str(":");
     combined.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
     info!(format!("Hole puncher: {:?}", combined));
-    connect(combined.parse::<SocketAddr>().unwrap());
+    connect(combined.parse::<SocketAddr>().unwrap(), String::from(matches.value_of("PEER_NAME").unwrap()));
 }
 
-fn connect(addr: SocketAddr) {
+fn connect(addr: SocketAddr, name: String) {
     let event_handler = EventHandler::new();
     let event_handler = event_handler
         .set_ping_handler(handlers::ping_handler)
@@ -47,6 +52,6 @@ fn connect(addr: SocketAddr) {
         .set_register_ack_handler(handlers::register_ack_handler);
 
     let udp_client = UdpClientBuilder::new().build(event_handler);
-    let udp_client = udp_client.notify_hole_puncher(addr);
+    let udp_client = udp_client.notify_hole_puncher(addr, name);
     udp_client.listen();
 }
