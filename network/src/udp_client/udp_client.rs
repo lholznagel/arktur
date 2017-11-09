@@ -43,7 +43,7 @@ impl UdpClient {
     /// use std::net::{SocketAddr, IpAddr, Ipv4Addr};
     ///
     /// let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
-    /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address);
+    /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address, String::from("PeerName"));
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr, name: String) -> Self {
         let payload = RegisterPayload::new().set_name(name);
