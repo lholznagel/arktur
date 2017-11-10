@@ -1,6 +1,6 @@
 [package]
 authors = ["lholznagel <lars.holznagel@outlook.com>"]
-name = "blockchain_hole_puncher"
+name = "blockchain_connection_manager"
 version = "0.1.0"
 
 [dependencies]
