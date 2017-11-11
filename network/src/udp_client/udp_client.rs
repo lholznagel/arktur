@@ -159,6 +159,18 @@ impl UdpClient {
                             let data = BlockchainProtocol::<PeerRegisteringPayload>::from_vec(updated_buffer);
                             (self.handlers.peer_registering_handler)(source, &self.udp, data);
                         }
+                        EventCodes::NewBlock => {
+                            let data = BlockchainProtocol::<NewBlockPayload>::from_vec(updated_buffer);
+                            (self.handlers.new_block_handler)(source, &self.udp, data);
+                        }
+                        EventCodes::PossibleBlock => {
+                            let data = BlockchainProtocol::<PossibleBlockPayload>::from_vec(updated_buffer);
+                            (self.handlers.possible_block_handler)(source, &self.udp, data);
+                        }
+                        EventCodes::FoundBlock => {
+                            let data = BlockchainProtocol::<FoundBlockPayload>::from_vec(updated_buffer);
+                            (self.handlers.found_block_handler)(source, &self.udp, data);
+                        }
                         EventCodes::NotAValidEvent => {}
                     };
                 }
