@@ -5,6 +5,7 @@ panic = 'abort'
 [workspace]
 members = [
   "connection_manager",
+  "file",
   "logging",
   "network",
   "peer",
