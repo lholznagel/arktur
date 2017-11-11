@@ -1,10 +1,9 @@
+use blockchain_file::KnownPeers;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{PayloadModel, PeerRegisteringPayload, RegisterPayload, RegisterAckPayload};
 
-use std::fs::File;
-use std::io::{Read, Write};
 use std::net::{UdpSocket, SocketAddr};
 
 /// # What does it do?
@@ -53,14 +52,11 @@ use std::net::{UdpSocket, SocketAddr};
 /// - The connection between both networks should be good to go
 ///
 /// Handles a new peer
-pub fn register_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<RegisterPayload>) {
-    let mut file = File::open("last_peer").unwrap();
-    let mut content = String::from("");
+pub fn register_handler(source: SocketAddr, udp: &UdpSocket, register_payload: BlockchainProtocol<RegisterPayload>) {
+    let last_peer = KnownPeers::get_latest();
     let mut status = StatusCodes::Ok;
 
-    file.read_to_string(&mut content).unwrap();
-
-    if content == "" {
+    if last_peer.name == "" {
         status = StatusCodes::NoPeer;
     } else {
         let payload = PeerRegisteringPayload::new().set_addr(source.to_string());
@@ -68,14 +64,13 @@ pub fn register_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtoc
             .set_event_code(EventCodes::PeerRegistering)
             .set_payload(payload)
             .build();
-        udp.send_to(message.as_slice(), content.parse::<SocketAddr>().unwrap())
+        udp.send_to(message.as_slice(), last_peer.socket.parse::<SocketAddr>().unwrap())
             .unwrap();
     }
 
-    let mut file = File::create("last_peer").unwrap();
-    file.write_all(source.to_string().as_bytes()).unwrap();
+    KnownPeers::new(register_payload.payload.name(), source.to_string()).save();
 
-    let payload = RegisterAckPayload::new().set_addr(content);
+    let payload = RegisterAckPayload::new().set_addr(last_peer.socket);
     sending!(format!("ACK_REGISTER | {:?}", payload));
     let message = BlockchainProtocol::new()
         .set_event_code(EventCodes::AckRegister)
