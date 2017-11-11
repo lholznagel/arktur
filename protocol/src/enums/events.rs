@@ -40,10 +40,31 @@ pub enum EventCodes {
     ///
     /// Code: 18
     PeerRegistering,
+    /// This event is send by the connection manager, when a new block
+    /// should be mined
+    /// Content of the message contains the index of the block,
+    /// the content of the block, the timestamp of the block,
+    /// and the hash of the last block.
+    /// The expected result is hash and a nonce that was used to generate
+    /// this block
+    ///
+    /// Code 32
+    NewBlock,
+    /// This event is fired by a peer that found a possible block
+    /// Content of this message should be the nonce and the hash
+    ///
+    /// Code 33
+    PossibleBlock,
+    /// Fired by the connection manager, when a block was found
+    /// Contains the all information about a block
+    /// All peers should stop mining when this message comes
+    ///
+    /// Code 34
+    FoundBlock,
     /// Fired when the umber does not match any events
     ///
     /// Code: 255
-    NotAValidEvent
+    NotAValidEvent,
 }
 
 /// Converts an integer to the corresponding `EventCode` enum value
@@ -72,7 +93,10 @@ pub fn as_enum(value: u8) -> EventCodes {
         16 => EventCodes::Register,
         17 => EventCodes::AckRegister,
         18 => EventCodes::PeerRegistering,
-        _ =>EventCodes::NotAValidEvent,
+        32 => EventCodes::NewBlock,
+        33 => EventCodes::PossibleBlock,
+        34 => EventCodes::FoundBlock,
+        _ => EventCodes::NotAValidEvent,
     }
 }
 
@@ -99,6 +123,9 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::Register => 16,
         EventCodes::AckRegister => 17,
         EventCodes::PeerRegistering => 18,
+        EventCodes::NewBlock => 32,
+        EventCodes::PossibleBlock => 33,
+        EventCodes::FoundBlock => 34,
         EventCodes::NotAValidEvent => 255,
     }
 }
@@ -110,8 +137,8 @@ mod tests {
     #[test]
     fn get_enum() {
         match as_enum(0) {
-            EventCodes::Ping => {},
-            _ => panic!("Wrong outcome")
+            EventCodes::Ping => {}
+            _ => panic!("Wrong outcome"),
         }
     }
 

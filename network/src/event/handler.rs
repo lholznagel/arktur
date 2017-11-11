@@ -52,7 +52,37 @@ pub struct EventHandler {
     /// - `socketAddr` - socket address from the peer that send the message
     /// - `udpSocket` - connection of the udp socket
     /// - `message` - parsed protocol
-    pub peer_registering_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PeerRegisteringPayload>)
+    pub peer_registering_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PeerRegisteringPayload>),
+
+    /// Function that is called on a NEW_BLOCK event
+    /// Code: 32
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address from the peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - parsed protocol
+    pub new_block_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<NewBlockPayload>),
+
+    /// Function that is called on a POSSIBLE_BLOCK event
+    /// Code: 33
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address from the peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - parsed protocol
+    pub possible_block_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PossibleBlockPayload>),
+
+    /// Function that is called on a FOUND_BLOCK event
+    /// Code: 34
+    ///
+    /// # Parameters
+    ///
+    /// - `socketAddr` - socket address from the peer that send the message
+    /// - `udpSocket` - connection of the udp socket
+    /// - `message` - parsed protocol
+    pub found_block_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<FoundBlockPayload>)
 }
 
 /// Contains all handler for events
@@ -64,13 +94,19 @@ impl EventHandler {
         fn empty_register(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<RegisterPayload>) {}
         fn empty_register_ack(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<RegisterAckPayload>) {}
         fn empty_peer_registering(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PeerRegisteringPayload>) {}
+        fn empty_new_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<NewBlockPayload>) {}
+        fn empty_possbile_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PossibleBlockPayload>) {}
+        fn empty_found_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<FoundBlockPayload>) {}
 
         EventHandler {
             ping_handler: empty_ping,
             pong_handler: empty_pong,
             register_handler: empty_register,
             register_ack_handler: empty_register_ack,
-            peer_registering_handler: empty_peer_registering
+            peer_registering_handler: empty_peer_registering,
+            new_block_handler: empty_new_block,
+            possible_block_handler: empty_possbile_block,
+            found_block_handler: empty_found_block
         }
     }
 
@@ -226,6 +262,99 @@ impl EventHandler {
     /// ```
     pub fn set_register_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<RegisterPayload>)) -> Self {
         self.register_handler = function;
+        self
+    }
+
+    /// Sets the `NEW_BLOCK` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate blockchain_network;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::payload::NewBlockPayload;
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// # fn main() {
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_new_block_handler(new_block_handler);
+    /// # }
+    ///
+    /// fn new_block_handler(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<NewBlockPayload>) {
+    ///     // do something
+    /// }
+    /// ```
+    pub fn set_new_block_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<NewBlockPayload>)) -> Self {
+        self.new_block_handler = function;
+        self
+    }
+
+    /// Sets the `POSSIBLE_BLOCK` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate blockchain_network;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::payload::PossibleBlockPayload;
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// # fn main() {
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_possible_block_handler(possible_block_handler);
+    /// # }
+    ///
+    /// fn possible_block_handler(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PossibleBlockPayload>) {
+    ///     // do something
+    /// }
+    /// ```
+    pub fn set_possible_block_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PossibleBlockPayload>)) -> Self {
+        self.possible_block_handler = function;
+        self
+    }
+
+    /// Sets the `FOUND_BLOCK` event handler
+    ///
+    /// # Parameters
+    ///
+    /// - `function` - function that should be called
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate blockchain_network;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::payload::FoundBlockPayload;
+    /// use blockchain_network::event::EventHandler;
+    /// use std::net::{UdpSocket, SocketAddr};
+    ///
+    /// # fn main() {
+    /// let event_handler = EventHandler::new();
+    /// event_handler.set_found_block_handler(found_block_handler);
+    /// # }
+    ///
+    /// fn found_block_handler(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<FoundBlockPayload>) {
+    ///     // do something
+    /// }
+    /// ```
+    pub fn set_found_block_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<FoundBlockPayload>)) -> Self {
+        self.found_block_handler = function;
         self
     }
 }
