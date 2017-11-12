@@ -1,3 +1,4 @@
-mod peers;
+#![deny(missing_docs)]
 
-pub use peers::KnownPeers;
+//! Handles everything that has to do with peers
+pub mod peers;
