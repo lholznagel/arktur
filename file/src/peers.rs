@@ -1,3 +1,4 @@
+use std::fs;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 
@@ -7,6 +8,11 @@ pub struct KnownPeers {
 }
 
 impl KnownPeers {
+    pub fn init() {
+        fs::create_dir("./peers").unwrap();
+        File::create("./peers/latest_peer").unwrap();
+    }
+
     pub fn new(name: String, socket: String) -> Self {
         KnownPeers {
             name: name,
