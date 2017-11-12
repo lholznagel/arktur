@@ -14,6 +14,7 @@ extern crate blockchain_protocol;
 
 mod hole_puncher;
 
+use blockchain_file::KnownPeers;
 use blockchain_network::event::EventHandler;
 use blockchain_network::udp_client::UdpClientBuilder;
 
@@ -21,6 +22,7 @@ use blockchain_network::udp_client::UdpClientBuilder;
 ///
 /// Registers all needed event handlers and starts a UDP-Listener
 fn main() {
+    KnownPeers::init();
     info!("Starting hole puncher!");
 
     let event_handlers = EventHandler::new()
