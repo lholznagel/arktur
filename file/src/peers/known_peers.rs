@@ -2,17 +2,33 @@ use std::fs;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 
+/// Contains all information about a peer
 pub struct KnownPeers {
+    /// Name of the peer
     pub name: String,
+    /// Socket addr of the peer
     pub socket: String,
 }
 
 impl KnownPeers {
+    /// Initializes all needed folders and files
+    ///
+    /// Should be called before all other methods
     pub fn init() {
         fs::create_dir("./peers").unwrap();
-        File::create("./peers/latest_peer").unwrap();
+        File::create("./peers/last_peer").unwrap();
     }
 
+    /// Creates a new instance
+    ///
+    /// # Parameters
+    ///
+    /// - `name` - Name of the peer
+    /// - `socket` - Socket of the peer
+    ///
+    /// # Return
+    ///
+    /// Instance of itself
     pub fn new(name: String, socket: String) -> Self {
         KnownPeers {
             name: name,
@@ -20,17 +36,30 @@ impl KnownPeers {
         }
     }
 
+    /// Saves the peer information as file
+    ///
+    /// Besides that, the file `last_peer` is updated 
+    ///
+    /// # Returns
+    ///
+    /// Instance of iteself
     pub fn save(self) -> Self {
         let mut file = File::create(format!("peers/{}", self.name)).unwrap();
         file.write_all(format!("{}\n{}", self.name, self.socket).as_bytes()).unwrap();
 
-        let mut file = File::create("peers/latest_peer").unwrap();
+        let mut file = File::create("peers/last_peer").unwrap();
         file.write_all(self.name.as_bytes()).unwrap();
         self
     }
 
+    /// Gets an instance of this struct containing the information
+    /// from the last peer that registered itself
+    ///
+    /// # Return
+    ///
+    /// Instance of itself, containing the peer information
     pub fn get_latest() -> Self {
-        let file = File::open("peers/latest_peer").unwrap();
+        let file = File::open("peers/last_peer").unwrap();
         let mut buf_reader = BufReader::new(file);
         let mut content = String::new();
         buf_reader.read_to_string(&mut content).unwrap();

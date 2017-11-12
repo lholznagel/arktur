@@ -14,7 +14,7 @@ extern crate blockchain_protocol;
 
 mod hole_puncher;
 
-use blockchain_file::KnownPeers;
+use blockchain_file::peers::KnownPeers;
 use blockchain_network::event::EventHandler;
 use blockchain_network::udp_client::UdpClientBuilder;
 

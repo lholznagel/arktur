@@ -1,4 +1,4 @@
-use blockchain_file::KnownPeers;
+use blockchain_file::peers::KnownPeers;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
