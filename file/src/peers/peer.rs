@@ -1,3 +1,4 @@
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -11,6 +12,7 @@ pub struct Peer {
 }
 
 impl Peer {
+    /// Init all needed paths
     pub fn init() {
         if !Path::new(BASE_PATH).exists() {
             fs::create_dir(BASE_PATH).unwrap();

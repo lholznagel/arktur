@@ -3,6 +3,7 @@ use peers::Peer;
 use std::fs;
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
+use std::path::Path;
 
 const BASE_PATH: &str = "./peers";
 const PATH_LAST_PEER: &str = "./peers/last_peer";
