@@ -95,7 +95,7 @@ impl EventHandler {
         fn empty_register_ack(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<RegisterAckPayload>) {}
         fn empty_peer_registering(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PeerRegisteringPayload>) {}
         fn empty_new_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<NewBlockPayload>) {}
-        fn empty_possbile_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PossibleBlockPayload>) {}
+        fn empty_possible_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PossibleBlockPayload>) {}
         fn empty_found_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<FoundBlockPayload>) {}
 
         EventHandler {
@@ -105,7 +105,7 @@ impl EventHandler {
             register_ack_handler: empty_register_ack,
             peer_registering_handler: empty_peer_registering,
             new_block_handler: empty_new_block,
-            possible_block_handler: empty_possbile_block,
+            possible_block_handler: empty_possible_block,
             found_block_handler: empty_found_block
         }
     }

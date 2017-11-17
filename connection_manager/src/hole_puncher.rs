@@ -1,4 +1,4 @@
-use blockchain_file::peers::KnownPeers;
+use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -56,7 +56,7 @@ pub fn register_handler(source: SocketAddr, udp: &UdpSocket, register_payload: B
     let last_peer = KnownPeers::get_latest();
     let mut status = StatusCodes::Ok;
 
-    if last_peer.name == "" {
+    if last_peer.peer.get_name() == "" {
         status = StatusCodes::NoPeer;
     } else {
         let payload = PeerRegisteringPayload::new().set_addr(source.to_string());
@@ -64,13 +64,13 @@ pub fn register_handler(source: SocketAddr, udp: &UdpSocket, register_payload: B
             .set_event_code(EventCodes::PeerRegistering)
             .set_payload(payload)
             .build();
-        udp.send_to(message.as_slice(), last_peer.socket.parse::<SocketAddr>().unwrap())
+        udp.send_to(message.as_slice(), last_peer.peer.get_socket().parse::<SocketAddr>().unwrap())
             .unwrap();
     }
 
-    KnownPeers::new(register_payload.payload.name(), source.to_string()).save();
+    KnownPeers::new(Peer::new(register_payload.payload.name(), source.to_string())).save();
 
-    let payload = RegisterAckPayload::new().set_addr(last_peer.socket);
+    let payload = RegisterAckPayload::new().set_addr(String::from(last_peer.peer.get_socket()));
     sending!(format!("ACK_REGISTER | {:?}", payload));
     let message = BlockchainProtocol::new()
         .set_event_code(EventCodes::AckRegister)
