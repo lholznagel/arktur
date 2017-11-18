@@ -48,7 +48,7 @@ impl Peer {
     /// Saved the peer information
     pub fn save(self) -> Self {
         let mut file = File::create(format!("peers/{}", self.name)).unwrap();
-        file.write_all(format!("{}\n{}", self.name, self.name).as_bytes()).unwrap();
+        file.write_all(format!("{}\n{}", self.name, self.socket).as_bytes()).unwrap();
         self
     }
 

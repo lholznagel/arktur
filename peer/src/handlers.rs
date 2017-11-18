@@ -1,7 +1,7 @@
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload};
+use blockchain_protocol::payload::{PingPayload, PongPayload, RegisterAckPayload, NewBlockPayload, PeerRegisteringPayload};
 use std::net::{SocketAddr, UdpSocket};
 
 pub fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<PingPayload>) {
@@ -33,4 +33,8 @@ pub fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: Blockch
     let answer = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
      udp.send_to(answer.as_slice(), message.payload.addr.parse::<SocketAddr>().unwrap()).unwrap();
     success!(format!("Send PING {:?}", message.payload));
+}
+
+pub fn new_block_handler(_: SocketAddr, _: &UdpSocket, message: BlockchainProtocol<NewBlockPayload>) {
+    event!(format!("NEW_BLOCK {:?}", message.payload));
 }
