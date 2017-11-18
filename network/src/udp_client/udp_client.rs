@@ -76,8 +76,8 @@ impl UdpClient {
     /// let address = "0.0.0.0:50000";
     /// udp_client.connection().send_to(&data, address).unwrap();
     /// ```
-    pub fn connection(self) -> UdpSocket {
-        self.udp
+    pub fn connection(&self) -> UdpSocket {
+        self.udp.try_clone().unwrap()
     }
 
     /// Gets the current port

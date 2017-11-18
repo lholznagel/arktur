@@ -13,10 +13,13 @@ extern crate blockchain_network;
 extern crate blockchain_protocol;
 
 mod hole_puncher;
+mod block_handler;
 
 use blockchain_file::peers::KnownPeers;
 use blockchain_network::event::EventHandler;
 use blockchain_network::udp_client::UdpClientBuilder;
+
+use std::thread;
 
 /// Starting point
 ///
@@ -28,8 +31,16 @@ fn main() {
     let event_handlers = EventHandler::new()
         .set_register_handler(hole_puncher::register_handler);
 
-    UdpClientBuilder::new()
+    let udp = UdpClientBuilder::new()
         .set_port(45000)
-        .build(event_handlers)
-        .listen();
+        .build(event_handlers);
+
+    info!("After udp");
+
+    let local_udp = udp.connection();
+    thread::spawn(move || {
+        block_handler::handle_block(local_udp);
+    });
+
+    udp.listen();
 }
