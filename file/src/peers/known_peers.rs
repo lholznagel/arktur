@@ -10,8 +10,7 @@ const PATH_LAST_PEER: &str = "./peers/last_peer";
 
 /// Manages the saving and retrieving of known peers
 pub struct KnownPeers {
-    /// Instance of peer
-    pub peer: Peer
+    peer: Peer
 }
 
 impl KnownPeers {
@@ -67,7 +66,7 @@ impl KnownPeers {
     /// # Return
     ///
     /// Instance of itself, containing the peer information
-    pub fn get_latest() -> Self {
+    pub fn get_latest() -> Peer {
         let file = File::open(PATH_LAST_PEER).unwrap();
         let mut buf_reader = BufReader::new(file);
         let mut content = String::new();
@@ -79,13 +78,27 @@ impl KnownPeers {
             buf_reader.read_to_string(&mut content).unwrap();
             let mut lines = content.lines();
 
-            KnownPeers {
-                peer: Peer::new(String::from(lines.next().unwrap()), String::from(lines.next().unwrap()))
-            }
+            Peer::new(String::from(lines.next().unwrap()), String::from(lines.next().unwrap()))
         } else {
-            KnownPeers {
-                peer: Peer::new(String::from(""), String::from(""))
-            }
+            Peer::new(String::from(""), String::from(""))
         }
+    }
+
+    /// Gets a vector containing all known peers
+    pub fn get_all(&self) -> Vec<Peer> {
+        let mut peers = Vec::new();
+        let paths = fs::read_dir("./peers").unwrap();
+
+        for path in paths {
+            let mut content = String::new();
+            let file = File::open(format!("peers/{}", path.unwrap().path().display())).unwrap();
+            let mut buf_reader = BufReader::new(file);
+            buf_reader.read_to_string(&mut content).unwrap();
+            let mut lines = content.lines();
+
+            peers.push(Peer::new(String::from(lines.next().unwrap()), String::from(lines.next().unwrap())));
+        }
+
+        peers
     }
 }
