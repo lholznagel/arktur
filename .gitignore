@@ -2,5 +2,4 @@ target/
 */target/
 **/*.rs.bk
 
-cli/config
-cli/config.toml
+connection_manager/peers

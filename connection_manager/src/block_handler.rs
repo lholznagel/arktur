@@ -9,23 +9,23 @@ use std::time::Duration;
 
 pub fn handle_block(udp: UdpSocket) {
     loop {
-        let last_peer = KnownPeers::get_latest();
+        let last_peers = KnownPeers::get_all();
 
-        if last_peer.get_name() != "" {
-            let payload = NewBlockPayload::genesis()
-                .set_content(String::from("Some content"));
+        if last_peers.len() > 0 {
+            let payload = NewBlockPayload::genesis().set_content(String::from("Some content"));
 
             let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::NewBlock)
                 .set_payload(payload)
                 .build();
 
-            println!("{:?}", last_peer.get_socket());
-
-            udp.send_to(
-                message.as_slice(),
-                last_peer.get_socket().parse::<SocketAddr>().unwrap(),
-            ).unwrap();
+            for peer in last_peers {
+                println!("{:?}", peer.get_socket());
+                udp.send_to(
+                    message.as_slice(),
+                    peer.get_socket().parse::<SocketAddr>().unwrap(),
+                ).unwrap();
+            }
         }
 
         println!("Send");
