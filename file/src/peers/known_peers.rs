@@ -85,18 +85,26 @@ impl KnownPeers {
     }
 
     /// Gets a vector containing all known peers
-    pub fn get_all(&self) -> Vec<Peer> {
+    pub fn get_all() -> Vec<Peer> {
         let mut peers = Vec::new();
-        let paths = fs::read_dir("./peers").unwrap();
 
-        for path in paths {
-            let mut content = String::new();
-            let file = File::open(format!("peers/{}", path.unwrap().path().display())).unwrap();
-            let mut buf_reader = BufReader::new(file);
-            buf_reader.read_to_string(&mut content).unwrap();
-            let mut lines = content.lines();
+        if Path::new(BASE_PATH).exists() {
+            let paths = fs::read_dir("./peers").unwrap();
 
-            peers.push(Peer::new(String::from(lines.next().unwrap()), String::from(lines.next().unwrap())));
+            for path in paths {
+                let mut content = String::new();
+                let file = File::open(path.unwrap().path()).unwrap();
+                let mut buf_reader = BufReader::new(file);
+                buf_reader.read_to_string(&mut content).unwrap();
+                let mut lines = content.lines();
+
+                let name = lines.next();
+                let socket = lines.next();
+
+                if name != None && socket != None {
+                    peers.push(Peer::new(String::from(name.unwrap()), String::from(socket.unwrap())));
+                }
+            }
         }
 
         peers
