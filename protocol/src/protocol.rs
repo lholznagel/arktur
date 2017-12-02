@@ -7,7 +7,7 @@ use std::{slice, mem};
 
 /// Parser for the protocol
 named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u8, 8), take_bits!(u8, 8), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u16, 16))));
-named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), is_not!("~"), char!('~'))));
+named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~"), char!('~'))));
 
 /// Struct of the protocol
 ///
@@ -314,5 +314,14 @@ mod tests {
         let data = vec![1, 255, 255, 255, 5, 57, 0, 23, 126, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101, 126];
         let result = BlockchainProtocol::<RegisterAckPayload>::from_vec(data);
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_parse_empty_payload() {
+        let result = parse_delimited(&[126, 116, 101, 115, 116, 126, 126, 126])
+            .to_result()
+            .unwrap();
+
+        assert_eq!(result.len(), 2);
     }
 }
