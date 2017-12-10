@@ -54,3 +54,13 @@ macro_rules! event {
         log!(output);
     }
 }
+
+#[macro_export]
+macro_rules! debug {
+    ($msg:expr) => {
+        let mut output = String::from("\x1B[93mDebug   - ");
+        output.push_str(&$msg);
+        output.push_str("\x1B[0m");
+        log!(output);
+    }
+}

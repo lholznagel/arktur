@@ -8,11 +8,13 @@ use std::thread;
 use std::time::Duration;
 
 pub fn handle_block(udp: UdpSocket) {
+    debug!("Waiting 30 seconds for peers to connect");
+    thread::sleep(Duration::from_secs(30));
     loop {
         let last_peers = KnownPeers::get_all();
 
         if last_peers.len() > 0 {
-            let payload = NewBlockPayload::genesis().set_content(String::from("Some content"));
+            let payload = NewBlockPayload::genesis();
 
             let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::NewBlock)
@@ -20,7 +22,6 @@ pub fn handle_block(udp: UdpSocket) {
                 .build();
 
             for peer in last_peers {
-                println!("{:?}", peer.get_socket());
                 udp.send_to(
                     message.as_slice(),
                     peer.get_socket().parse::<SocketAddr>().unwrap(),
@@ -28,8 +29,10 @@ pub fn handle_block(udp: UdpSocket) {
             }
         }
 
-        println!("Send");
+        debug!("Send next block");
 
-        thread::sleep(Duration::from_secs(10));
+        // for now send every 2.5 minutes
+        // with debug mode enabled it takes some time :D
+        thread::sleep(Duration::from_secs(150));
     }
 }

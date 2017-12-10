@@ -6,10 +6,14 @@ use time::get_time;
 /// Model for the event `NewBlock`
 #[derive(Debug, PartialEq)]
 pub struct NewBlockPayload {
-    index: u64,
-    content: String,
-    timestamp: i64,
-    prev: String,
+    /// Index of the block
+    pub index: u64,
+    /// Content of the block
+    pub content: String,
+    /// Timestamp the block was created
+    pub timestamp: i64,
+    /// Hash of the previous block
+    pub prev: String,
 }
 
 impl NewBlockPayload {

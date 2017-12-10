@@ -3,6 +3,7 @@ extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
 extern crate clap;
+extern crate crypto;
 
 use blockchain_network::udp_client::UdpClientBuilder;
 use blockchain_network::event::EventHandler;
