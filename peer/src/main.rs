@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
@@ -44,6 +46,7 @@ fn main() {
     connect(combined.parse::<SocketAddr>().unwrap(), String::from(matches.value_of("PEER_NAME").unwrap()));
 }
 
+/// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
     let event_handler = EventHandler::new();
     let event_handler = event_handler
