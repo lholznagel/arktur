@@ -1,5 +1,5 @@
 [package]
-authors = ["lholznagel"]
+authors = ["lholznagel <contact@lholznagel.info>"]
 name = "blockchain_network"
 version = "0.1.0"
 

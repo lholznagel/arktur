@@ -1,6 +1,6 @@
 [package]
+authors = ["lholznagel <contact@lholznagel.info>"]
 name = "blockchain_file"
 version = "0.1.0"
-authors = ["lholznagel <lars.holznagel@outlook.com>"]
 
 [dependencies]

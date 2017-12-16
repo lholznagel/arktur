@@ -1,6 +1,6 @@
 [package]
-authors = ["lholznagel <lars.holznagel@outlook.com>"]
-name = "blockchain_network_cli"
+authors = ["lholznagel <contact@lholznagel.info>"]
+name = "blockchain_peer"
 version = "0.1.0"
 
 [dependencies]
