@@ -5,7 +5,6 @@
 //! - Handles hole punching between to peers
 //! - Decides when and what comes into the next block (not yet implemented)
 //! - Decides when a block is written (not yet implemented)
-
 extern crate blockchain_file;
 #[macro_use]
 extern crate blockchain_logging;
