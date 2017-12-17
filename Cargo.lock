@@ -50,7 +50,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "blockchain_network_cli"
+name = "blockchain_peer"
 version = "0.1.0"
 dependencies = [
  "blockchain_logging 0.1.0",
