@@ -1,18 +1,13 @@
-.PHONY: build build-relase
+.PHONY: debug doc release
 
-build:
+debug:
 	cargo build
 
-build-release:
-	# use musk
+release:
 	rm -rf target/release
 	cargo build --release
-	du -h target/release/blockchain_* --exclude=*.d
-	strip target/release/blockchain_connection_manager
-	strip target/release/blockchain_peer
-	du -h target/release/blockchain_* --exclude=*.d
+	exec ./release.sh
 
-test:
-	rm -rf target/release
-	cargo build --release
-	./test.sh
+doc:
+	rm -rf target/doc
+	cargo doc --all --frozen
