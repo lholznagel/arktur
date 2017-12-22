@@ -1,5 +1,9 @@
 #![deny(missing_docs)]
 
+//! Terminal client application
+//!
+//! Connects with the connection manager and to other peers
+//! Calculates the hash value for a new block
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
@@ -14,6 +18,7 @@ use clap::{Arg, App};
 
 use std::net::SocketAddr;
 
+/// Contains all handlers the peer listens to
 pub mod handlers;
 
 fn main() {

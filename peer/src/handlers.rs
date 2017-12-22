@@ -6,6 +6,8 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::{SocketAddr, UdpSocket};
 
+/// Listens to a ping event
+/// Sends a response PONG back to the address it came from
 pub fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<PingPayload>) {
     event!(format!("PING from peer {:?}", source.to_string()));
     sending!(format!("PONG to peer {:?}", source.to_string()));
@@ -14,10 +16,13 @@ pub fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<P
     success!(format!("Send PONG to {:?}", source.to_string()));
 }
 
+/// Notifies about PONG event
 pub fn pong_handler(source: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PongPayload>) {
     event!(format!("PONG from peer {:?}", source.to_string()));
 }
 
+/// Event send when the connection manager acknowledge the register event
+/// Sends a PING event if there are already connected peers
 pub fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: BlockchainProtocol<RegisterAckPayload>) {
      if message.status_code == StatusCodes::NoPeer {
          error!("No peer");
@@ -29,6 +34,8 @@ pub fn register_ack_handler(_: SocketAddr, udp: &UdpSocket, message: BlockchainP
      }
 }
 
+/// Listens to new peers that register them self
+/// Sends the new peer a PING event
 pub fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: BlockchainProtocol<PeerRegisteringPayload>) {
     event!(format!("PEER_REGISTERING {:?}", message.payload));
     sending!(format!("PING to new peer {:?}", message.payload));
@@ -37,6 +44,8 @@ pub fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: Blockch
     success!(format!("Send PING {:?}", message.payload));
 }
 
+/// Listens when a new block should be calculated
+/// For now the sign key is 0000. This should change in the future.
 pub fn new_block_handler(source: SocketAddr, udp: &UdpSocket, message: BlockchainProtocol<NewBlockPayload>) {
     event!(format!("NEW_BLOCK {:?}", message.payload));
     let sign_key = String::from("0000");
