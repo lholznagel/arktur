@@ -1,6 +1,6 @@
 .PHONY: debug doc release
 
-debug:
+default:
 	cargo build
 
 release:
