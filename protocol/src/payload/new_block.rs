@@ -14,6 +14,8 @@ pub struct NewBlockPayload {
     pub timestamp: i64,
     /// Hash of the previous block
     pub prev: String,
+    /// Sign key, the first values must match this string
+    pub sign_key: String
 }
 
 impl NewBlockPayload {
@@ -23,7 +25,8 @@ impl NewBlockPayload {
             index: 0,
             content: String::from(""),
             timestamp: get_time().sec,
-            prev: String::from("0".repeat(64))
+            prev: String::from("0".repeat(64)),
+            sign_key: String::from("0".repeat(4))
         }
     }
 
@@ -52,7 +55,8 @@ impl PayloadModel for NewBlockPayload {
             index: 0,
             content: String::from(""),
             timestamp: get_time().sec,
-            prev: String::from("")
+            prev: String::from(""),
+            sign_key: String::from("0".repeat(4))
         }
     }
 
@@ -62,7 +66,8 @@ impl PayloadModel for NewBlockPayload {
                 index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
                 content: String::from(str::from_utf8(bytes[1]).unwrap()),
                 timestamp: String::from(str::from_utf8(bytes[2]).unwrap()).parse::<i64>().unwrap(),
-                prev: String::from(str::from_utf8(bytes[3]).unwrap())
+                prev: String::from(str::from_utf8(bytes[3]).unwrap()),
+                sign_key: String::from(str::from_utf8(bytes[4]).unwrap())
             }
         } else {
             NewBlockPayload::new()
@@ -104,6 +109,14 @@ impl PayloadModel for NewBlockPayload {
         result.push(126);
 
         for i in self.prev.into_bytes() {
+            result.push(i);
+        }
+
+        result.push(126);
+
+        result.push(126);
+
+        for i in self.sign_key.into_bytes() {
             result.push(i);
         }
 
