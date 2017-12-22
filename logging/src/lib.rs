@@ -50,6 +50,7 @@ macro_rules! error {
     }
 }
 
+
 /// Logs an successful message
 ///
 /// Color of the output is green

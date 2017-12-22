@@ -48,7 +48,6 @@ pub fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: Blockch
 /// For now the sign key is 0000. This should change in the future.
 pub fn new_block_handler(source: SocketAddr, udp: &UdpSocket, message: BlockchainProtocol<NewBlockPayload>) {
     event!(format!("NEW_BLOCK {:?}", message.payload));
-    let sign_key = String::from("0000");
     let mut hash = String::from("");
     let mut nonce = 0;
 
@@ -64,7 +63,7 @@ pub fn new_block_handler(source: SocketAddr, udp: &UdpSocket, message: Blockchai
         hasher.input_str(generated_block.as_str());
         let hex = hasher.result_str();
 
-        if sign_key == &hex[..sign_key.len()] {
+        if message.payload.sign_key == &hex[..message.payload.sign_key.len()] {
             hash = hex.clone();
             break;
         } else {

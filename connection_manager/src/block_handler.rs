@@ -10,10 +10,11 @@ use std::time::Duration;
 pub fn handle_block(udp: UdpSocket) {
     debug!("Waiting 30 seconds for peers to connect");
     thread::sleep(Duration::from_secs(30));
+
     loop {
         let last_peers = KnownPeers::get_all();
 
-        if last_peers.len() > 0 {
+        if last_peers.len() > 2 {
             let payload = NewBlockPayload::genesis();
 
             let message = BlockchainProtocol::new()
@@ -27,9 +28,11 @@ pub fn handle_block(udp: UdpSocket) {
                     peer.get_socket().parse::<SocketAddr>().unwrap(),
                 ).unwrap();
             }
-        }
 
-        debug!("Send next block");
+            debug!("Send next block");
+        } else {
+            info!("Not enough peers connected. Waiting.");
+        }
 
         // for now send every 2.5 minutes
         // with debug mode enabled it takes some time :D
