@@ -33,8 +33,7 @@ impl KnownPeers {
     ///
     /// # Parameters
     ///
-    /// - `name` - Name of the peer
-    /// - `socket` - Socket of the peer
+    /// - `peer` - Peer that should be saved
     ///
     /// # Return
     ///
@@ -89,7 +88,7 @@ impl KnownPeers {
         let mut peers = Vec::new();
 
         if Path::new(BASE_PATH).exists() {
-            let paths = fs::read_dir("./peers").unwrap();
+            let paths = fs::read_dir(BASE_PATH).unwrap();
 
             for path in paths {
                 let mut content = String::new();
