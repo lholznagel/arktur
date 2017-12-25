@@ -39,3 +39,7 @@ pub fn handle_block(udp: UdpSocket) {
         thread::sleep(Duration::from_secs(150));
     }
 }
+
+pub fn possible_block_handler(_: SocketAddr, _: &UdpSocket, message: BlockchainProtocol<PossibleBlockPayload>) {
+    event!(format!("POSSIBLE_BLOCK {:?}", message.payload));
+}
