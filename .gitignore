@@ -3,3 +3,4 @@ target/
 **/*.rs.bk
 
 connection_manager/peers
+connection_manager/blocks
