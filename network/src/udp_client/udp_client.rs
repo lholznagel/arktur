@@ -4,15 +4,13 @@ use blockchain_protocol::payload::*;
 use event::{EventHandler, EventRegister};
 use std::net::{IpAddr, UdpSocket, SocketAddr};
 
-use event::PingEvent;
-
 /// Stores all needed information about a udp client
 pub struct UdpClient {
     /// open udp socket
     udp: UdpSocket,
     /// Handler for the register events
     handlers: EventHandler,
-    /// TODO:
+    /// Contains all registered event handlers
     register: EventRegister
 }
 
