@@ -3,11 +3,13 @@ struct Handlers {
     something: &'static str
 }
 
-trait PingEvent {
+pub trait PingEvent {
     fn print_ping(self);
+
+    fn test(self, &str);
 }
 
-trait PongEvent {
+pub trait PongEvent {
     fn print_pong(self);
 }
 
@@ -23,11 +25,23 @@ impl PingEvent for Handlers {
     fn print_ping(self) {
         println!("PING");
     }
+
+    fn test(self, some_var: &str) {
+        println!("{:?}", some_var);
+    }
 }
 
 impl PongEvent for Handlers {
     fn print_pong(self) {
         println!("PONG");
+    }
+}
+
+pub struct Registrar;
+
+impl Registrar {
+    pub fn exec_ping<P: PingEvent>(event: P) {
+        event.test("TEST");
     }
 }
 
@@ -38,16 +52,17 @@ mod tests {
     #[test]
     fn test_that() {
         let handlers = Handlers::new();
-        //handlers.print();
-        qwe(handlers.clone());
-        asd(handlers.clone());
+        test_ping(handlers.clone());
+        test_pong(handlers.clone());
+
+        let register = Registrar::exec_ping(handlers.clone());
     }
 
-    fn qwe<P: PingEvent>(strait: P) {
+    fn test_ping<P: PingEvent>(strait: P) {
         strait.print_ping();
     }
 
-    fn asd<P: PongEvent>(strait: P) {
+    fn test_pong<P: PongEvent>(strait: P) {
         strait.print_pong();
     }
 }
