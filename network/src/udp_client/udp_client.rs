@@ -43,12 +43,12 @@ impl UdpClient {
     /// # Example
     ///
     /// ```
-    /// use blockchain_network::event::EventHandler;
+    /// use blockchain_network::event::{EventHandler, EventRegister};
     /// use blockchain_network::udp_client::UdpClientBuilder;
     /// use std::net::{SocketAddr, IpAddr, Ipv4Addr};
     ///
     /// let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
-    /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new()).notify_hole_puncher(address, String::from("PeerName"));
+    /// UdpClientBuilder::new().set_port(50000).build(EventHandler::new(), EventRegister::new()).notify_hole_puncher(address, String::from("PeerName"));
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr, name: String) -> Self {
         let payload = RegisterPayload::new().set_name(name);
@@ -72,10 +72,10 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::UdpClientBuilder;
-    /// use blockchain_network::event::EventHandler;
+    /// use blockchain_network::event::{EventHandler, EventRegister};
     ///
     /// let udp_client_builder = UdpClientBuilder::new();
-    /// let udp_client = udp_client_builder.build(EventHandler::new());
+    /// let udp_client = udp_client_builder.build(EventHandler::new(), EventRegister::new());
     ///
     /// let data = [0; 10];
     /// let address = "0.0.0.0:50000";
@@ -95,10 +95,10 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::UdpClientBuilder;
-    /// use blockchain_network::event::EventHandler;
+    /// use blockchain_network::event::{EventHandler, EventRegister};
     ///
     /// let udp_client_builder = UdpClientBuilder::new();
-    /// let udp_client = udp_client_builder.build(EventHandler::new());
+    /// let udp_client = udp_client_builder.build(EventHandler::new(), EventRegister::new());
     ///
     /// println!("Port: {:?}", udp_client.port());
     /// ```
@@ -116,10 +116,10 @@ impl UdpClient {
     ///
     /// ```
     /// use blockchain_network::udp_client::UdpClientBuilder;
-    /// use blockchain_network::event::EventHandler;
+    /// use blockchain_network::event::{EventHandler, EventRegister};
     ///
     /// let udp_client_builder = UdpClientBuilder::new();
-    /// let udp_client = udp_client_builder.build(EventHandler::new());
+    /// let udp_client = udp_client_builder.build(EventHandler::new(), EventRegister::new());
     ///
     /// println!("IP-Address: {:?}", udp_client.ip());
     /// ```
@@ -145,13 +145,8 @@ impl UdpClient {
 
                     match as_enum(updated_buffer[0]) {
                         EventCodes::Ping => {
-                            println!("PING");
                             let data = BlockchainProtocol::<PingPayload>::from_vec(updated_buffer);
-                            //(self.handlers.ping_handler)(source, &self.udp, data);
-
-                            let asd = self.register.ping_handler.clone();
-                            let result = asd.handle_event(data, source);
-
+                            let result = self.register.ping_handler.clone().handle_event(data, source);
                             &self.udp.send_to(result.as_slice(), source).unwrap();
                             
                         }
