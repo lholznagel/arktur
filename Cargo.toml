@@ -9,5 +9,6 @@ members = [
   "logging",
   "network",
   "peer",
-  "protocol"
+  "protocol",
+  "trait-test"
 ]
