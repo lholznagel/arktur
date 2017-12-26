@@ -8,19 +8,20 @@ use std::net::{SocketAddr, UdpSocket};
 
 use blockchain_network::event::PingEvent;
 
-/// TODO:
+/// Contains all event handlers
 #[derive(Clone)]
 pub struct EventHandlers;
 
 impl EventHandlers {
-    /// TODO:
+    /// Creates a new instance of event handlers
+    /// Only needed initially
     pub fn new() -> Self {
         EventHandlers
     }
 }
 
 impl PingEvent for EventHandlers {
-    fn handle_event(self: Box<Self>, message: BlockchainProtocol<PingPayload>, source: SocketAddr) -> Vec<u8> {
+    fn handle_event(self: Box<Self>, _: BlockchainProtocol<PingPayload>, source: SocketAddr) -> Vec<u8> {
         println!("PING EXEC");
         event!(format!("PING from peer {:?}", source.to_string()));
         sending!(format!("PONG to peer {:?}", source.to_string()));
@@ -62,7 +63,8 @@ pub fn peer_registering_handler(_: SocketAddr, udp: &UdpSocket, message: Blockch
 /// For now the sign key is 0000. This should change in the future.
 pub fn new_block_handler(source: SocketAddr, udp: &UdpSocket, message: BlockchainProtocol<NewBlockPayload>) {
     event!(format!("NEW_BLOCK {:?}", message.payload));
-    let mut hash = String::from("");
+    
+    let hash;
     let mut nonce = 0;
 
     loop {
