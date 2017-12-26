@@ -1,38 +1,62 @@
 #[derive(Clone)]
 struct Handlers {
-    something: &'static str
+    something: String
 }
 
-pub trait PingEvent {
-    fn print_ping(self);
+pub trait PingEvent: Clone {
+    fn new() -> Self;
 
-    fn test(self, &str);
+    fn print(self);
+
+    fn print_ex(self);
+
+    fn set_something(self, String) -> Self;
 }
 
 pub trait PongEvent {
-    fn print_pong(self);
+    fn print(self);
 }
 
 impl Handlers {
     pub fn new() -> Self {
         Handlers {
-            something: "SUPER-AWESOME"
+            something: String::from("DEFAULT_VALUE")
         }
+    }
+
+    pub fn print_ex(self) {
+        println!("{}", self.something);
+    }
+
+    pub fn set_something(mut self, value: String) -> Self {
+        self.something = value;
+        self
     }
 }
 
 impl PingEvent for Handlers {
-    fn print_ping(self) {
+    fn new() -> Self {
+        Handlers {
+            something: String::from("PING_EVENT")
+        }
+    }
+
+    fn print(self) {
         println!("PING");
     }
 
-    fn test(self, some_var: &str) {
-        println!("{:?}", some_var);
+    fn print_ex(self) {
+        println!("{}", self.something);
+    }
+
+    fn set_something(mut self, something: String) -> Self {
+        self.something = something;
+        self
     }
 }
 
 impl PongEvent for Handlers {
-    fn print_pong(self) {
+    fn print(self) {
         println!("PONG");
     }
 }
@@ -40,8 +64,18 @@ impl PongEvent for Handlers {
 pub struct Registrar;
 
 impl Registrar {
-    pub fn exec_ping<P: PingEvent>(event: P) {
-        event.test("TEST");
+    pub fn exec_ping<P: PingEvent>(handler: P) {
+        let handler = handler.set_something(String::from("Param Handler"));
+        
+        let one = handler.clone();
+        let one = one.set_something(String::from("Handler one"));
+
+        let two = handler.clone();
+        let two = two.set_something(String::from("Handler two"));
+        
+        one.print_ex();
+        two.print_ex();
+        handler.print_ex();
     }
 }
 
@@ -56,13 +90,16 @@ mod tests {
         test_pong(handlers.clone());
 
         let register = Registrar::exec_ping(handlers.clone());
+        handlers.clone().print_ex();
+        let handlers = handlers.set_something(String::from("Test"));
+        handlers.print_ex();
     }
 
     fn test_ping<P: PingEvent>(strait: P) {
-        strait.print_ping();
+        strait.print();
     }
 
     fn test_pong<P: PongEvent>(strait: P) {
-        strait.print_pong();
+        strait.print();
     }
 }

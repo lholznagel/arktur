@@ -15,7 +15,7 @@ mod hole_puncher;
 mod block_handler;
 
 use blockchain_file::peers::KnownPeers;
-use blockchain_network::event::EventHandler;
+use blockchain_network::event::{EventHandler, EventRegister};
 use blockchain_network::udp_client::UdpClientBuilder;
 
 use std::thread;
@@ -32,7 +32,7 @@ fn main() {
 
     let udp = UdpClientBuilder::new()
         .set_port(45000)
-        .build(event_handlers);
+        .build(event_handlers, EventRegister::new());
 
     info!("After udp");
 

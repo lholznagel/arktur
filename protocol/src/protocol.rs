@@ -27,7 +27,7 @@ named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~
 /// ```
 ///
 /// - TODO: add checksum
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: EventCodes,

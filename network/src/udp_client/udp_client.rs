@@ -1,8 +1,10 @@
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::events::{as_enum, EventCodes};
 use blockchain_protocol::payload::*;
-use event::EventHandler;
+use event::{EventHandler, EventRegister};
 use std::net::{IpAddr, UdpSocket, SocketAddr};
+
+use event::PingEvent;
 
 /// Stores all needed information about a udp client
 pub struct UdpClient {
@@ -10,6 +12,8 @@ pub struct UdpClient {
     udp: UdpSocket,
     /// Handler for the register events
     handlers: EventHandler,
+    /// TODO:
+    register: EventRegister
 }
 
 impl UdpClient {
@@ -18,10 +22,11 @@ impl UdpClient {
     /// # Returns
     ///
     /// New instance of `UdpClient`
-    pub fn new(udp: UdpSocket, handlers: EventHandler) -> Self {
+    pub fn new(udp: UdpSocket, handlers: EventHandler, register: EventRegister) -> Self {
         UdpClient {
             udp: udp,
             handlers: handlers,
+            register: register
         }
     }
 
@@ -140,8 +145,15 @@ impl UdpClient {
 
                     match as_enum(updated_buffer[0]) {
                         EventCodes::Ping => {
+                            println!("PING");
                             let data = BlockchainProtocol::<PingPayload>::from_vec(updated_buffer);
-                            (self.handlers.ping_handler)(source, &self.udp, data);
+                            //(self.handlers.ping_handler)(source, &self.udp, data);
+
+                            let asd = self.register.ping_handler.clone();
+                            let result = asd.handle_event(data, source);
+
+                            &self.udp.send_to(result.as_slice(), source).unwrap();
+                            
                         }
                         EventCodes::Pong => {
                             let data = BlockchainProtocol::<PongPayload>::from_vec(updated_buffer);

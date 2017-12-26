@@ -1,5 +1,5 @@
 use udp_client::UdpClient;
-use event::EventHandler;
+use event::{EventHandler, EventRegister};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, UdpSocket, SocketAddr};
 
 #[derive(Copy, Clone, Debug)]
@@ -53,11 +53,11 @@ impl UdpClientBuilder {
     /// let address = "0.0.0.0:50000";
     /// udp_client.connection().send_to(&data, address).unwrap();
     /// ```
-    pub fn build(self, handlers: EventHandler) -> UdpClient {
+    pub fn build(self, handlers: EventHandler, register: EventRegister) -> UdpClient {
         let socket = SocketAddr::new(self.ip, self.port);
         let socket = UdpSocket::bind(socket).unwrap();
 
-        UdpClient::new(socket, handlers)
+        UdpClient::new(socket, handlers, register)
     }
 
     /// Sets the port for udp
