@@ -6,14 +6,28 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::{SocketAddr, UdpSocket};
 
-/// Listens to a ping event
-/// Sends a response PONG back to the address it came from
-pub fn ping_handler(source: SocketAddr, udp: &UdpSocket, _: BlockchainProtocol<PingPayload>) {
-    event!(format!("PING from peer {:?}", source.to_string()));
-    sending!(format!("PONG to peer {:?}", source.to_string()));
-    let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
-    udp.send_to(answer.as_slice(), source).unwrap();
-    success!(format!("Send PONG to {:?}", source.to_string()));
+use blockchain_network::event::PingEvent;
+
+/// TODO:
+#[derive(Clone)]
+pub struct EventHandlers;
+
+impl EventHandlers {
+    /// TODO:
+    pub fn new() -> Self {
+        EventHandlers
+    }
+}
+
+impl PingEvent for EventHandlers {
+    fn handle_event(self: Box<Self>, message: BlockchainProtocol<PingPayload>, source: SocketAddr) -> Vec<u8> {
+        println!("PING EXEC");
+        event!(format!("PING from peer {:?}", source.to_string()));
+        sending!(format!("PONG to peer {:?}", source.to_string()));
+        let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
+        success!(format!("Send PONG to {:?}", source.to_string()));
+        answer
+    }
 }
 
 /// Notifies about PONG event

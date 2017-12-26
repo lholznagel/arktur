@@ -13,6 +13,7 @@ extern crate crypto;
 
 use blockchain_network::udp_client::UdpClientBuilder;
 use blockchain_network::event::EventHandler;
+use blockchain_network::event::EventRegister;
 
 use clap::{Arg, App};
 
@@ -53,15 +54,17 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
+    let event_register = EventRegister::new()
+        .register_ping_handler(Box::new(handlers::EventHandlers::new()));
+
     let event_handler = EventHandler::new();
     let event_handler = event_handler
-        .set_ping_handler(handlers::ping_handler)
         .set_pong_handler(handlers::pong_handler)
         .set_new_block_handler(handlers::new_block_handler)
         .set_peer_registering_handler(handlers::peer_registering_handler)
         .set_register_ack_handler(handlers::register_ack_handler);
 
-    let udp_client = UdpClientBuilder::new().build(event_handler);
+    let udp_client = UdpClientBuilder::new().build(event_handler, event_register);
     let udp_client = udp_client.notify_hole_puncher(addr, name);
     udp_client.listen();
 }
