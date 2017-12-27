@@ -6,7 +6,7 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::{SocketAddr, UdpSocket};
 
-use blockchain_network::event::PingEvent;
+use blockchain_network::event::{PingEvent, PongEvent};
 
 /// Contains all event handlers
 #[derive(Clone)]
@@ -31,9 +31,11 @@ impl PingEvent for EventHandlers {
     }
 }
 
-/// Notifies about PONG event
-pub fn pong_handler(source: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PongPayload>) {
-    event!(format!("PONG from peer {:?}", source.to_string()));
+impl PongEvent for EventHandlers {
+    fn handle_event(self: Box<Self>, _: BlockchainProtocol<PongPayload>, source: SocketAddr) -> Vec<u8> {
+        event!(format!("PONG from peer {:?}", source.to_string()));
+        vec![0]
+    }
 }
 
 /// Event send when the connection manager acknowledge the register event

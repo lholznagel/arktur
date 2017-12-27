@@ -146,11 +146,11 @@ impl UdpClient {
                             let data = BlockchainProtocol::<PingPayload>::from_vec(updated_buffer);
                             let result = self.register.ping_handler.clone().handle_event(data, source);
                             &self.udp.send_to(result.as_slice(), source).unwrap();
-                            
                         }
                         EventCodes::Pong => {
                             let data = BlockchainProtocol::<PongPayload>::from_vec(updated_buffer);
-                            (self.handlers.pong_handler)(source, &self.udp, data);
+                            let result = self.register.pong_handler.clone().handle_event(data, source);
+                            &self.udp.send_to(result.as_slice(), source).unwrap();
                         }
                         EventCodes::Register => {
                             let data = BlockchainProtocol::<RegisterPayload>::from_vec(updated_buffer);

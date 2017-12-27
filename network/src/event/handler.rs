@@ -4,26 +4,6 @@ use std::net::{UdpSocket, SocketAddr};
 
 /// Holds all handler
 pub struct EventHandler {
-    /// Function that is called on a PING-event
-    /// Code: 0
-    ///
-    /// # Parameters
-    ///
-    /// - `socketAddr` - socket address from the peer that send the message
-    /// - `udpSocket` - connection of the udp socket
-    /// - `message` - parsed protocol
-    pub ping_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PingPayload>),
-
-    /// Function is be called on a PONG-event
-    /// Code: 1
-    ///
-    /// # Parameters
-    ///
-    /// - `socketAddr` - socket address from the peer that send the message
-    /// - `udpSocket` - connection of the udp socket
-    /// - `message` - parsed protocol
-    pub pong_handler: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PongPayload>),
-
     /// Function that is called on a REGISTER-event
     /// Code: 16
     ///
@@ -89,8 +69,6 @@ pub struct EventHandler {
 impl EventHandler {
     /// Creates a new instance of handlers
     pub fn new() -> Self {
-        fn empty_ping(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PingPayload>) {}
-        fn empty_pong(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PongPayload>) {}
         fn empty_register(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<RegisterPayload>) {}
         fn empty_register_ack(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<RegisterAckPayload>) {}
         fn empty_peer_registering(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PeerRegisteringPayload>) {}
@@ -99,8 +77,6 @@ impl EventHandler {
         fn empty_found_block(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<FoundBlockPayload>) {}
 
         EventHandler {
-            ping_handler: empty_ping,
-            pong_handler: empty_pong,
             register_handler: empty_register,
             register_ack_handler: empty_register_ack,
             peer_registering_handler: empty_peer_registering,
@@ -108,68 +84,6 @@ impl EventHandler {
             possible_block_handler: empty_possible_block,
             found_block_handler: empty_found_block
         }
-    }
-
-    /// Sets the `PING` event handler
-    ///
-    /// # Parameters
-    ///
-    /// - `function` - function that should be called
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// extern crate blockchain_network;
-    /// extern crate blockchain_protocol;
-    ///
-    /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::payload::PingPayload;
-    /// use blockchain_network::event::EventHandler;
-    /// use std::net::{UdpSocket, SocketAddr};
-    ///
-    /// # fn main() {
-    /// let event_handler = EventHandler::new();
-    /// event_handler.set_ping_handler(ping_handler);
-    /// # }
-    ///
-    /// fn ping_handler(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PingPayload>) {
-    ///     // do something
-    /// }
-    /// ```
-    pub fn set_ping_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PingPayload>)) -> Self {
-        self.ping_handler = function;
-        self
-    }
-
-    /// Sets the `PONG` event handler
-    ///
-    /// # Parameters
-    ///
-    /// - `function` - function that should be called
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// extern crate blockchain_network;
-    /// extern crate blockchain_protocol;
-    ///
-    /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::payload::PongPayload;
-    /// use blockchain_network::event::EventHandler;
-    /// use std::net::{UdpSocket, SocketAddr};
-    ///
-    /// # fn main() {
-    /// let event_handler = EventHandler::new();
-    /// event_handler.set_pong_handler(pong_handler);
-    /// # }
-    ///
-    /// fn pong_handler(_: SocketAddr, _: &UdpSocket, _: BlockchainProtocol<PongPayload>) {
-    ///     // do something
-    /// }
-    /// ```
-    pub fn set_pong_handler(mut self, function: fn(SocketAddr, &UdpSocket, BlockchainProtocol<PongPayload>)) -> Self {
-        self.pong_handler = function;
-        self
     }
 
     /// Sets the `PEER_REGISTERING` event handler
