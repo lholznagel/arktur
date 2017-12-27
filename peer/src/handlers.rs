@@ -1,40 +1,22 @@
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PingPayload, PongPayload, RegisterAckPayload, NewBlockPayload, PeerRegisteringPayload, PossibleBlockPayload};
+use blockchain_protocol::payload::{PingPayload, RegisterAckPayload, NewBlockPayload, PeerRegisteringPayload, PossibleBlockPayload};
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::{SocketAddr, UdpSocket};
 
-use blockchain_network::event::{PingEvent, PongEvent};
+use blockchain_hooks::{EventCodes, Hooks};
 
-/// Contains all event handlers
-#[derive(Clone)]
-pub struct EventHandlers;
+/// TODO:
+pub struct HookHandlers;
 
-impl EventHandlers {
-    /// Creates a new instance of event handlers
-    /// Only needed initially
-    pub fn new() -> Self {
-        EventHandlers
+impl Hooks for HookHandlers {
+    fn on_ping(&self) {
+
     }
-}
 
-impl PingEvent for EventHandlers {
-    fn handle_event(self: Box<Self>, _: BlockchainProtocol<PingPayload>, source: SocketAddr) -> Vec<u8> {
-        println!("PING EXEC");
-        event!(format!("PING from peer {:?}", source.to_string()));
-        sending!(format!("PONG to peer {:?}", source.to_string()));
-        let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
-        success!(format!("Send PONG to {:?}", source.to_string()));
-        answer
-    }
-}
-
-impl PongEvent for EventHandlers {
-    fn handle_event(self: Box<Self>, _: BlockchainProtocol<PongPayload>, source: SocketAddr) -> Vec<u8> {
-        event!(format!("PONG from peer {:?}", source.to_string()));
-        vec![0]
+    fn on_pong(&self) {
+        
     }
 }
 

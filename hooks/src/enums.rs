@@ -79,7 +79,7 @@ pub enum EventCodes {
 ///
 /// # Example
 /// ```
-/// use blockchain_protocol::enums::events::{as_enum, EventCodes};
+/// use blockchain_hooks::{as_enum, EventCodes};
 ///
 /// match as_enum(0) {
 ///     EventCodes::Ping => {},
@@ -112,7 +112,7 @@ pub fn as_enum(value: u8) -> EventCodes {
 ///
 /// # Example
 /// ```
-/// use blockchain_protocol::enums::events::{as_number, EventCodes};
+/// use blockchain_hooks::{as_number, EventCodes};
 ///
 /// assert_eq!(as_number(EventCodes::Ping), 0);
 /// ```
