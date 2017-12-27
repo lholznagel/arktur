@@ -54,10 +54,11 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
-    let hook_register = HookRegister::new()
-        .add_hook(handlers::HookHandlers);
+    let hook_notification = HookRegister::new()
+        .set_hook(handlers::HookHandlers)
+        .get_notification();
 
-    let udp_client = UdpClientBuilder::new().build(hook_register);
+    let udp_client = UdpClientBuilder::new().build(hook_notification);
     let udp_client = udp_client.notify_hole_puncher(addr, name);
     udp_client.listen();
 }

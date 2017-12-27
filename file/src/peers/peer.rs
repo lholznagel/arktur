@@ -6,6 +6,7 @@ use std::path::Path;
 const BASE_PATH: &str = "./peers";
 
 /// Contains all information about a peer
+#[derive(Debug)]
 pub struct Peer {
     name: String,
     socket: String,
