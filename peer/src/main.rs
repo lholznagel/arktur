@@ -4,6 +4,7 @@
 //!
 //! Connects with the connection manager and to other peers
 //! Calculates the hash value for a new block
+extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
@@ -11,9 +12,8 @@ extern crate blockchain_protocol;
 extern crate clap;
 extern crate crypto;
 
+use blockchain_hooks::HookRegister;
 use blockchain_network::udp_client::UdpClientBuilder;
-use blockchain_network::event::EventHandler;
-use blockchain_network::event::EventRegister;
 
 use clap::{Arg, App};
 
@@ -54,18 +54,10 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
-    let event_handler = handlers::EventHandlers::new();
-    let event_register = EventRegister::new()
-        .register_ping_handler(Box::new(event_handler.clone()))
-        .register_pong_handler(Box::new(event_handler.clone()));
+    let hook_register = HookRegister::new()
+        .add_hook(handlers::HookHandlers);
 
-    let event_handler = EventHandler::new();
-    let event_handler = event_handler
-        .set_new_block_handler(handlers::new_block_handler)
-        .set_peer_registering_handler(handlers::peer_registering_handler)
-        .set_register_ack_handler(handlers::register_ack_handler);
-
-    let udp_client = UdpClientBuilder::new().build(event_handler, event_register);
+    let udp_client = UdpClientBuilder::new().build(hook_register);
     let udp_client = udp_client.notify_hole_puncher(addr, name);
     udp_client.listen();
 }

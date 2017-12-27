@@ -1,6 +1,6 @@
 use blockchain_file::peers::{KnownPeers, Peer};
+use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{PayloadModel, PeerRegisteringPayload, RegisterPayload, RegisterAckPayload};
 
