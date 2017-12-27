@@ -54,12 +54,13 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
+    let event_handler = handlers::EventHandlers::new();
     let event_register = EventRegister::new()
-        .register_ping_handler(Box::new(handlers::EventHandlers::new()));
+        .register_ping_handler(Box::new(event_handler.clone()))
+        .register_pong_handler(Box::new(event_handler.clone()));
 
     let event_handler = EventHandler::new();
     let event_handler = event_handler
-        .set_pong_handler(handlers::pong_handler)
         .set_new_block_handler(handlers::new_block_handler)
         .set_peer_registering_handler(handlers::peer_registering_handler)
         .set_register_ack_handler(handlers::register_ack_handler);
