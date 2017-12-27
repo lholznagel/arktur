@@ -13,7 +13,14 @@ impl HookNotification {
         }
     }
 
-    /// TODO:
+    /// Checks the event and executes the matching hook
+    ///
+    /// # Parameters
+    ///
+    /// - `udp` - Open UDP connection
+    /// - `event` - Event code to check what event this is
+    /// - `payload_buffer` - raw message
+    /// - `source` - source this message comes from
     pub fn notify(&self, udp: &UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
         match event {
             EventCodes::Ping => self.hook.on_ping(payload_buffer, source),

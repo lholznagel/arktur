@@ -6,7 +6,7 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::UdpSocket;
 
-/// TODO:
+/// Contains all hooks that the peer listens to
 pub struct HookHandlers;
 
 impl Hooks for HookHandlers {
