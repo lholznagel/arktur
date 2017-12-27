@@ -15,7 +15,11 @@ impl HookRegister {
         }
     }
 
-    /// TODO:
+    /// Sets the hook
+    ///
+    /// # Parameters
+    ///
+    /// - `hook` - Struct that implements the `Hooks` trait
     pub fn set_hook<H: Hooks + 'static>(mut self, hook: H) -> Self {
         self.hook = Box::new(hook);
         self
