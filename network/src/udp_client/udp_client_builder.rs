@@ -1,4 +1,4 @@
-use blockchain_hooks::HookRegister;
+use blockchain_hooks::HookNotification;
 use udp_client::UdpClient;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, UdpSocket, SocketAddr};
 
@@ -50,7 +50,7 @@ impl UdpClientBuilder {
     ///
     /// # fn main() {
     ///     let udp_client_builder = UdpClientBuilder::new();
-    ///     let udp_client = udp_client_builder.build(HookRegister::new());
+    ///     let udp_client = udp_client_builder.build(HookRegister::new().get_notification());
     /// 
     ///     // with calling build you get a `std::net::UdpSocket` from rust
     ///     let data = [0; 10];
@@ -58,7 +58,7 @@ impl UdpClientBuilder {
     ///     udp_client.connection().send_to(&data, address).unwrap();
     /// # }
     /// ```
-    pub fn build(self, hooks: HookRegister) -> UdpClient {
+    pub fn build(self, hooks: HookNotification) -> UdpClient {
         let socket = SocketAddr::new(self.ip, self.port);
         let socket = UdpSocket::bind(socket).unwrap();
 
@@ -88,7 +88,7 @@ impl UdpClientBuilder {
     /// # fn main() {
     ///     let udp_client_builder = UdpClientBuilder::new();
     ///     let udp_client_builder = udp_client_builder.set_port(50000);
-    ///     let udp_client = udp_client_builder.build(HookRegister::new());
+    ///     let udp_client = udp_client_builder.build(HookRegister::new().get_notification());
     ///     println!("UDP is running on port: {:?}", udp_client.port());
     /// # }
     /// ```
@@ -120,7 +120,7 @@ impl UdpClientBuilder {
     /// # fn main() {
     ///     let udp_client_builder = UdpClientBuilder::new();
     ///     let udp_client_builder = udp_client_builder.set_ip(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
-    ///     let udp_client = udp_client_builder.build(HookRegister::new());
+    ///     let udp_client = udp_client_builder.build(HookRegister::new().get_notification());
     ///     println!("UDP is running on port: {:?}", udp_client.port());
     /// # }
     /// ```
@@ -152,7 +152,7 @@ impl UdpClientBuilder {
     /// # fn main() {
     ///     let udp_client_builder = UdpClientBuilder::new();
     ///     let udp_client_builder = udp_client_builder.set_ipv4(Ipv4Addr::new(0, 0, 0, 0));
-    ///     let udp_client = udp_client_builder.build(HookRegister::new());
+    ///     let udp_client = udp_client_builder.build(HookRegister::new().get_notification());
     ///     println!("UDP is running on ip: {:?}", udp_client.ip());
     /// # }
     /// ```
@@ -183,7 +183,7 @@ impl UdpClientBuilder {
     /// # fn main() {
     ///     let udp_client_builder = UdpClientBuilder::new();
     ///     let udp_client_builder = udp_client_builder.set_ipv6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0));
-    ///     let udp_client = udp_client_builder.build(HookRegister::new());
+    ///     let udp_client = udp_client_builder.build(HookRegister::new().get_notification());
     ///     println!("UDP is running on ip: {:?}", udp_client.ip());
     /// # }
     /// ```
@@ -203,13 +203,13 @@ mod tests {
     #[test]
     fn start_basic_udp_client() {
         let udp_client = UdpClientBuilder::new();
-        udp_client.build(HookRegister::new());
+        udp_client.build(HookRegister::new().get_notification());
     }
 
     #[test]
     fn set_specific_port() {
         let udp_client = UdpClientBuilder::new().set_port(50000);
-        let udp = udp_client.build(HookRegister::new());
+        let udp = udp_client.build(HookRegister::new().get_notification());
 
         assert_eq!(udp_client.port, 50000);
         assert_eq!(
@@ -224,7 +224,7 @@ mod tests {
         let udp_client = UdpClientBuilder::new()
             .set_ipv6(ip)
             .set_port(50000);
-        let udp = udp_client.build(HookRegister::new());
+        let udp = udp_client.build(HookRegister::new().get_notification());
         let udp = udp.connection();
 
         assert_eq!(udp_client.ip, udp.local_addr().unwrap().ip());

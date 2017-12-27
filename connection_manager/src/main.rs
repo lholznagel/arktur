@@ -12,7 +12,7 @@ extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
 
-mod hole_puncher;
+mod handlers;
 mod block_handler;
 
 use blockchain_file::peers::KnownPeers;
@@ -28,9 +28,13 @@ fn main() {
     KnownPeers::init();
     info!("Starting hole puncher!");
 
+    let hook_notification = HookRegister::new()
+        .set_hook(handlers::HookHandlers)
+        .get_notification();
+
     let udp = UdpClientBuilder::new()
         .set_port(45000)
-        .build(HookRegister::new());
+        .build(hook_notification);
 
     info!("After udp");
 
