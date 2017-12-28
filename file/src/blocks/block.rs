@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-const BASE_PATH: &str = "./blocks";
+const BASE_PATH: &str = "./block_data";
 
 /// Represents a block
 #[derive(Debug, PartialEq)]
@@ -53,7 +53,7 @@ impl Block {
             filename = filename + &self.hash.chars().nth(48 + i).unwrap().to_string();
         }
 
-        let mut file = File::create(format!("blocks/{}", filename)).unwrap();
+        let mut file = File::create(format!("{}/{}", BASE_PATH, filename)).unwrap();
         file.write_all(format!("{}\n{}\n{}\n{}\n{}\n{}", self.index, self.content, self.timestamp, self.nonce, self.prev, self.hash).as_bytes()).unwrap();
     }
 }
@@ -69,7 +69,9 @@ mod tests {
         let hash_current = "a7b3e78c5a4e17c2b187d98751f41d15b9a9f5bf460f4d1a1f9524175206f4d7";
         let hash_filename = "1f9524175206f4d7";
 
-        fs::create_dir(BASE_PATH).unwrap();
+        if !Path::new(BASE_PATH).exists() {
+            fs::create_dir(BASE_PATH).unwrap();
+        }
 
         let mut block = Block::new();
         block.index = 100;
@@ -83,7 +85,6 @@ mod tests {
         assert_eq!(true, Path::new(&format!("{}/{}", BASE_PATH, hash_filename)).exists());
 
         fs::remove_file(&format!("{}/{}", BASE_PATH, hash_filename)).unwrap();
-        fs::remove_dir(BASE_PATH).unwrap();
     }
 
     #[test]
@@ -92,7 +93,9 @@ mod tests {
         let hash_current = "5dd42db62ac60139dbdc00e0505913d4060e2cac186b71dfcdd31958cba4fca5";
         let hash_filename = "cdd31958cba4fca5";
 
-        fs::create_dir(BASE_PATH).unwrap();
+        if !Path::new(BASE_PATH).exists() {
+            fs::create_dir(BASE_PATH).unwrap();
+        }
 
         let mut block = Block::new();
         block.index = 100;
@@ -102,7 +105,6 @@ mod tests {
         block.prev = hash_prev.to_string();
         block.hash = hash_current.to_string();
         block.save();
-
 
         let file = File::open(format!("{}/{}", BASE_PATH, hash_filename)).unwrap();
         let mut content = String::from("");
@@ -121,6 +123,5 @@ mod tests {
         assert_eq!(block, read_file);
 
         fs::remove_file(&format!("{}/{}", BASE_PATH, hash_filename)).unwrap();
-        fs::remove_dir(BASE_PATH).unwrap();
     }
 }
