@@ -9,6 +9,7 @@ const BASE_PATH: &str = "./peers";
 const PATH_LAST_PEER: &str = "./peers/last_peer";
 
 /// Manages the saving and retrieving of known peers
+#[derive(Debug)]
 pub struct KnownPeers {
     peer: Peer
 }

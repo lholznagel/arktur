@@ -1,5 +1,5 @@
 //! Contains the protocol model and a builder for the protocol
-use enums::events::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
+use blockchain_hooks::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
 use payload::PayloadModel;
 use nom::GetInput;
@@ -27,7 +27,7 @@ named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~
 /// ```
 ///
 /// - TODO: add checksum
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: EventCodes,
@@ -68,24 +68,29 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///
     /// # Example
     /// ```
+    /// extern crate blockchain_hooks;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_hooks::EventCodes;
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
     /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
-    /// let payload = PingPayload::new();
-    /// let expected = BlockchainProtocol {
-    ///     event_code: EventCodes::Pong,
-    ///     status_code: StatusCodes::Ok,
-    ///     id: 65535,
-    ///     ttl: 1337,
-    ///     payload_length: 0,
-    ///     payload: payload
-    /// };
-    ///
-    /// let payload = vec![1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::<PingPayload>::from_vec(payload);
-    /// assert_eq!(result, expected);
+    /// # fn main() {
+    ///     let payload = PingPayload::new();
+    ///     let expected = BlockchainProtocol {
+    ///         event_code: EventCodes::Pong,
+    ///         status_code: StatusCodes::Ok,
+    ///         id: 65535,
+    ///         ttl: 1337,
+    ///         payload_length: 0,
+    ///         payload: payload
+    ///     };
+    /// 
+    ///     let payload = vec![1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let result = BlockchainProtocol::<PingPayload>::from_vec(payload);
+    ///     assert_eq!(result, expected);
+    /// # }
     /// ```
     pub fn from_vec(payload: Vec<u8>) -> Self {
         BlockchainProtocol::parse(payload.as_slice())
@@ -103,24 +108,29 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///
     /// # Example
     /// ```
+    /// extern crate blockchain_hooks;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_hooks::EventCodes;
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
     /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
-    /// let payload = PingPayload::new();
-    /// let expected = BlockchainProtocol {
-    ///     event_code: EventCodes::Pong,
-    ///     status_code: StatusCodes::Ok,
-    ///     id: 65535,
-    ///     ttl: 1337,
-    ///     payload_length: 0,
-    ///     payload: payload
-    /// };
-    ///
-    /// let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::from_u8(payload);
-    /// assert_eq!(result, expected);
+    /// # fn main() {
+    ///     let payload = PingPayload::new();
+    ///     let expected = BlockchainProtocol {
+    ///         event_code: EventCodes::Pong,
+    ///         status_code: StatusCodes::Ok,
+    ///         id: 65535,
+    ///         ttl: 1337,
+    ///         payload_length: 0,
+    ///         payload: payload
+    ///     };
+    /// 
+    ///     let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let result = BlockchainProtocol::from_u8(payload);
+    ///     assert_eq!(result, expected);
+    /// # }
     /// ```
     pub fn from_u8(payload: &[u8]) -> Self {
         BlockchainProtocol::parse(payload)
@@ -220,24 +230,29 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///
     /// # Example
     /// ```
+    /// extern crate blockchain_hooks;
+    /// extern crate blockchain_protocol;
+    ///
+    /// use blockchain_hooks::EventCodes;
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::enums::events::EventCodes;
     /// use blockchain_protocol::enums::status::StatusCodes;
     /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
-    /// let payload = PingPayload::new();
-    /// let expected = BlockchainProtocol {
-    ///     event_code: EventCodes::Pong,
-    ///     status_code: StatusCodes::Ok,
-    ///     id: 65535,
-    ///     ttl: 1337,
-    ///     payload_length: 0,
-    ///     payload: payload
-    /// };
-    ///
-    /// let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
-    /// let result = BlockchainProtocol::from_u8(payload);
-    /// assert_eq!(result, expected);
+    /// # fn main() {
+    ///     let payload = PingPayload::new();
+    ///     let expected = BlockchainProtocol {
+    ///         event_code: EventCodes::Pong,
+    ///         status_code: StatusCodes::Ok,
+    ///         id: 65535,
+    ///         ttl: 1337,
+    ///         payload_length: 0,
+    ///         payload: payload
+    ///     };
+    /// 
+    ///     let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let result = BlockchainProtocol::from_u8(payload);
+    ///     assert_eq!(result, expected);
+    /// # }
     /// ```
     fn parse(bytes: &[u8]) -> BlockchainProtocol<T> {
         let parsed = parse_protocol(bytes);
@@ -261,7 +276,7 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use enums::events::EventCodes;
+    use blockchain_hooks::EventCodes;
     use enums::status::StatusCodes;
     use payload::{PayloadModel, PingPayload, RegisterAckPayload};
 

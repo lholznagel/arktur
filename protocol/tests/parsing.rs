@@ -1,7 +1,8 @@
+extern crate blockchain_hooks;
 extern crate blockchain_protocol;
 
+use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::events::EventCodes;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{PayloadModel, RegisterAckPayload};
 

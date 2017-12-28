@@ -6,16 +6,17 @@
 //! - Decides when and what comes into the next block (not yet implemented)
 //! - Decides when a block is written (not yet implemented)
 extern crate blockchain_file;
+extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
 
-mod hole_puncher;
+mod handlers;
 mod block_handler;
 
 use blockchain_file::peers::KnownPeers;
-use blockchain_network::event::EventHandler;
+use blockchain_hooks::HookRegister;
 use blockchain_network::udp_client::UdpClientBuilder;
 
 use std::thread;
@@ -27,12 +28,13 @@ fn main() {
     KnownPeers::init();
     info!("Starting hole puncher!");
 
-    let event_handlers = EventHandler::new()
-        .set_register_handler(hole_puncher::register_handler);
+    let hook_notification = HookRegister::new()
+        .set_hook(handlers::HookHandlers)
+        .get_notification();
 
     let udp = UdpClientBuilder::new()
         .set_port(45000)
-        .build(event_handlers);
+        .build(hook_notification);
 
     info!("After udp");
 

@@ -1,6 +1,6 @@
 use blockchain_file::peers::KnownPeers;
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::events::EventCodes;
+use blockchain_hooks::EventCodes;
 use blockchain_protocol::payload::NewBlockPayload;
 
 use std::net::{UdpSocket, SocketAddr};
