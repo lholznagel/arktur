@@ -1,7 +1,7 @@
 use blockchain_file::peers::KnownPeers;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_hooks::EventCodes;
-use blockchain_protocol::payload::{NewBlockPayload, PossibleBlockPayload};
+use blockchain_protocol::payload::NewBlockPayload;
 
 use std::net::{UdpSocket, SocketAddr};
 use std::thread;
@@ -38,8 +38,4 @@ pub fn handle_block(udp: UdpSocket) {
         // with debug mode enabled it takes some time :D
         thread::sleep(Duration::from_secs(150));
     }
-}
-
-pub fn possible_block_handler(_: SocketAddr, _: &UdpSocket, message: BlockchainProtocol<PossibleBlockPayload>) {
-    event!(format!("POSSIBLE_BLOCK {:?}", message.payload));
 }

@@ -148,7 +148,7 @@ impl UdpClient {
     /// When a new event is identified the given callback is called
     ///
     /// This function is blocking!
-    pub fn listen(self) -> Self {
+    pub fn listen(mut self) -> Self {
         loop {
             let mut buffer = [0; 1024];
 

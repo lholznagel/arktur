@@ -21,7 +21,7 @@ impl HookNotification {
     /// - `event` - Event code to check what event this is
     /// - `payload_buffer` - raw message
     /// - `source` - source this message comes from
-    pub fn notify(&self, udp: &UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
+    pub fn notify(&mut self, udp: &UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
         match event {
             EventCodes::Ping => self.hook.on_ping(payload_buffer, source),
             EventCodes::Pong => self.hook.on_pong(payload_buffer, source),
@@ -31,7 +31,7 @@ impl HookNotification {
             EventCodes::NewBlock => self.hook.on_new_block(payload_buffer, source),
             EventCodes::PossibleBlock => self.hook.on_possible_block(payload_buffer, source),
             EventCodes::FoundBlock => self.hook.on_found_block(payload_buffer, source),
-            EventCodes::NotAValidEvent => vec![0],
+            EventCodes::NotAValidEvent => Vec::new(),
         }
     }
 }
