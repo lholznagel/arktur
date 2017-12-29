@@ -1,15 +1,30 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PayloadModel, RegisterAckPayload, RegisterPayload, PeerRegisteringPayload};
+use blockchain_protocol::payload::{PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
+
 use std::net::{UdpSocket, SocketAddr};
 
-pub struct HookHandlers;
+pub struct HookHandlers {
+    connected_peers_addr: Vec<String>,
+    block: u64,
+    nonce: u64
+}
+
+impl HookHandlers {
+    pub fn new() -> Self {
+        Self {
+            connected_peers_addr: Vec::new(),
+            block: 0,
+            nonce: 0
+        }
+    }
+}
 
 impl Hooks for HookHandlers {
-    /// # What does it do?
+    /// # Hole puncher
     ///
     /// - Create a "hole" between to peers
     /// - When a peer registers itself, its IP-Address + Port are saved
@@ -55,13 +70,12 @@ impl Hooks for HookHandlers {
     /// - The connection between both networks should be good to go
     ///
     /// Handles a new peer
-    fn on_register(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
+    fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
         let register_payload = BlockchainProtocol::<RegisterPayload>::from_vec(payload_buffer);
         let last_peer = KnownPeers::get_latest();
         let mut status = StatusCodes::Ok;
 
         if last_peer.get_name() == "" {
-            error!("Empty last peer");
             status = StatusCodes::NoPeer;
         } else {
             let payload = PeerRegisteringPayload::new().set_addr(source.to_string());
@@ -73,6 +87,7 @@ impl Hooks for HookHandlers {
         }
 
         KnownPeers::new(Peer::new(register_payload.payload.name(), source.to_string())).save();
+        self.connected_peers_addr.push(source.to_string());
 
         let payload = RegisterAckPayload::new().set_addr(String::from(last_peer.get_socket()));
         sending!(format!("ACK_REGISTER | {:?}", payload));
@@ -83,11 +98,19 @@ impl Hooks for HookHandlers {
             .build()
     }
 
+    fn on_possible_block(&mut self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
+        let message = BlockchainProtocol::<PossibleBlockPayload>::from_vec(payload_buffer);
+        self.block = message.payload.index;
+        self.nonce = message.payload.nonce;
+
+        event!(format!("POSSIBLE_BLOCK | {:?}", message));
+        Vec::new()
+    }
+
     fn on_ping(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_pong(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_ack_register(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_peer_registering(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_new_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_possible_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_found_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
 }
