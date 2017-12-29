@@ -25,7 +25,7 @@ use std::net::UdpSocket;
 ///         Vec::new() 
 ///     }
 ///
-///     fn on_register(&self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> {
+///     fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> {
 ///         // handle hook and give a vector back
 ///         // the given vector is send back to the source address
 ///         // with an empty vector, no response is send to the source address
@@ -53,7 +53,7 @@ use std::net::UdpSocket;
 ///         Vec::new() 
 ///     }
 ///
-///     fn on_possible_block(&self, _: Vec<u8>, _: String) -> Vec<u8> {
+///     fn on_possible_block(&mut self, _: Vec<u8>, _: String) -> Vec<u8> {
 ///         // handle hook and give a vector back
 ///         // the given vector is send back to the source address
 ///         // with an empty vector, no response is send to the source address
@@ -96,7 +96,7 @@ pub trait Hooks {
     /// - `udp` - Open UDP connection to send messages to other peers
     /// - `message` - Raw message. Needs to be parsed, before usage
     /// - `source` - source address, that send this message
-    fn on_register(&self, udp: &UdpSocket, message: Vec<u8>, source: String) -> Vec<u8>;
+    fn on_register(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String) -> Vec<u8>;
 
     /// Executed on a `ACK_REGISTER` event
     /// Code: 17
@@ -132,7 +132,7 @@ pub trait Hooks {
     ///
     /// - `message` - Raw message. Needs to be parsed, before usage
     /// - `source` - source address, that send this message
-    fn on_possible_block(&self, message: Vec<u8>, source: String) -> Vec<u8>;
+    fn on_possible_block(&mut self, message: Vec<u8>, source: String) -> Vec<u8>;
 
     /// Executed on a `FOUND_BLOCK` event
     /// Code: 34

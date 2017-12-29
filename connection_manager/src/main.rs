@@ -29,7 +29,7 @@ fn main() {
     info!("Starting hole puncher!");
 
     let hook_notification = HookRegister::new()
-        .set_hook(handlers::HookHandlers)
+        .set_hook(handlers::HookHandlers::new())
         .get_notification();
 
     let udp = UdpClientBuilder::new()
