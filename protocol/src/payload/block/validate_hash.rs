@@ -1,9 +1,9 @@
 use payload::PayloadModel;
 use std::str;
 
-/// Model for the event `PossibleBlock`
+/// Model for the event `FoundBlock`
 #[derive(Debug, PartialEq)]
-pub struct PossibleBlockPayload {
+pub struct ValidateHash {
     /// Index of the block
     pub index: u64,
     /// Content of the block
@@ -14,19 +14,16 @@ pub struct PossibleBlockPayload {
     pub prev: String,
     /// Nonce of the block
     pub nonce: u64,
-    /// Generated hash that respects all values
-    pub hash: String,
 }
 
-impl PayloadModel for PossibleBlockPayload {
+impl PayloadModel for ValidateHash {
     fn new() -> Self {
         Self {
             index: 0,
             content: String::from(""),
             timestamp: 0,
             prev: String::from(""),
-            nonce: 0,
-            hash: String::from(""),
+            nonce: 0
         }
     }
 
@@ -37,7 +34,6 @@ impl PayloadModel for PossibleBlockPayload {
             timestamp: String::from(str::from_utf8(bytes[2]).unwrap()).parse::<i64>().unwrap(),
             prev: String::from(str::from_utf8(bytes[3]).unwrap()),
             nonce: String::from(str::from_utf8(bytes[4]).unwrap()).parse::<u64>().unwrap(),
-            hash: String::from(str::from_utf8(bytes[5]).unwrap()),
         }
     }
 
@@ -75,14 +71,7 @@ impl PayloadModel for PossibleBlockPayload {
         for i in self.nonce.to_string().into_bytes() {
             result.push(i);
         }
-        result.push(126);
-
-        result.push(126);
-        for i in self.hash.into_bytes() {
-            result.push(i);
-        }
-        result.push(126);
-        
+        result.push(126);        
         result
     }
 }
