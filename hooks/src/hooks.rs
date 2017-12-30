@@ -53,7 +53,21 @@ use std::net::UdpSocket;
 ///         Vec::new() 
 ///     }
 ///
-///     fn on_possible_block(&mut self, _: Vec<u8>, _: String) -> Vec<u8> {
+///     fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> {
+///         // handle hook and give a vector back
+///         // the given vector is send back to the source address
+///         // with an empty vector, no response is send to the source address
+///         Vec::new() 
+///     }
+///
+///     fn on_validate_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> {
+///         // handle hook and give a vector back
+///         // the given vector is send back to the source address
+///         // with an empty vector, no response is send to the source address
+///         Vec::new() 
+///     }
+///
+///     fn on_validated_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> {
 ///         // handle hook and give a vector back
 ///         // the given vector is send back to the source address
 ///         // with an empty vector, no response is send to the source address
@@ -132,10 +146,28 @@ pub trait Hooks {
     ///
     /// - `message` - Raw message. Needs to be parsed, before usage
     /// - `source` - source address, that send this message
-    fn on_possible_block(&mut self, message: Vec<u8>, source: String) -> Vec<u8>;
+    fn on_possible_block(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String) -> Vec<u8>;
+
+    /// Executed on a `VALIDATE_HASH` event
+    /// Code: 34
+    ///
+    /// # Parameters
+    ///
+    /// - `message` - Raw message. Needs to be parsed, before usage
+    /// - `source` - source address, that send this message
+    fn on_validate_hash(&self, message: Vec<u8>, source: String) -> Vec<u8>;
+
+    /// Executed on a `VALIDATED_HASH` event
+    /// Code: 35
+    ///
+    /// # Parameters
+    ///
+    /// - `message` - Raw message. Needs to be parsed, before usage
+    /// - `source` - source address, that send this message
+    fn on_validated_hash(&self, message: Vec<u8>, source: String) -> Vec<u8>;
 
     /// Executed on a `FOUND_BLOCK` event
-    /// Code: 34
+    /// Code: 36
     ///
     /// # Parameters
     ///

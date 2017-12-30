@@ -29,7 +29,9 @@ impl HookNotification {
             EventCodes::AckRegister => self.hook.on_ack_register(payload_buffer, source),
             EventCodes::PeerRegistering => self.hook.on_peer_registering(payload_buffer, source),
             EventCodes::NewBlock => self.hook.on_new_block(payload_buffer, source),
-            EventCodes::PossibleBlock => self.hook.on_possible_block(payload_buffer, source),
+            EventCodes::PossibleBlock => self.hook.on_possible_block(udp, payload_buffer, source),
+            EventCodes::ValidateHash => self.hook.on_validate_hash(payload_buffer, source),
+            EventCodes::ValidatedHash => self.hook.on_validated_hash(payload_buffer, source),
             EventCodes::FoundBlock => self.hook.on_found_block(payload_buffer, source),
             EventCodes::NotAValidEvent => Vec::new(),
         }

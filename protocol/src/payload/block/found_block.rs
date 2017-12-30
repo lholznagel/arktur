@@ -6,11 +6,11 @@ pub struct FoundBlockPayload;
 
 impl PayloadModel for FoundBlockPayload {
     fn new() -> Self {
-        FoundBlockPayload
+        Self{}
     }
 
     fn parse(_bytes: Vec<&[u8]>) -> Self {
-        FoundBlockPayload
+        Self {}
     }
 
     fn length(&self) -> u16 {

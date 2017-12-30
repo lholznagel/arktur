@@ -55,11 +55,19 @@ pub enum EventCodes {
     ///
     /// Code 33
     PossibleBlock,
+    /// When a possible block is found all peers need to validate it
+    ///
+    /// Code 34
+    ValidateHash,
+    /// Validated hash by the peers
+    ///
+    /// Code 35
+    ValidatedHash,
     /// Fired by the connection manager, when a block was found
     /// Contains the all information about a block
     /// All peers should stop mining when this message comes
     ///
-    /// Code 34
+    /// Code 36
     FoundBlock,
     /// Fired when the umber does not match any events
     ///
@@ -95,7 +103,9 @@ pub fn as_enum(value: u8) -> EventCodes {
         18 => EventCodes::PeerRegistering,
         32 => EventCodes::NewBlock,
         33 => EventCodes::PossibleBlock,
-        34 => EventCodes::FoundBlock,
+        34 => EventCodes::ValidateHash,
+        35 => EventCodes::ValidatedHash,
+        36 => EventCodes::FoundBlock,
         _ => EventCodes::NotAValidEvent,
     }
 }
@@ -125,7 +135,9 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::PeerRegistering => 18,
         EventCodes::NewBlock => 32,
         EventCodes::PossibleBlock => 33,
-        EventCodes::FoundBlock => 34,
+        EventCodes::ValidateHash => 34,
+        EventCodes::ValidatedHash => 35,
+        EventCodes::FoundBlock => 36,
         EventCodes::NotAValidEvent => 255,
     }
 }
