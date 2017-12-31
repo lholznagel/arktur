@@ -1,11 +1,13 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash};
+use blockchain_protocol::payload::{NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
 use std::net::{UdpSocket, SocketAddr};
+use std::thread;
+use std::time::Duration;
 
 pub struct HookHandlers {
     block: u64,
@@ -21,6 +23,22 @@ impl HookHandlers {
             connected_peers_addr: Vec::new(),
             hash: String::from(""),
             validationInProgress: false
+        }
+    }
+
+    fn send_genesis(&self, udp: &UdpSocket) {
+        let payload = NewBlockPayload::genesis();
+
+        let message = BlockchainProtocol::new()
+            .set_event_code(EventCodes::NewBlock)
+            .set_payload(payload)
+            .build();
+
+        for peer in self.connected_peers_addr.clone() {
+            udp.send_to(
+                message.as_slice(),
+                peer.parse::<SocketAddr>().unwrap(),
+            ).unwrap();
         }
     }
 }
@@ -90,6 +108,10 @@ impl Hooks for HookHandlers {
 
         KnownPeers::new(Peer::new(register_payload.payload.name(), source.to_string())).save();
         self.connected_peers_addr.push(source.to_string());
+
+        if self.connected_peers_addr.len() >= 3 && self.block == 0 {
+            self.send_genesis(&udp);
+        }
 
         let payload = RegisterAckPayload::new().set_addr(String::from(last_peer.get_socket()));
         sending!(format!("ACK_REGISTER | {:?}", payload));
