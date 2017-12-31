@@ -1,7 +1,7 @@
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload, NewBlockPayload, PossibleBlockPayload, ValidateHash};
+use blockchain_protocol::payload::{PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload, NewBlockPayload, PossibleBlockPayload, ValidateHash, ValidatedHash};
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::UdpSocket;
@@ -92,7 +92,20 @@ impl Hooks for HookHandlers {
         let message = BlockchainProtocol::<ValidateHash>::from_vec(payload_buffer);
         event!(format!("VALIDATE_HASH {:?}", message.payload));
 
-        Vec::new()
+        let mut generated_block = String::from("");
+        generated_block.push_str(&message.payload.content);
+        generated_block.push_str(&message.payload.index.to_string());
+        generated_block.push_str(&message.payload.timestamp.to_string());
+        generated_block.push_str(&message.payload.prev);
+        generated_block.push_str(&message.payload.nonce.to_string());
+
+        let mut hasher = Sha3::sha3_256();
+        hasher.input_str(generated_block.as_str());
+
+        let mut answer = BlockchainProtocol::<ValidatedHash>::new().set_event_code(EventCodes::ValidatedHash);
+        answer.payload.index = message.payload.index;
+        answer.payload.hash = hasher.result_str();
+        answer.build()
     }
 
     fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }

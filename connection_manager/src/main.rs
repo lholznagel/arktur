@@ -28,20 +28,15 @@ fn main() {
     KnownPeers::init();
     info!("Starting hole puncher!");
 
+    let hook_handler = handlers::HookHandlers::new();
+
     let hook_notification = HookRegister::new()
-        .set_hook(handlers::HookHandlers::new())
+        .set_hook(hook_handler)
         .get_notification();
 
     let udp = UdpClientBuilder::new()
         .set_port(45000)
         .build(hook_notification);
-
-    info!("After udp");
-
-    let local_udp = udp.connection();
-    thread::spawn(move || {
-        block_handler::handle_block(local_udp);
-    });
 
     udp.listen();
 }
