@@ -1,4 +1,5 @@
 use payload::PayloadModel;
+use std::str;
 
 /// Model for the event `FoundBlock`
 #[derive(Debug, PartialEq)]
@@ -17,10 +18,10 @@ impl PayloadModel for ValidatedHash {
         }
     }
 
-    fn parse(_bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<&[u8]>) -> Self {
         Self {
-            index: 0,
-            hash: String::from("")
+            index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
+            hash: String::from(str::from_utf8(bytes[1]).unwrap())
         }
     }
 
@@ -29,6 +30,18 @@ impl PayloadModel for ValidatedHash {
     }
 
     fn as_bytes(self) -> Vec<u8> {
-        vec![0]
+        let mut result = Vec::<u8>::new();
+        result.push(126);
+        for i in self.index.to_string().into_bytes() {
+            result.push(i);
+        }
+        result.push(126);
+
+        result.push(126);
+        for i in self.hash.into_bytes() {
+            result.push(i);
+        }
+        result.push(126);
+        result
     }
 }

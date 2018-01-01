@@ -1,19 +1,19 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash};
+use blockchain_protocol::payload::{NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
 use std::net::{UdpSocket, SocketAddr};
-use std::thread;
-use std::time::Duration;
+use std::collections::HashMap;
 
 pub struct HookHandlers {
     block: u64,
     connected_peers_addr: Vec<String>,
     hash: String,
-    validationInProgress: bool
+    hashes: Vec<String>,
+    validation_in_progress: bool
 }
 
 impl HookHandlers {
@@ -22,7 +22,8 @@ impl HookHandlers {
             block: 0,
             connected_peers_addr: Vec::new(),
             hash: String::from(""),
-            validationInProgress: false
+            hashes: Vec::new(),
+            validation_in_progress: false
         }
     }
 
@@ -126,7 +127,7 @@ impl Hooks for HookHandlers {
         let message = BlockchainProtocol::<PossibleBlockPayload>::from_vec(payload_buffer);
 
         if self.block > message.payload.index {
-            self.validationInProgress = false;
+            self.validation_in_progress = false;
         }
 
         self.block = message.payload.index;
@@ -134,7 +135,7 @@ impl Hooks for HookHandlers {
 
         event!(format!("POSSIBLE_BLOCK | {:?}", message));
 
-        if !self.validationInProgress {
+        if !self.validation_in_progress {
             let mut payload = ValidateHash::new();
             payload.content = message.payload.content;
             payload.index = message.payload.index;
@@ -148,9 +149,43 @@ impl Hooks for HookHandlers {
                 .build();
 
             for peer in self.connected_peers_addr.clone() {
-                self.validationInProgress = true;
+                self.validation_in_progress = true;
                 udp.send_to(message.as_slice(), peer.parse::<SocketAddr>().unwrap()).unwrap();
             }
+        }
+
+        Vec::new()
+    }
+
+    fn on_validated_hash(&mut self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
+        let message = BlockchainProtocol::<ValidatedHash>::from_vec(payload_buffer);
+
+        if message.payload.index == self.block {
+            self.hashes.push(message.payload.hash);
+        }
+
+        if self.hashes.len() == self.connected_peers_addr.len() {
+            let mut hashes = HashMap::new();
+            hashes.insert(String::from("bullshit"), 1);
+
+            for hash in self.hashes.clone() {
+                let updated_value = match hashes.get(&hash) {
+                    Some(current_val)   => current_val + 1,
+                    None                => 1
+                };
+
+                hashes.insert(hash, updated_value);
+            }
+
+            let mut result: (String, u64) = (String::from(""), 0);
+            for (key, value) in hashes {
+                if result.1 == 0 || value > result.1 {
+                    result.0 = key;
+                    result.1 = value;
+                }
+            }
+
+            debug!(format!("Hash {} for block: {}", result.0, self.block));
         }
 
         Vec::new()
@@ -162,6 +197,5 @@ impl Hooks for HookHandlers {
     fn on_peer_registering(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_new_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_validate_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_validated_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_found_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
 }
