@@ -1,4 +1,4 @@
-.PHONY: debug doc release
+.PHONY: debug doc release peer
 
 default:
 	cargo build
@@ -16,3 +16,11 @@ release:
 doc:
 	rm -rf target/doc
 	cargo doc --all --frozen
+
+peer:
+	clear
+	cd peer; cargo run -- 0.0.0.0 $(NAME)
+
+connection:
+	clear
+	cd connection_manager; cargo run

@@ -110,6 +110,6 @@ impl Hooks for HookHandlers {
 
     fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_validated_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
+    fn on_validated_hash(&mut self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
     fn on_found_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
 }

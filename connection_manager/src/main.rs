@@ -13,13 +13,10 @@ extern crate blockchain_network;
 extern crate blockchain_protocol;
 
 mod handlers;
-mod block_handler;
 
 use blockchain_file::peers::KnownPeers;
 use blockchain_hooks::HookRegister;
 use blockchain_network::udp_client::UdpClientBuilder;
-
-use std::thread;
 
 /// Starting point
 ///
