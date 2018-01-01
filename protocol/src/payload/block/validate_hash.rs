@@ -71,7 +71,7 @@ impl PayloadModel for ValidateHash {
         for i in self.nonce.to_string().into_bytes() {
             result.push(i);
         }
-        result.push(126);        
+        result.push(126);
         result
     }
 }
