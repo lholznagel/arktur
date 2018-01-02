@@ -31,7 +31,7 @@ impl HookNotification {
             EventCodes::NewBlock => self.hook.on_new_block(payload_buffer, source),
             EventCodes::PossibleBlock => self.hook.on_possible_block(udp, payload_buffer, source),
             EventCodes::ValidateHash => self.hook.on_validate_hash(payload_buffer, source),
-            EventCodes::ValidatedHash => self.hook.on_validated_hash(payload_buffer, source),
+            EventCodes::ValidatedHash => self.hook.on_validated_hash(udp, payload_buffer, source),
             EventCodes::FoundBlock => self.hook.on_found_block(payload_buffer, source),
             EventCodes::NotAValidEvent => Vec::new(),
         }

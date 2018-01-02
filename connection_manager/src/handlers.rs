@@ -1,7 +1,7 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
+use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
@@ -9,9 +9,8 @@ use std::net::{UdpSocket, SocketAddr};
 use std::collections::HashMap;
 
 pub struct HookHandlers {
-    block: u64,
     connected_peers_addr: Vec<String>,
-    hash: String,
+    current_block: PossibleBlockPayload,
     hashes: Vec<String>,
     validation_in_progress: bool
 }
@@ -19,9 +18,8 @@ pub struct HookHandlers {
 impl HookHandlers {
     pub fn new() -> Self {
         Self {
-            block: 0,
             connected_peers_addr: Vec::new(),
-            hash: String::from(""),
+            current_block: PossibleBlockPayload::new(),
             hashes: Vec::new(),
             validation_in_progress: false
         }
@@ -110,7 +108,7 @@ impl Hooks for HookHandlers {
         KnownPeers::new(Peer::new(register_payload.payload.name(), source.to_string())).save();
         self.connected_peers_addr.push(source.to_string());
 
-        if self.connected_peers_addr.len() >= 3 && self.block == 0 {
+        if self.connected_peers_addr.len() >= 3 && self.current_block.index == 0 {
             self.send_genesis(&udp);
         }
 
@@ -125,13 +123,11 @@ impl Hooks for HookHandlers {
 
     fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
         let message = BlockchainProtocol::<PossibleBlockPayload>::from_vec(payload_buffer);
+        self.current_block = message.payload.clone();
 
-        if self.block > message.payload.index {
+        if self.current_block.index > message.payload.index {
             self.validation_in_progress = false;
         }
-
-        self.block = message.payload.index;
-        self.hash = message.payload.hash.clone();
 
         event!(format!("POSSIBLE_BLOCK | {:?}", message));
 
@@ -157,16 +153,16 @@ impl Hooks for HookHandlers {
         Vec::new()
     }
 
-    fn on_validated_hash(&mut self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
+    fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
         let message = BlockchainProtocol::<ValidatedHash>::from_vec(payload_buffer);
+        event!(format!("VALIDATED_HASH | {:?}", message));
 
-        if message.payload.index == self.block {
+        if message.payload.index == self.current_block.index {
             self.hashes.push(message.payload.hash);
         }
 
         if self.hashes.len() == self.connected_peers_addr.len() {
             let mut hashes = HashMap::new();
-            hashes.insert(String::from("bullshit"), 1);
 
             for hash in self.hashes.clone() {
                 let updated_value = match hashes.get(&hash) {
@@ -185,7 +181,27 @@ impl Hooks for HookHandlers {
                 }
             }
 
-            debug!(format!("Hash {} for block: {}", result.0, self.block));
+            self.hashes = Vec::new();
+            debug!(format!("Hash {} for block: {:?}", result.0, self.current_block));
+
+            self.current_block.hash = result.0;
+
+            let mut payload = FoundBlockPayload::new();
+            payload.content = self.current_block.content.clone();
+            payload.index = self.current_block.index;
+            payload.nonce = self.current_block.nonce;
+            payload.prev = self.current_block.prev.clone();
+            payload.timestamp = self.current_block.timestamp;
+            payload.hash = self.current_block.hash.clone();
+
+            let message = BlockchainProtocol::new()
+                .set_event_code(EventCodes::FoundBlock)
+                .set_payload(payload)
+                .build();
+
+            for peer in self.connected_peers_addr.clone() {
+                udp.send_to(message.as_slice(), peer.parse::<SocketAddr>().unwrap()).unwrap();
+            }
         }
 
         Vec::new()

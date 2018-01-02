@@ -2,7 +2,7 @@ use payload::PayloadModel;
 use std::str;
 
 /// Model for the event `PossibleBlock`
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PossibleBlockPayload {
     /// Index of the block
     pub index: u64,
