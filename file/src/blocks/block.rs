@@ -35,7 +35,7 @@ impl Block {
     /// # Return
     /// - `block` - Instance of an empty block
     pub fn new() -> Self {
-        Block {
+        Self {
             index: 0,
             content: String::from(""),
             timestamp: 0,
@@ -53,8 +53,8 @@ impl Block {
             filename = filename + &self.hash.chars().nth(48 + i).unwrap().to_string();
         }
 
-        let mut file = File::create(format!("{}/{}", BASE_PATH, filename)).unwrap();
-        file.write_all(format!("{}\n{}\n{}\n{}\n{}\n{}", self.index, self.content, self.timestamp, self.nonce, self.prev, self.hash).as_bytes()).unwrap();
+        let mut file = File::create(format!("{}/{}", BASE_PATH, filename)).expect("Could not write block file.");
+        file.write_all(format!("{}\n{}\n{}\n{}\n{}\n{}", self.index, self.content, self.timestamp, self.nonce, self.prev, self.hash).as_bytes()).expect("Error writing block information");
     }
 }
 

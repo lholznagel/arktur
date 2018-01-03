@@ -4,6 +4,7 @@
 //!
 //! Connects with the connection manager and to other peers
 //! Calculates the hash value for a new block
+extern crate blockchain_file;
 extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
