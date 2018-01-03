@@ -227,7 +227,7 @@ impl Hooks for HookHandlers {
             }
 
             loop {
-                // for now all 2 Minutens
+                // for now every 2 minutes
                 if get_time().sec - self.last_block_time >= 120 {
                     self.send_next_block(&udp);
                     break;
