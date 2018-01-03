@@ -22,7 +22,7 @@ impl NewBlockPayload {
     /// Next block
     pub fn block(index: u64, prev: String) -> Self {
         NewBlockPayload {
-            index: index + 1,
+            index: index,
             content: String::from(""),
             timestamp: get_time().sec,
             prev: prev,
