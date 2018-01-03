@@ -47,7 +47,7 @@ impl HookHandlers {
     }
 
     fn send_next_block(&mut self, udp: &UdpSocket) {
-        let payload = NewBlockPayload::block(self.current_block.index, self.current_block.hash.clone());
+        let payload = NewBlockPayload::block(self.current_block.index + 1, self.current_block.hash.clone());
         self.last_block_time = payload.timestamp;
         self.validation_in_progress = false;
 
