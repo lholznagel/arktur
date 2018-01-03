@@ -7,12 +7,14 @@ use blockchain_protocol::BlockchainProtocol;
 
 use std::net::{UdpSocket, SocketAddr};
 use std::collections::HashMap;
+use time::get_time;
 
 pub struct HookHandlers {
     connected_peers_addr: Vec<String>,
     current_block: PossibleBlockPayload,
     hashes: Vec<String>,
-    validation_in_progress: bool
+    validation_in_progress: bool,
+    last_block_time: i64
 }
 
 impl HookHandlers {
@@ -21,12 +23,33 @@ impl HookHandlers {
             connected_peers_addr: Vec::new(),
             current_block: PossibleBlockPayload::new(),
             hashes: Vec::new(),
-            validation_in_progress: false
+            validation_in_progress: false,
+            last_block_time: 0
         }
     }
 
-    fn send_genesis(&self, udp: &UdpSocket) {
-        let payload = NewBlockPayload::genesis();
+    fn send_genesis(&mut self, udp: &UdpSocket) {
+        let payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
+        self.last_block_time = payload.timestamp;
+        self.validation_in_progress = false;
+
+        let message = BlockchainProtocol::new()
+            .set_event_code(EventCodes::NewBlock)
+            .set_payload(payload)
+            .build();
+
+        for peer in self.connected_peers_addr.clone() {
+            udp.send_to(
+                message.as_slice(),
+                peer.parse::<SocketAddr>().unwrap(),
+            ).unwrap();
+        }
+    }
+
+    fn send_next_block(&mut self, udp: &UdpSocket) {
+        let payload = NewBlockPayload::block(self.current_block.index, self.current_block.hash.clone());
+        self.last_block_time = payload.timestamp;
+        self.validation_in_progress = false;
 
         let message = BlockchainProtocol::new()
             .set_event_code(EventCodes::NewBlock)
@@ -201,6 +224,14 @@ impl Hooks for HookHandlers {
 
             for peer in self.connected_peers_addr.clone() {
                 udp.send_to(message.as_slice(), peer.parse::<SocketAddr>().unwrap()).unwrap();
+            }
+
+            loop {
+                // for now all 2 Minutens
+                if get_time().sec - self.last_block_time >= 120 {
+                    self.send_next_block(&udp);
+                    break;
+                }
             }
         }
 
