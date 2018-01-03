@@ -32,6 +32,7 @@ dependencies = [
  "blockchain_logging 0.1.0",
  "blockchain_network 0.1.0",
  "blockchain_protocol 0.1.0",
+ "time 0.1.38 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

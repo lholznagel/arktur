@@ -19,13 +19,13 @@ pub struct NewBlockPayload {
 }
 
 impl NewBlockPayload {
-    /// Generates a genesis block
-    pub fn genesis() -> Self {
+    /// Next block
+    pub fn block(index: u64, prev: String) -> Self {
         NewBlockPayload {
-            index: 0,
+            index: index + 1,
             content: String::from(""),
             timestamp: get_time().sec,
-            prev: String::from("0".repeat(64)),
+            prev: prev,
             sign_key: String::from("0".repeat(4))
         }
     }

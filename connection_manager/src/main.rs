@@ -11,6 +11,7 @@ extern crate blockchain_hooks;
 extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
+extern crate time;
 
 mod handlers;
 
