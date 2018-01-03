@@ -1,3 +1,4 @@
+use blockchain_file::blocks::Block;
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -111,6 +112,16 @@ impl Hooks for HookHandlers {
     fn on_found_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
         let message = BlockchainProtocol::<FoundBlockPayload>::from_vec(payload_buffer);
         event!(format!("FOUND_BLOCK {:?}", message.payload));
+
+        Block::init();
+        let mut block = Block::new();
+        block.index = message.payload.index;
+        block.content = message.payload.content;
+        block.timestamp = message.payload.timestamp;
+        block.nonce = message.payload.nonce;
+        block.prev = message.payload.prev;
+        block.hash = message.payload.hash;
+        block.save();
 
         Vec::new()
     }
