@@ -19,7 +19,7 @@ fn test_set_payload() {
     let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
       .set_payload(payload);
 
-    let expected = &[255, 255, 0, 0, 0, 0, 17, 0, 126, 77, 121, 32, 116, 101, 115, 116, 32, 112, 97, 121, 108, 111, 97, 100, 126];
+    let expected = &[255, 255, 0, 0, 17, 17, 17, 0, 126, 77, 121, 32, 116, 101, 115, 116, 32, 112, 97, 121, 108, 111, 97, 100, 126];
     assert_eq!(blockchain_protocol.build(), expected);
 }
 
@@ -31,6 +31,6 @@ fn test_set_all_values() {
       .set_status_code(StatusCodes::Ok)
       .set_payload(payload);
 
-    let expected = &[16, 0, 0, 0, 0, 0, 21, 0, 126, 49, 57, 50, 46, 49, 54, 56, 46, 49, 57, 50, 46, 50, 58, 52, 53, 54, 55, 56, 126];
+    let expected = &[16, 0, 0, 0, 85, 37, 21, 0, 126, 49, 57, 50, 46, 49, 54, 56, 46, 49, 57, 50, 46, 50, 58, 52, 53, 54, 55, 56, 126];
     assert_eq!(blockchain_protocol.build(), expected);
 }
