@@ -253,6 +253,12 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
         }
     }
 
+    /// Turns the header values to bytes
+    /// The checksum is excluded from this. For that use `checksum_to_bytes()`
+    ///
+    /// # Return
+    ///
+    /// - `Vec<u8>` - Vector containing the header values as u8
     fn header_to_bytes(&self) -> Vec<u8> {
         let mut enums = vec![as_number_event(self.event_code.clone()), as_number_status(self.status_code.clone())];
         let slice_u16: &[u16] = &*vec![
@@ -269,6 +275,15 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
         enums
     }
 
+    /// Turns the checksum bytes
+    ///
+    /// # Params
+    ///
+    /// - `checksum` - checksum that should be converted
+    ///
+    /// # Return
+    ///
+    /// - `Vec<u8>` - Vector containing the header values as u8
     fn checksum_to_bytes(&self, checksum: u16) -> Vec<u8> {
         let checksum_slice_u16: &[u16] = &*vec![checksum];
         let checksum_slice: &[u8] = unsafe {
@@ -280,6 +295,11 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
         checksum_slice.to_vec()
     }
 
+    /// Calculates the checksum of the current header
+    ///
+    /// # Return
+    ///
+    /// - `u16` - Number of the checksum
     fn calculate_checksum(&self) -> u16 {
         let mut sum1: u16 = 0;
         let mut sum2: u16 = 0;
