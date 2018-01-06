@@ -16,7 +16,7 @@ named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // | Event code            | Status                |                 ID                            |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // |               Checksum                        |                 Data length                   |
+/// // |               Data length                     |                 Checksum                      |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // |                                                                                               |
 /// // //                                                                                             //
@@ -35,10 +35,10 @@ pub struct BlockchainProtocol<T> {
     pub status_code: StatusCodes,
     /// Identification of this message
     pub id: u16,
-    /// Checksum of this message
-    pub checksum: u16,
     /// Length of the added payload field
     pub payload_length: u16,
+    /// Checksum of this message
+    pub checksum: u16,
     /// Contains the content of the payload field
     pub payload: T,
 }
@@ -82,8 +82,8 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///         event_code: EventCodes::Pong,
     ///         status_code: StatusCodes::Ok,
     ///         id: 65535,
-    ///         checksum: 1337,
     ///         payload_length: 0,
+    ///         checksum: 1337,
     ///         payload: payload
     ///     };
     /// 
@@ -122,8 +122,8 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///         event_code: EventCodes::Pong,
     ///         status_code: StatusCodes::Ok,
     ///         id: 65535,
-    ///         checksum: 1337,
     ///         payload_length: 0,
+    ///         checksum: 1337,
     ///         payload: payload
     ///     };
     /// 
@@ -192,38 +192,10 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
 
     /// Combines the struct to a vector of bytes
     pub fn build(self) -> Vec<u8> {
-        let checksum = vec![u16::from(as_number_event(self.event_code.clone())), u16::from(as_number_status(self.status_code.clone())), self.id, self.payload.length()];
-        let slice_u16: &[u16] = &*vec![self.id, self.payload.length()];
-        let converted_slice: &[u8] = unsafe {
-            slice::from_raw_parts(
-                slice_u16.as_ptr() as *const u8,
-                slice_u16.len() * mem::size_of::<u16>(),
-            )
-        };
-
-        let checksum: &[u16] = &*vec![self.calculate_checksum(checksum)];
-        let checksum: &[u8] = unsafe {
-            slice::from_raw_parts(
-                checksum.as_ptr() as *const u8,
-                checksum.len() * mem::size_of::<u16>(),
-            )
-        };
-
-        let mut result: Vec<u8> = Vec::new();
-        result.push(as_number_event(self.event_code));
-        result.push(as_number_status(self.status_code));
-        result.push(converted_slice[0]);
-        result.push(converted_slice[1]);
-        result.push(checksum[0]);
-        result.push(checksum[1]);
-        result.push(converted_slice[2]);
-        result.push(converted_slice[3]);
-
-        let payload_converted = self.payload.as_bytes();
-        for index in payload_converted {
-            result.push(index);
-        }
-
+        let mut checksum = self.checksum_to_bytes(self.calculate_checksum());
+        let mut result = self.header_to_bytes();
+        result.append(&mut checksum);
+        result.append(&mut self.payload.as_bytes());
         result
     }
 
@@ -252,8 +224,8 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///     let expected = BlockchainProtocol {
     ///         event_code: EventCodes::Pong,
     ///         status_code: StatusCodes::Ok,
-    ///         id: 65535,
     ///         checksum: 1337,
+    ///         id: 65535,
     ///         payload_length: 0,
     ///         payload: payload
     ///     };
@@ -275,18 +247,45 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
             event_code: as_enum_event(result.0),
             status_code: as_enum_status(result.1),
             id: result.2,
-            checksum: result.3,
             payload_length: result.4,
+            checksum: result.3,
             payload: payload
         }
     }
 
-    fn calculate_checksum(&self, checksum: Vec<u16>) -> u16 {
+    fn header_to_bytes(&self) -> Vec<u8> {
+        let mut enums = vec![as_number_event(self.event_code.clone()), as_number_status(self.status_code.clone())];
+        let slice_u16: &[u16] = &*vec![
+            self.id, 
+            self.payload.length()
+        ];
+        let converted_slice: &[u8] = unsafe {
+            slice::from_raw_parts(
+                slice_u16.as_ptr() as *const u8,
+                slice_u16.len() * mem::size_of::<u16>(),
+            )
+        };
+        enums.append(&mut converted_slice.to_vec());
+        enums
+    }
+
+    fn checksum_to_bytes(&self, checksum: u16) -> Vec<u8> {
+        let checksum_slice_u16: &[u16] = &*vec![checksum];
+        let checksum_slice: &[u8] = unsafe {
+            slice::from_raw_parts(
+                checksum_slice_u16.as_ptr() as *const u8,
+                checksum_slice_u16.len() * mem::size_of::<u16>(),
+            )
+        };
+        checksum_slice.to_vec()
+    }
+
+    fn calculate_checksum(&self) -> u16 {
         let mut sum1: u16 = 0;
         let mut sum2: u16 = 0;
 
-        for current in checksum.iter() {
-            sum1 = (sum1 + current) % 255;
+        for current in self.header_to_bytes() {
+            sum1 = (sum1 + current as u16) % 255;
             sum2 = (sum2 + sum1) % 255;
         }
         (sum1 * 256) + sum2
@@ -307,8 +306,8 @@ mod tests {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
-            checksum: 1337,
             payload_length: 0,
+            checksum: 1337,
             payload: payload,
         };
 
@@ -324,8 +323,8 @@ mod tests {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
-            checksum: 1337,
             payload_length: 0,
+            checksum: 1337,
             payload: payload,
         };
 
@@ -341,8 +340,8 @@ mod tests {
             event_code: EventCodes::Pong,
             status_code: StatusCodes::Undefined,
             id: 65535,
-            checksum: 1337,
             payload_length: 23,
+            checksum: 1337,
             payload: payload,
         };
 
@@ -361,9 +360,32 @@ mod tests {
     }
 
     #[test]
-    fn test_checksum() {
-        let blockchain = BlockchainProtocol::<PingPayload>::new();
-        let vector = vec![1, 34, 10, 23];
-        assert_eq!(blockchain.calculate_checksum(vector), 17557);
+    fn test_checksum_1() {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
+            event_code: EventCodes::Ping, // 0
+            status_code: StatusCodes::Undefined, // 255
+            id: 65535, // 65535
+            payload_length: 0, // 0
+            checksum: 0,
+            payload: payload, // 0
+        };
+
+        assert_eq!(expected.calculate_checksum(), 0);
+    }
+
+    #[test]
+    fn test_checksum_2() {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
+            event_code: EventCodes::Register, // 16
+            status_code: StatusCodes::NoPeer, // 16
+            id: 2586, // 2586
+            payload_length: 0, // 0
+            checksum: 0,
+            payload: payload, // 0
+        };
+
+        assert_eq!(expected.calculate_checksum(), 17463);
     }
 }
