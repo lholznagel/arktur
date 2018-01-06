@@ -113,7 +113,9 @@ impl Hooks for HookHandlers {
     ///
     /// Handles a new peer
     fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
-        let register_payload = BlockchainProtocol::<RegisterPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<RegisterPayload>::from_vec(payload_buffer);
+        let message = message.unwrap();
+        
         let last_peer = KnownPeers::get_latest();
         let mut status = StatusCodes::Ok;
 
@@ -128,7 +130,7 @@ impl Hooks for HookHandlers {
             udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();
         }
 
-        KnownPeers::new(Peer::new(register_payload.payload.name(), source.to_string())).save();
+        KnownPeers::new(Peer::new(message.payload.name(), source.to_string())).save();
         self.connected_peers_addr.push(source.to_string());
 
         if self.connected_peers_addr.len() >= 3 && self.current_block.index == 0 {
@@ -146,6 +148,7 @@ impl Hooks for HookHandlers {
 
     fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
         let message = BlockchainProtocol::<PossibleBlockPayload>::from_vec(payload_buffer);
+        let message = message.unwrap();
         self.current_block = message.payload.clone();
 
         if self.current_block.index > message.payload.index {
@@ -178,6 +181,7 @@ impl Hooks for HookHandlers {
 
     fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
         let message = BlockchainProtocol::<ValidatedHash>::from_vec(payload_buffer);
+        let message = message.unwrap();
         event!(format!("VALIDATED_HASH | {:?}", message));
 
         if message.payload.index == self.current_block.index {
