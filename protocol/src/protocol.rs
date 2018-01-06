@@ -9,6 +9,12 @@ use std::{slice, mem};
 named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16)>, bits!(tuple!(take_bits!(u8, 8), take_bits!(u8, 8), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u16, 16))));
 named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~"), char!('~'))));
 
+/// Parser error messages
+#[derive(Debug)]
+pub enum ParseErrors {
+    ChecksumDoNotMatch
+}
+
 /// Struct of the protocol
 ///
 /// ```
@@ -25,8 +31,6 @@ named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
-///
-/// - TODO: add checksum
 #[derive(Clone, Debug, PartialEq)]
 pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
@@ -83,16 +87,16 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///         status_code: StatusCodes::Ok,
     ///         id: 65535,
     ///         payload_length: 0,
-    ///         checksum: 1337,
+    ///         checksum: 262,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = vec![1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let payload = vec![1, 0, 255, 255, 1, 6, 0, 0];
     ///     let result = BlockchainProtocol::<PingPayload>::from_vec(payload);
-    ///     assert_eq!(result, expected);
+    ///     assert_eq!(result.unwrap(), expected);
     /// # }
     /// ```
-    pub fn from_vec(payload: Vec<u8>) -> Self {
+    pub fn from_vec(payload: Vec<u8>) -> Result<Self, ParseErrors> {
         BlockchainProtocol::parse(payload.as_slice())
     }
 
@@ -123,16 +127,16 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///         status_code: StatusCodes::Ok,
     ///         id: 65535,
     ///         payload_length: 0,
-    ///         checksum: 1337,
+    ///         checksum: 262,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let payload = &[1, 0, 255, 255, 1, 6, 0, 0];
     ///     let result = BlockchainProtocol::from_u8(payload);
-    ///     assert_eq!(result, expected);
+    ///     assert_eq!(result.unwrap(), expected);
     /// # }
     /// ```
-    pub fn from_u8(payload: &[u8]) -> Self {
+    pub fn from_u8(payload: &[u8]) -> Result<Self, ParseErrors> {
         BlockchainProtocol::parse(payload)
     }
 
@@ -220,22 +224,22 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     /// use blockchain_protocol::payload::{PayloadModel, PingPayload};
     ///
     /// # fn main() {
-    ///     let payload = PingPayload::new();
+    ///   /*  let payload = PingPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: EventCodes::Pong,
     ///         status_code: StatusCodes::Ok,
-    ///         checksum: 1337,
     ///         id: 65535,
     ///         payload_length: 0,
+    ///         checksum: 262,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 0, 255, 255, 5, 57, 0, 0];
+    ///     let payload = &[1, 0, 255, 255, 1, 6, 0, 0];
     ///     let result = BlockchainProtocol::from_u8(payload);
-    ///     assert_eq!(result, expected);
+    ///     assert_eq!(result.unwrap(), expected);*/
     /// # }
     /// ```
-    fn parse(bytes: &[u8]) -> BlockchainProtocol<T> {
+    fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
         let parsed = parse_protocol(bytes);
         let result = parsed.clone().to_result().unwrap();
         let remaining = parse_delimited(parsed.remaining_input().unwrap())
@@ -243,13 +247,19 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
             .unwrap();
         let payload = T::parse(remaining);
 
-        BlockchainProtocol {
+        let protocol = BlockchainProtocol {
             event_code: as_enum_event(result.0),
             status_code: as_enum_status(result.1),
             id: result.2,
             payload_length: result.4,
             checksum: result.3,
             payload: payload
+        };
+
+        if protocol.validate_checksum() {
+            Ok(protocol)
+        } else {
+            Err(ParseErrors::ChecksumDoNotMatch)
         }
     }
 
@@ -310,6 +320,12 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
         }
         (sum1 * 256) + sum2
     }
+
+    /// Checks if the header checksum matches the calculated
+    fn validate_checksum(&self) -> bool {
+        let calculated_checksum = self.calculate_checksum();
+        self.checksum == calculated_checksum
+    }
 }
 
 #[cfg(test)]
@@ -327,13 +343,13 @@ mod tests {
             status_code: StatusCodes::Undefined,
             id: 65535,
             payload_length: 0,
-            checksum: 1337,
+            checksum: 262,
             payload: payload,
         };
 
-        let payload = &[1, 255, 255, 255, 5, 57, 0, 0];
+        let payload = &[1, 255, 255, 255, 1, 6, 0, 0];
         let result = BlockchainProtocol::<PingPayload>::from_u8(payload);
-        assert_eq!(result, expected);
+        assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
@@ -344,13 +360,13 @@ mod tests {
             status_code: StatusCodes::Undefined,
             id: 65535,
             payload_length: 0,
-            checksum: 1337,
+            checksum: 262,
             payload: payload,
         };
 
-        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x05, 0x39, 0x00, 0x00];
+        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x01, 0x06, 0x00, 0x00];
         let result = BlockchainProtocol::<PingPayload>::from_u8(payload);
-        assert_eq!(result, expected);
+        assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
@@ -361,13 +377,13 @@ mod tests {
             status_code: StatusCodes::Undefined,
             id: 65535,
             payload_length: 23,
-            checksum: 1337,
+            checksum: 5680,
             payload: payload,
         };
 
-        let data = vec![1, 255, 255, 255, 5, 57, 0, 23, 126, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101, 126];
+        let data = vec![1, 255, 255, 255, 22, 48, 0, 23, 126, 73, 32, 97, 109, 32, 97, 32, 116, 101, 115, 116, 32, 109, 101, 115, 115, 97, 103, 101, 126];
         let result = BlockchainProtocol::<RegisterAckPayload>::from_vec(data);
-        assert_eq!(result, expected);
+        assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
@@ -407,5 +423,35 @@ mod tests {
         };
 
         assert_eq!(expected.calculate_checksum(), 17463);
+    }
+
+    #[test]
+    fn test_validate_checksum_false() {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
+            event_code: EventCodes::Ping, // 0
+            status_code: StatusCodes::Undefined, // 255
+            id: 65535, // 65535
+            payload_length: 0, // 0
+            checksum: 1337,
+            payload: payload, // 0
+        };
+
+        assert_eq!(expected.validate_checksum(), false);
+    }
+
+    #[test]
+    fn test_validate_checksum_true() {
+        let payload = PingPayload::new();
+        let expected = BlockchainProtocol::<PingPayload> {
+            event_code: EventCodes::Register, // 16
+            status_code: StatusCodes::NoPeer, // 16
+            id: 2586, // 2586
+            payload_length: 0, // 0
+            checksum: 17463,
+            payload: payload, // 0
+        };
+
+        assert_eq!(expected.validate_checksum(), true);
     }
 }
