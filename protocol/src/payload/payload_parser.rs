@@ -4,6 +4,7 @@
 pub trait PayloadModel {
     /// Creates a new empty instance of the model
     fn new() -> Self;
+
     /// Should parse the given vector of bytes
     /// to the payload model
     ///
@@ -15,6 +16,7 @@ pub trait PayloadModel {
     ///
     /// Instance of the payload model
     fn parse(bytes: Vec<&[u8]>) -> Self;
+
     /// Should convert the current payload model to a
     /// vector of bytes
     ///
@@ -22,6 +24,7 @@ pub trait PayloadModel {
     /// 
     /// Vector of bytes that represent the payload model
     fn as_bytes(self) -> Vec<u8>;
+    
     /// Gets the length of the payload model
     ///
     /// # Returns
