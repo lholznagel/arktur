@@ -54,7 +54,7 @@ impl PayloadModel for FoundBlockPayload {
         result.push(126);
 
         result.push(126);
-        for i in self.content.into_bytes() {
+        for i in self.content.clone().into_bytes() {
             result.push(i);
         }
         result.push(126);
@@ -72,17 +72,54 @@ impl PayloadModel for FoundBlockPayload {
         result.push(126);
 
         result.push(126);
-        for i in self.prev.into_bytes() {
+        for i in self.prev.clone().into_bytes() {
             result.push(i);
         }
         result.push(126);
 
         result.push(126);
-        for i in self.hash.into_bytes() {
+        for i in self.hash.clone().into_bytes() {
             result.push(i);
         }
         result.push(126);
         
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use BlockchainProtocol;
+
+    named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~"), char!('~'))));
+
+    #[test]
+    fn test_building_and_parsing() {
+        let index = 1465;
+        let content = String::from("Some string");
+        let timestamp = 5825525;
+        let nonce = 41684984;
+        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
+        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+
+        let mut found_block = FoundBlockPayload::new();
+        found_block.index = index.clone();
+        found_block.content = content.clone();
+        found_block.timestamp = timestamp.clone();
+        found_block.nonce = nonce.clone();
+        found_block.prev = prev.clone();
+        found_block.hash = hash.clone();
+        let found_block = found_block.as_bytes();
+
+        let parser = parse_delimited(&found_block).to_result().unwrap();
+        let parsed = FoundBlockPayload::parse(parser);
+
+        assert_eq!(index, parsed.index);
+        assert_eq!(content, parsed.content);
+        assert_eq!(timestamp, parsed.timestamp);
+        assert_eq!(nonce, parsed.nonce);
+        assert_eq!(prev, parsed.prev);
+        assert_eq!(hash, parsed.hash);
     }
 }

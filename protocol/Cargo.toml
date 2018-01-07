@@ -7,3 +7,6 @@ version = "0.1.0"
 nom = "3.2.1"
 time = "0.1.38"
 blockchain_hooks = { path = "../hooks" }
+
+[dev-dependencies]
+quickcheck = "0.6.0"
