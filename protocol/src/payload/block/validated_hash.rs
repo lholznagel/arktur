@@ -18,10 +18,10 @@ impl PayloadModel for ValidatedHash {
         }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         Self {
-            index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
-            hash: String::from(str::from_utf8(bytes[1]).unwrap())
+            index: String::from(str::from_utf8(&bytes[0]).unwrap()).parse::<u64>().unwrap(),
+            hash: String::from(str::from_utf8(&bytes[1]).unwrap())
         }
     }
 

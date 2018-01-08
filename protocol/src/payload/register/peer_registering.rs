@@ -29,9 +29,9 @@ impl PayloadModel for PeerRegisteringPayload {
         PeerRegisteringPayload { addr: String::from("") }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if bytes.len() > 0 {
-            PeerRegisteringPayload { addr: String::from(str::from_utf8(bytes[0]).unwrap()) }
+            PeerRegisteringPayload { addr: String::from(str::from_utf8(&bytes[0]).unwrap()) }
         } else {
             PeerRegisteringPayload { addr: String::from("") }
         }

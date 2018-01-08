@@ -10,12 +10,12 @@ pub trait PayloadModel {
     ///
     /// # Parameters
     ///
-    /// - `bytes` - vector of bytes, splitted by the delimiter ~
+    /// - `bytes: Vec<Vec<u8>>` - parsed payload
     ///
     /// # Returns
     ///
     /// Instance of the payload model
-    fn parse(bytes: Vec<&[u8]>) -> Self;
+    fn parse(bytes: Vec<Vec<u8>>) -> Self;
 
     /// Should convert the current payload model to a
     /// vector of bytes

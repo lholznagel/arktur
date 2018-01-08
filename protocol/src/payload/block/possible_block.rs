@@ -30,14 +30,14 @@ impl PayloadModel for PossibleBlockPayload {
         }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         Self {
-            index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
-            content: String::from(str::from_utf8(bytes[1]).unwrap()),
-            timestamp: String::from(str::from_utf8(bytes[2]).unwrap()).parse::<i64>().unwrap(),
-            prev: String::from(str::from_utf8(bytes[3]).unwrap()),
-            nonce: String::from(str::from_utf8(bytes[4]).unwrap()).parse::<u64>().unwrap(),
-            hash: String::from(str::from_utf8(bytes[5]).unwrap()),
+            index: String::from(str::from_utf8(&bytes[0]).unwrap()).parse::<u64>().unwrap(),
+            content: String::from(str::from_utf8(&bytes[1]).unwrap()),
+            timestamp: String::from(str::from_utf8(&bytes[2]).unwrap()).parse::<i64>().unwrap(),
+            prev: String::from(str::from_utf8(&bytes[3]).unwrap()),
+            nonce: String::from(str::from_utf8(&bytes[4]).unwrap()).parse::<u64>().unwrap(),
+            hash: String::from(str::from_utf8(&bytes[5]).unwrap()),
         }
     }
 
