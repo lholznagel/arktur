@@ -30,14 +30,14 @@ impl PayloadModel for FoundBlockPayload {
         }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         Self {
-            index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
-            content: String::from(str::from_utf8(bytes[1]).unwrap()),
-            timestamp: String::from(str::from_utf8(bytes[2]).unwrap()).parse::<i64>().unwrap(),
-            nonce: String::from(str::from_utf8(bytes[3]).unwrap()).parse::<u64>().unwrap(),
-            prev: String::from(str::from_utf8(bytes[4]).unwrap()),
-            hash: String::from(str::from_utf8(bytes[5]).unwrap()),
+            index: String::from(str::from_utf8(&bytes[0]).unwrap()).parse::<u64>().unwrap(),
+            content: String::from(str::from_utf8(&bytes[1]).unwrap()),
+            timestamp: String::from(str::from_utf8(&bytes[2]).unwrap()).parse::<i64>().unwrap(),
+            nonce: String::from(str::from_utf8(&bytes[3]).unwrap()).parse::<u64>().unwrap(),
+            prev: String::from(str::from_utf8(&bytes[4]).unwrap()),
+            hash: String::from(str::from_utf8(&bytes[5]).unwrap()),
         }
     }
 
@@ -47,41 +47,36 @@ impl PayloadModel for FoundBlockPayload {
 
     fn as_bytes(self) -> Vec<u8> {
         let mut result = Vec::<u8>::new();
-        result.push(126);
+        result.push(self.index.to_string().into_bytes().len() as u8);
         for i in self.index.to_string().into_bytes() {
             result.push(i);
         }
-        result.push(126);
 
-        result.push(126);
+        result.push(self.content.clone().into_bytes().len() as u8);
         for i in self.content.clone().into_bytes() {
             result.push(i);
         }
-        result.push(126);
 
-        result.push(126);
+        result.push(self.timestamp.to_string().into_bytes().len() as u8);
         for i in self.timestamp.to_string().into_bytes() {
             result.push(i);
         }
-        result.push(126);
 
-        result.push(126);
+        result.push(self.nonce.to_string().into_bytes().len() as u8);
         for i in self.nonce.to_string().into_bytes() {
             result.push(i);
         }
-        result.push(126);
 
-        result.push(126);
+        result.push(self.prev.clone().into_bytes().len() as u8);
         for i in self.prev.clone().into_bytes() {
             result.push(i);
         }
-        result.push(126);
 
-        result.push(126);
+        result.push(self.hash.clone().into_bytes().len() as u8);
         for i in self.hash.clone().into_bytes() {
             result.push(i);
         }
-        result.push(126);
+        result.push(0);
         
         result
     }
@@ -92,7 +87,29 @@ mod tests {
     use super::*;
     use BlockchainProtocol;
 
-    named!(parse_delimited<Vec<&[u8]>>, many0!(delimited!(char!('~'), take_until!("~"), char!('~'))));
+    fn parse_payload(payload: Vec<u8>) -> Vec<Vec<u8>> {
+        let mut index = 0;
+        let mut complete = Vec::new();
+
+        loop {
+            let mut current = Vec::new();
+            let current_length = payload[(index) as usize];
+
+            if payload[(index) as usize] == 0 {
+                break;
+            }
+
+            for i in (index + 1)..(index + current_length + 1) {
+                current.push(payload[i as usize]);
+                index += 1;
+            }
+
+            index += 1;
+            complete.push(current);
+        }
+
+        complete
+    }
 
     #[test]
     fn test_building_and_parsing() {
@@ -112,8 +129,15 @@ mod tests {
         found_block.hash = hash.clone();
         let found_block = found_block.as_bytes();
 
-        let parser = parse_delimited(&found_block).to_result().unwrap();
-        let parsed = FoundBlockPayload::parse(parser);
+        let complete = parse_payload(found_block);
+        /*println!("{:?}", String::from(str::from_utf8(&complete[0]).unwrap()).parse::<u64>().unwrap());
+        println!("{:?}", String::from(str::from_utf8(&complete[1]).unwrap()));
+        println!("{:?}", String::from(str::from_utf8(&complete[2]).unwrap()).parse::<i64>().unwrap());
+        println!("{:?}", String::from(str::from_utf8(&complete[3]).unwrap()).parse::<u64>().unwrap());
+        println!("{:?}", String::from(str::from_utf8(&complete[4]).unwrap()));
+        println!("{:?}", String::from(str::from_utf8(&complete[5]).unwrap()));*/
+
+        let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -122,4 +146,40 @@ mod tests {
         assert_eq!(prev, parsed.prev);
         assert_eq!(hash, parsed.hash);
     }
+
+    /*quickcheck! {
+        fn test_quickcheck(index: u64, content: String, timestamp: i64, nonce: u64, prev: String, hash: String) -> bool {
+            let index = index;
+            let content = content;
+            let timestamp = timestamp;
+            let nonce = nonce;
+            let prev = prev;
+            let hash = hash;
+
+            let mut found_block = FoundBlockPayload::new();
+            found_block.index = index.clone();
+            found_block.content = content.clone();
+            found_block.timestamp = timestamp.clone();
+            found_block.nonce = nonce.clone();
+            found_block.prev = prev.clone();
+            found_block.hash = hash.clone();
+            let found_block = found_block.as_bytes();
+
+            println!("{:?}", index);
+
+            println!("{:?}", found_block);
+
+            let parser = parse_delimited(&found_block).to_result().unwrap();
+            let parsed = FoundBlockPayload::parse(parser);
+
+            assert_eq!(index, parsed.index);
+            assert_eq!(content, parsed.content);
+            assert_eq!(timestamp, parsed.timestamp);
+            assert_eq!(nonce, parsed.nonce);
+            assert_eq!(prev, parsed.prev);
+            assert_eq!(hash, parsed.hash);
+
+            true
+        }
+    }*/
 }

@@ -37,9 +37,9 @@ impl PayloadModel for RegisterPayload {
         RegisterPayload { name: String::from("") }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if bytes.len() > 0 {
-            RegisterPayload { name: String::from(str::from_utf8(bytes[0]).unwrap()) }
+            RegisterPayload { name: String::from(str::from_utf8(&bytes[0]).unwrap()) }
         } else {
             RegisterPayload { name: String::from("") }
         }

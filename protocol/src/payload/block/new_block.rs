@@ -60,14 +60,14 @@ impl PayloadModel for NewBlockPayload {
         }
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if bytes.len() > 0 {
             Self {
-                index: String::from(str::from_utf8(bytes[0]).unwrap()).parse::<u64>().unwrap(),
-                content: String::from(str::from_utf8(bytes[1]).unwrap()),
-                timestamp: String::from(str::from_utf8(bytes[2]).unwrap()).parse::<i64>().unwrap(),
-                prev: String::from(str::from_utf8(bytes[3]).unwrap()),
-                sign_key: String::from(str::from_utf8(bytes[4]).unwrap())
+                index: String::from(str::from_utf8(&bytes[0]).unwrap()).parse::<u64>().unwrap(),
+                content: String::from(str::from_utf8(&bytes[1]).unwrap()),
+                timestamp: String::from(str::from_utf8(&bytes[2]).unwrap()).parse::<i64>().unwrap(),
+                prev: String::from(str::from_utf8(&bytes[3]).unwrap()),
+                sign_key: String::from(str::from_utf8(&bytes[4]).unwrap())
             }
         } else {
             Self::new()

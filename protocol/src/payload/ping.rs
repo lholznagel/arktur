@@ -9,7 +9,7 @@ impl PayloadModel for PingPayload {
         PingPayload
     }
 
-    fn parse(_bytes: Vec<&[u8]>) -> Self {
+    fn parse(_bytes: Vec<Vec<u8>>) -> Self {
         PingPayload
     }
 
