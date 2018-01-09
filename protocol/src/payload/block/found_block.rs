@@ -130,12 +130,6 @@ mod tests {
         let found_block = found_block.as_bytes();
 
         let complete = parse_payload(found_block);
-        /*println!("{:?}", String::from(str::from_utf8(&complete[0]).unwrap()).parse::<u64>().unwrap());
-        println!("{:?}", String::from(str::from_utf8(&complete[1]).unwrap()));
-        println!("{:?}", String::from(str::from_utf8(&complete[2]).unwrap()).parse::<i64>().unwrap());
-        println!("{:?}", String::from(str::from_utf8(&complete[3]).unwrap()).parse::<u64>().unwrap());
-        println!("{:?}", String::from(str::from_utf8(&complete[4]).unwrap()));
-        println!("{:?}", String::from(str::from_utf8(&complete[5]).unwrap()));*/
 
         let parsed = FoundBlockPayload::parse(complete);
 
