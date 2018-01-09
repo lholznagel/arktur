@@ -6,6 +6,8 @@
 #[macro_use]
 extern crate quickcheck;
 
+extern crate crc;
+
 extern crate blockchain_hooks;
 #[macro_use]
 extern crate nom;
