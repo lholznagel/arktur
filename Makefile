@@ -4,7 +4,8 @@ default:
 	cargo build
 
 commit:
-	cargo test
+	rustup run stable cargo test
+	rustup run nightly cargo test
 	git add -A
 	git commit
 
