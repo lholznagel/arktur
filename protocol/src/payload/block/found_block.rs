@@ -85,7 +85,6 @@ impl PayloadModel for FoundBlockPayload {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test::Bencher;
 
     fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
         let mut index: u64 = 0;
@@ -140,29 +139,6 @@ mod tests {
         assert_eq!(nonce, parsed.nonce);
         assert_eq!(prev, parsed.prev);
         assert_eq!(hash, parsed.hash);
-    }
-
-    #[bench]
-    fn bench_build_parse_found_block(b: &mut Bencher) {
-        let index = 1465;
-        let content = String::from("Some string");
-        let timestamp = 5825525;
-        let nonce = 41684984;
-        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
-        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
-
-        let mut found_block = FoundBlockPayload::new();
-        found_block.index = index;
-        found_block.content = content;
-        found_block.timestamp = timestamp;
-        found_block.nonce = nonce;
-        found_block.prev = prev;
-        found_block.hash = hash;
-
-        b.iter(|| {
-            let found_block = found_block.clone().as_bytes();
-            FoundBlockPayload::parse(parse_payload(&found_block));
-        });
     }
 
     quickcheck! {
