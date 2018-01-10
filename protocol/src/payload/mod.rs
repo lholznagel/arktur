@@ -1,14 +1,18 @@
 //! Module for all payload models
 mod block;
 mod misc;
-mod payload_parser;
 mod register;
+
+mod byte_builder;
+mod payload_parser;
 
 pub use self::block::found_block::FoundBlockPayload;
 pub use self::block::new_block::NewBlockPayload;
 pub use self::block::possible_block::PossibleBlockPayload;
 pub use self::block::validate_hash::ValidateHash;
 pub use self::block::validated_hash::ValidatedHash;
+
+pub use self::byte_builder::ByteBuilder;
 
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;

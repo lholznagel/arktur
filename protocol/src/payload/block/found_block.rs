@@ -1,4 +1,5 @@
 use payload::PayloadModel;
+use payload::ByteBuilder;
 use std::str;
 
 /// Model for the event `FoundBlock`
@@ -46,39 +47,15 @@ impl PayloadModel for FoundBlockPayload {
     }
 
     fn as_bytes(self) -> Vec<u8> {
-        let mut result = Vec::<u8>::new();
-        result.push(self.index.to_string().into_bytes().len() as u8);
-        for i in self.index.to_string().into_bytes() {
-            result.push(i);
-        }
-
-        result.push(self.content.clone().into_bytes().len() as u8);
-        for i in self.content.clone().into_bytes() {
-            result.push(i);
-        }
-
-        result.push(self.timestamp.to_string().into_bytes().len() as u8);
-        for i in self.timestamp.to_string().into_bytes() {
-            result.push(i);
-        }
-
-        result.push(self.nonce.to_string().into_bytes().len() as u8);
-        for i in self.nonce.to_string().into_bytes() {
-            result.push(i);
-        }
-
-        result.push(self.prev.clone().into_bytes().len() as u8);
-        for i in self.prev.clone().into_bytes() {
-            result.push(i);
-        }
-
-        result.push(self.hash.clone().into_bytes().len() as u8);
-        for i in self.hash.clone().into_bytes() {
-            result.push(i);
-        }
-        result.push(0);
-        
-        result
+        let byte_builder = ByteBuilder::new();
+        byte_builder
+            .add(self.index.to_string())
+            .add(self.content.clone())
+            .add(self.timestamp.to_string())
+            .add(self.nonce.to_string())
+            .add(self.prev)
+            .add(self.hash)
+            .build()
     }
 }
 
