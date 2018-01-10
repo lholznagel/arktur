@@ -280,19 +280,19 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     ///
     /// - `Vec<Vec<u8>>` - Vector of vector containing the parsed payload
     fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
-        let mut index = 0;
+        let mut index: u64 = 0;
         let mut complete = Vec::new();
 
-        if payload.len() > 0 {
+        if !payload.is_empty() {
             loop {
-                if payload[(index) as usize] == 0 {
+                if index == payload.len() as u64 {
                     break;
                 }
 
                 let mut current = Vec::new();
-                let current_length = payload[(index) as usize];
+                let current_length = payload[index as usize];
 
-                for i in (index + 1)..(index + current_length + 1) {
+                for i in (index + 1)..(index + current_length as u64 + 1) {
                     current.push(payload[i as usize]);
                     index += 1;
                 }
@@ -301,6 +301,7 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
                 complete.push(current);
             }
         }
+
         complete
     }
 
@@ -347,7 +348,7 @@ mod tests {
     use super::*;
     use blockchain_hooks::EventCodes;
     use enums::status::StatusCodes;
-    use payload::{PayloadModel, PingPayload, RegisterAckPayload};
+    use payload::{PayloadModel, PingPayload};
 
     #[test]
     fn test_u8() {

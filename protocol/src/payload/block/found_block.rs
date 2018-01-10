@@ -2,7 +2,7 @@ use payload::PayloadModel;
 use std::str;
 
 /// Model for the event `FoundBlock`
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FoundBlockPayload {
     /// Index of the block
     pub index: u64,
@@ -85,27 +85,29 @@ impl PayloadModel for FoundBlockPayload {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use BlockchainProtocol;
+    use test::Bencher;
 
-    fn parse_payload(payload: Vec<u8>) -> Vec<Vec<u8>> {
-        let mut index = 0;
+    fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
+        let mut index: u64 = 0;
         let mut complete = Vec::new();
 
-        loop {
-            let mut current = Vec::new();
-            let current_length = payload[(index) as usize];
+        if !payload.is_empty() {
+            loop {
+                if index == payload.len() as u64 {
+                    break;
+                }
 
-            if payload[(index) as usize] == 0 {
-                break;
-            }
+                let mut current = Vec::new();
+                let current_length = payload[index as usize];
 
-            for i in (index + 1)..(index + current_length + 1) {
-                current.push(payload[i as usize]);
+                for i in (index + 1)..(index + current_length as u64 + 1) {
+                    current.push(payload[i as usize]);
+                    index += 1;
+                }
+
                 index += 1;
+                complete.push(current);
             }
-
-            index += 1;
-            complete.push(current);
         }
 
         complete
@@ -129,8 +131,7 @@ mod tests {
         found_block.hash = hash.clone();
         let found_block = found_block.as_bytes();
 
-        let complete = parse_payload(found_block);
-
+        let complete = parse_payload(&found_block);
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -141,7 +142,30 @@ mod tests {
         assert_eq!(hash, parsed.hash);
     }
 
-    /*quickcheck! {
+    #[bench]
+    fn bench_build_parse_found_block(b: &mut Bencher) {
+        let index = 1465;
+        let content = String::from("Some string");
+        let timestamp = 5825525;
+        let nonce = 41684984;
+        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
+        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+
+        let mut found_block = FoundBlockPayload::new();
+        found_block.index = index;
+        found_block.content = content;
+        found_block.timestamp = timestamp;
+        found_block.nonce = nonce;
+        found_block.prev = prev;
+        found_block.hash = hash;
+
+        b.iter(|| {
+            let found_block = found_block.clone().as_bytes();
+            FoundBlockPayload::parse(parse_payload(&found_block));
+        });
+    }
+
+    quickcheck! {
         fn test_quickcheck(index: u64, content: String, timestamp: i64, nonce: u64, prev: String, hash: String) -> bool {
             let index = index;
             let content = content;
@@ -159,12 +183,8 @@ mod tests {
             found_block.hash = hash.clone();
             let found_block = found_block.as_bytes();
 
-            println!("{:?}", index);
-
-            println!("{:?}", found_block);
-
-            let parser = parse_delimited(&found_block).to_result().unwrap();
-            let parsed = FoundBlockPayload::parse(parser);
+            let complete = parse_payload(&found_block);
+            let parsed = FoundBlockPayload::parse(complete);
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);
@@ -175,5 +195,5 @@ mod tests {
 
             true
         }
-    }*/
+    }
 }
