@@ -1,14 +1,40 @@
 use payload::PayloadModel;
 use payload::ByteBuilder;
 use std::str;
+use std::mem::transmute;
 
-/// Model for the event `FoundBlock`
+/// Struct of the FoundBlock payload
+///
+/// ```
+/// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Total Content         | Empty                                                                 |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Index (unsigned)                                                                              |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Timestamp (signed)                                                                            |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Nonce (unsigned)                                                                              |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Prev                                                                                          |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // | Hash                                                                                          |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // |                                                                                               |
+/// // //                                                                                             //
+/// // // Content []                                                                                  //
+/// // //                                                                                             //
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 #[derive(Clone, Debug, PartialEq)]
 pub struct FoundBlockPayload {
     /// Index of the block
     pub index: u64,
-    /// Content of the block
-    pub content: String,
     /// Timestamp the block was created
     pub timestamp: i64,
     /// Nonce for this block
@@ -16,29 +42,60 @@ pub struct FoundBlockPayload {
     /// Hash of the previous block
     pub prev: String,
     /// Hash of this block
-    pub hash: String
+    pub hash: String,
+    /// Content of the block
+    pub content: String
 }
 
 impl PayloadModel for FoundBlockPayload {
     fn new() -> Self {
         Self {
             index: 0,
-            content: String::from(""),
             timestamp: 0,
             nonce: 0,
             prev: String::from(""),
-            hash: String::from("")
+            hash: String::from(""),
+            content: String::from("")
         }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
+        let mut content = Vec::new();
+        for i in 0..bytes[0][0] {
+            content.extend(bytes[(9 + i) as usize].iter());
+        }
+
+        let mut index_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
+        for i in 0..8 {
+            index_byte[i] = bytes[4][i];
+        }        
+        let index = unsafe {
+            transmute::<[u8; 8], u64>(index_byte)
+        };
+
+        let mut timestamp_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
+        for i in 0..8 {
+            timestamp_byte[i] = bytes[5][i];
+        }        
+        let timestamp = unsafe {
+            transmute::<[u8; 8], i64>(timestamp_byte)
+        };
+
+        let mut nonce_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
+        for i in 0..8 {
+            nonce_byte[i] = bytes[6][i];
+        }        
+        let nonce = unsafe {
+            transmute::<[u8; 8], u64>(nonce_byte)
+        };
+
         Self {
-            index: String::from(str::from_utf8(&bytes[0]).unwrap()).parse::<u64>().unwrap(),
-            content: String::from(str::from_utf8(&bytes[1]).unwrap()),
-            timestamp: String::from(str::from_utf8(&bytes[2]).unwrap()).parse::<i64>().unwrap(),
-            nonce: String::from(str::from_utf8(&bytes[3]).unwrap()).parse::<u64>().unwrap(),
-            prev: String::from(str::from_utf8(&bytes[4]).unwrap()),
-            hash: String::from(str::from_utf8(&bytes[5]).unwrap()),
+            index: index,
+            timestamp: timestamp,
+            nonce: nonce,
+            prev: String::from(str::from_utf8(&bytes[7]).unwrap()),
+            hash: String::from(str::from_utf8(&bytes[8]).unwrap()),
+            content: String::from(str::from_utf8(&content).unwrap()),
         }
     }
 
@@ -47,14 +104,17 @@ impl PayloadModel for FoundBlockPayload {
     }
 
     fn as_bytes(self) -> Vec<u8> {
-        let byte_builder = ByteBuilder::new();
-        byte_builder
-            .add(self.index.to_string())
-            .add(self.content.clone())
-            .add(self.timestamp.to_string())
-            .add(self.nonce.to_string())
-            .add(self.prev)
-            .add(self.hash)
+        ByteBuilder::new()
+            .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
+            .add_u8(0)
+            .add_u8(0)
+            .add_u8(0)
+            .add_u64(self.index)
+            .add_u64(self.timestamp as u64) // will always be positiv
+            .add_u64(self.nonce)
+            .add_string(self.prev)
+            .add_string(self.hash)
+            .add_string_overflow(self.content)
             .build()
     }
 }
@@ -92,20 +152,85 @@ mod tests {
     #[test]
     fn test_building_and_parsing() {
         let index = 1465;
-        let content = String::from("Some string");
         let timestamp = 5825525;
         let nonce = 41684984;
         let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
         let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+        let content = String::from("Some string");
 
-        let mut found_block = FoundBlockPayload::new();
-        found_block.index = index.clone();
-        found_block.content = content.clone();
-        found_block.timestamp = timestamp.clone();
-        found_block.nonce = nonce.clone();
-        found_block.prev = prev.clone();
-        found_block.hash = hash.clone();
+        let found_block = FoundBlockPayload {
+            index: index.clone(),
+            timestamp: timestamp.clone(),
+            nonce: nonce.clone(),
+            prev: prev.clone(),
+            hash: hash.clone(),
+            content: content.clone()
+        };
+
         let found_block = found_block.as_bytes();
+        let complete = parse_payload(&found_block);
+        let parsed = FoundBlockPayload::parse(complete);
+
+        assert_eq!(index, parsed.index);
+        assert_eq!(content, parsed.content);
+        assert_eq!(timestamp, parsed.timestamp);
+        assert_eq!(nonce, parsed.nonce);
+        assert_eq!(prev, parsed.prev);
+        assert_eq!(hash, parsed.hash);
+    }
+
+    #[test]
+    fn test_long_string_1() {
+        let index = 1465;
+        let timestamp = 5825525;
+        let nonce = 41684984;
+        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
+        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+        let content = "a".repeat(500);
+
+        let found_block = FoundBlockPayload {
+            index: index.clone(),
+            timestamp: timestamp.clone(),
+            nonce: nonce.clone(),
+            prev: prev.clone(),
+            hash: hash.clone(),
+            content: content.clone()
+        };
+
+        let found_block = found_block.as_bytes();
+        assert_eq!(found_block[1], 2);
+
+        let complete = parse_payload(&found_block);
+        let parsed = FoundBlockPayload::parse(complete);
+
+        assert_eq!(index, parsed.index);
+        assert_eq!(content, parsed.content);
+        assert_eq!(timestamp, parsed.timestamp);
+        assert_eq!(nonce, parsed.nonce);
+        assert_eq!(prev, parsed.prev);
+        assert_eq!(hash, parsed.hash);
+    }
+
+    #[test]
+    fn test_long_string_2() {
+        let index = 1465;
+        let timestamp = 5825525;
+        let nonce = 41684984;
+        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
+        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+        let content = "b".repeat(1000);
+
+        let found_block = FoundBlockPayload {
+            index: index.clone(),
+            timestamp: timestamp.clone(),
+            nonce: nonce.clone(),
+            prev: prev.clone(),
+            hash: hash.clone(),
+            content: content.clone()
+        };
+
+        let found_block = found_block.as_bytes();
+        assert_eq!(found_block[1], 4);
 
         let complete = parse_payload(&found_block);
         let parsed = FoundBlockPayload::parse(complete);
@@ -127,13 +252,15 @@ mod tests {
             let prev = prev;
             let hash = hash;
 
-            let mut found_block = FoundBlockPayload::new();
-            found_block.index = index.clone();
-            found_block.content = content.clone();
-            found_block.timestamp = timestamp.clone();
-            found_block.nonce = nonce.clone();
-            found_block.prev = prev.clone();
-            found_block.hash = hash.clone();
+            let found_block = FoundBlockPayload {
+                index: index.clone(),
+                timestamp: timestamp.clone(),
+                nonce: nonce.clone(),
+                prev: prev.clone(),
+                hash: hash.clone(),
+                content: content.clone()
+            };
+
             let found_block = found_block.as_bytes();
 
             let complete = parse_payload(&found_block);
