@@ -4,6 +4,7 @@ mod misc;
 mod register;
 
 mod byte_builder;
+mod parser;
 mod payload_parser;
 
 pub use self::block::found_block::FoundBlockPayload;
@@ -17,6 +18,7 @@ pub use self::byte_builder::ByteBuilder;
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;
 
+pub use self::parser::Parser;
 pub use self::payload_parser::PayloadModel;
 
 pub use self::register::register::RegisterPayload;

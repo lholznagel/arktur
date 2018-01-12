@@ -1,7 +1,7 @@
 //! Contains the protocol model and a builder for the protocol
 use blockchain_hooks::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
-use payload::PayloadModel;
+use payload::{Parser, PayloadModel};
 use nom::GetInput;
 use std::{slice, mem};
 use crc::crc32;
@@ -250,7 +250,7 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
     fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
         let parsed = parse_protocol(bytes);
         let result = parsed.clone().to_result().unwrap();
-        let remaining = BlockchainProtocol::<T>::parse_payload(parsed.remaining_input().unwrap());
+        let remaining = Parser::parse_payload(parsed.remaining_input().unwrap());
         let payload = T::parse(remaining);
 
         let protocol = BlockchainProtocol {
@@ -268,41 +268,6 @@ impl<T: PayloadModel> BlockchainProtocol<T> {
         } else {
             Err(ParseErrors::ChecksumDoNotMatch)
         }
-    }
-
-    /// Parses the payload
-    ///
-    /// # Parameters
-    ///
-    /// - `payload: Vec<u8>` - payload to parse
-    ///
-    /// # Returns
-    ///
-    /// - `Vec<Vec<u8>>` - Vector of vector containing the parsed payload
-    fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
-        let mut index: u64 = 0;
-        let mut complete = Vec::new();
-
-        if !payload.is_empty() {
-            loop {
-                if index == payload.len() as u64 {
-                    break;
-                }
-
-                let mut current = Vec::new();
-                let current_length = payload[index as usize];
-
-                for i in (index + 1)..(index + current_length as u64 + 1) {
-                    current.push(payload[i as usize]);
-                    index += 1;
-                }
-
-                index += 1;
-                complete.push(current);
-            }
-        }
-
-        complete
     }
 
     /// Turns the header values to bytes

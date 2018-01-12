@@ -1,7 +1,6 @@
 use payload::PayloadModel;
-use payload::ByteBuilder;
+use payload::{ByteBuilder, Parser};
 use std::str;
-use std::mem::transmute;
 
 /// Struct of the FoundBlock payload
 ///
@@ -60,39 +59,12 @@ impl PayloadModel for FoundBlockPayload {
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
-        let mut content = Vec::new();
-        for i in 0..bytes[0][0] {
-            content.extend(bytes[(9 + i) as usize].iter());
-        }
-
-        let mut index_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
-        for i in 0..8 {
-            index_byte[i] = bytes[4][i];
-        }        
-        let index = unsafe {
-            transmute::<[u8; 8], u64>(index_byte)
-        };
-
-        let mut timestamp_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
-        for i in 0..8 {
-            timestamp_byte[i] = bytes[5][i];
-        }        
-        let timestamp = unsafe {
-            transmute::<[u8; 8], i64>(timestamp_byte)
-        };
-
-        let mut nonce_byte: [u8; 8] = [0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
-        for i in 0..8 {
-            nonce_byte[i] = bytes[6][i];
-        }        
-        let nonce = unsafe {
-            transmute::<[u8; 8], u64>(nonce_byte)
-        };
+        let content = Parser::string_overflow(bytes[0][0], 9, bytes.clone());
 
         Self {
-            index: index,
-            timestamp: timestamp,
-            nonce: nonce,
+            index: Parser::u8_to_u64(bytes[4].as_slice()),
+            timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
+            nonce: Parser::u8_to_u64(bytes[6].as_slice()),
             prev: String::from(str::from_utf8(&bytes[7]).unwrap()),
             hash: String::from(str::from_utf8(&bytes[8]).unwrap()),
             content: String::from(str::from_utf8(&content).unwrap()),
@@ -106,9 +78,9 @@ impl PayloadModel for FoundBlockPayload {
     fn as_bytes(self) -> Vec<u8> {
         ByteBuilder::new()
             .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
-            .add_u8(0)
-            .add_u8(0)
-            .add_u8(0)
+            .add_u8(0) // empty
+            .add_u8(0) // empty
+            .add_u8(0) // empty
             .add_u64(self.index)
             .add_u64(self.timestamp as u64) // will always be positiv
             .add_u64(self.nonce)
@@ -122,32 +94,7 @@ impl PayloadModel for FoundBlockPayload {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
-        let mut index: u64 = 0;
-        let mut complete = Vec::new();
-
-        if !payload.is_empty() {
-            loop {
-                if index == payload.len() as u64 {
-                    break;
-                }
-
-                let mut current = Vec::new();
-                let current_length = payload[index as usize];
-
-                for i in (index + 1)..(index + current_length as u64 + 1) {
-                    current.push(payload[i as usize]);
-                    index += 1;
-                }
-
-                index += 1;
-                complete.push(current);
-            }
-        }
-
-        complete
-    }
+    use payload::Parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -168,7 +115,7 @@ mod tests {
         };
 
         let found_block = found_block.as_bytes();
-        let complete = parse_payload(&found_block);
+        let complete = Parser::parse_payload(&found_block);
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -184,8 +131,8 @@ mod tests {
         let index = 1465;
         let timestamp = 5825525;
         let nonce = 41684984;
-        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
-        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+        let prev = String::from("hrjh4ej65kj56j56j56grtjthhgrjjrgjr");
+        let hash = String::from("tjhtjrjfjhngpfiwshgwtw98tu345z48h4");
         let content = "a".repeat(500);
 
         let found_block = FoundBlockPayload {
@@ -200,7 +147,7 @@ mod tests {
         let found_block = found_block.as_bytes();
         assert_eq!(found_block[1], 2);
 
-        let complete = parse_payload(&found_block);
+        let complete = Parser::parse_payload(&found_block);
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -216,8 +163,8 @@ mod tests {
         let index = 1465;
         let timestamp = 5825525;
         let nonce = 41684984;
-        let prev = String::from("sdghnregneiurngnwg48g4g4erg46e4hh");
-        let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
+        let prev = String::from("ergregergergegk04u9geogmgehe9hm39");
+        let hash = String::from("fwgn2ogh238hg29gpfj9wpjppw0efklfh");
         let content = "b".repeat(1000);
 
         let found_block = FoundBlockPayload {
@@ -232,7 +179,7 @@ mod tests {
         let found_block = found_block.as_bytes();
         assert_eq!(found_block[1], 4);
 
-        let complete = parse_payload(&found_block);
+        let complete = Parser::parse_payload(&found_block);
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -263,7 +210,7 @@ mod tests {
 
             let found_block = found_block.as_bytes();
 
-            let complete = parse_payload(&found_block);
+            let complete = Parser::parse_payload(&found_block);
             let parsed = FoundBlockPayload::parse(complete);
 
             assert_eq!(index, parsed.index);
@@ -272,7 +219,6 @@ mod tests {
             assert_eq!(nonce, parsed.nonce);
             assert_eq!(prev, parsed.prev);
             assert_eq!(hash, parsed.hash);
-
             true
         }
     }
