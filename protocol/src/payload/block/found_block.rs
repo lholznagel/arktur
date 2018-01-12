@@ -1,5 +1,6 @@
 use payload::PayloadModel;
 use payload::{ByteBuilder, Parser};
+
 use std::str;
 
 /// Struct of the FoundBlock payload
@@ -30,6 +31,7 @@ use std::str;
 /// // //                                                                                             //
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct FoundBlockPayload {
     /// Index of the block
@@ -59,15 +61,19 @@ impl PayloadModel for FoundBlockPayload {
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
-        let content = Parser::string_overflow(bytes[0][0], 9, bytes.clone());
+        if !bytes.is_empty() {
+            let content = Parser::string_overflow(bytes[0][0], 9, bytes.clone());
 
-        Self {
-            index: Parser::u8_to_u64(bytes[4].as_slice()),
-            timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
-            nonce: Parser::u8_to_u64(bytes[6].as_slice()),
-            prev: String::from(str::from_utf8(&bytes[7]).unwrap()),
-            hash: String::from(str::from_utf8(&bytes[8]).unwrap()),
-            content: String::from(str::from_utf8(&content).unwrap()),
+            Self {
+                index: Parser::u8_to_u64(bytes[4].as_slice()),
+                timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
+                nonce: Parser::u8_to_u64(bytes[6].as_slice()),
+                prev: String::from(str::from_utf8(&bytes[7]).unwrap()),
+                hash: String::from(str::from_utf8(&bytes[8]).unwrap()),
+                content: String::from(str::from_utf8(&content).unwrap()),
+            }
+        } else {
+            Self::new()
         }
     }
 
