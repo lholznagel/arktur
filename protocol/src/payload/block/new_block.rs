@@ -14,7 +14,7 @@ use time::get_time;
 /// // | Index (unsigned)                                                                              |
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // | Timestamp (signed)                                                                            |
+/// // | Timestamp (unsigned)                                                                          |
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // | Prev                                                                                          |
@@ -128,10 +128,10 @@ mod tests {
         let parsed = NewBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
-        assert_eq!(content, parsed.content);
         assert_eq!(timestamp, parsed.timestamp);
         assert_eq!(sign_key, parsed.sign_key);
         assert_eq!(prev, parsed.prev);
+        assert_eq!(content, parsed.content);
     }
 
     #[test]
@@ -193,12 +193,12 @@ mod tests {
     }
 
     quickcheck! {
-        fn test_quickcheck(index: u64, content: String, timestamp: i64, sign_key: String, prev: String) -> bool {
+        fn test_quickcheck(index: u64, timestamp: i64, prev: String, sign_key: String, content: String) -> bool {
             let index = index;
-            let content = content;
             let timestamp = timestamp;
             let sign_key = sign_key;
             let prev = prev;
+            let content = content;
 
             let new_block = NewBlockPayload {
                 index: index.clone(),

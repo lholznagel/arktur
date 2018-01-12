@@ -13,7 +13,7 @@ use std::str;
 /// // | Index (unsigned)                                                                              |
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // | Timestamp (signed)                                                                            |
+/// // | Timestamp (unsigned)                                                                          |
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // | Nonce (unsigned)                                                                              |
@@ -125,11 +125,11 @@ mod tests {
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
-        assert_eq!(content, parsed.content);
         assert_eq!(timestamp, parsed.timestamp);
         assert_eq!(nonce, parsed.nonce);
         assert_eq!(prev, parsed.prev);
         assert_eq!(hash, parsed.hash);
+        assert_eq!(content, parsed.content);
     }
 
     #[test]
@@ -157,11 +157,11 @@ mod tests {
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
-        assert_eq!(content, parsed.content);
         assert_eq!(timestamp, parsed.timestamp);
         assert_eq!(nonce, parsed.nonce);
         assert_eq!(prev, parsed.prev);
         assert_eq!(hash, parsed.hash);
+        assert_eq!(content, parsed.content);
     }
 
     #[test]
@@ -189,21 +189,21 @@ mod tests {
         let parsed = FoundBlockPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
-        assert_eq!(content, parsed.content);
         assert_eq!(timestamp, parsed.timestamp);
         assert_eq!(nonce, parsed.nonce);
         assert_eq!(prev, parsed.prev);
         assert_eq!(hash, parsed.hash);
+        assert_eq!(content, parsed.content);
     }
 
     quickcheck! {
-        fn test_quickcheck(index: u64, content: String, timestamp: i64, nonce: u64, prev: String, hash: String) -> bool {
+        fn test_quickcheck(index: u64, timestamp: i64, nonce: u64, hash: String, prev: String, content: String) -> bool {
             let index = index;
-            let content = content;
             let timestamp = timestamp;
             let nonce = nonce;
             let prev = prev;
             let hash = hash;
+            let content = content;
 
             let found_block = FoundBlockPayload {
                 index: index.clone(),
@@ -220,11 +220,11 @@ mod tests {
             let parsed = FoundBlockPayload::parse(complete);
 
             assert_eq!(index, parsed.index);
-            assert_eq!(content, parsed.content);
             assert_eq!(timestamp, parsed.timestamp);
             assert_eq!(nonce, parsed.nonce);
             assert_eq!(prev, parsed.prev);
             assert_eq!(hash, parsed.hash);
+            assert_eq!(content, parsed.content);
             true
         }
     }
