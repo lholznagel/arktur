@@ -1,65 +1,85 @@
 use payload::PayloadModel;
+use payload::ByteBuilder;
+
 use std::str;
 
 /// Model for the event `RegisterAck`
+///
+/// ```
+/// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // |                                                                                               |
+/// // // Address                                                                                       |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct RegisterAckPayload {
     /// Address of another peer
     pub addr: String,
 }
 
-impl RegisterAckPayload {
-    /// Sets the address another peer
-    ///
-    /// # Parameter
-    ///
-    /// - `addr` - Address of another peer
-    ///
-    /// # Return
-    ///
-    /// Updated instance
-    pub fn set_addr(mut self, addr: String) -> Self {
-        self.addr = addr;
-        self
-    }
-}
-
 impl PayloadModel for RegisterAckPayload {
     fn new() -> Self {
-        RegisterAckPayload { addr: String::from("") }
+        Self { addr: String::from("") }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
-        if bytes.len() > 0 {
-            RegisterAckPayload { addr: String::from(str::from_utf8(&bytes[0]).unwrap()) }
+        if !bytes.is_empty() {
+            Self {
+                addr: String::from(str::from_utf8(&bytes[0]).unwrap())
+            }
         } else {
-            RegisterAckPayload { addr: String::from("") }
+            Self::new()
         }
     }
 
     fn length(&self) -> u16 {
-        let mut result = 0;
-        if self.addr.len() != 0 {
-            result = self.addr.len().to_string().parse::<u16>().unwrap() + 2
-        }
-
-        result
+        0
     }
 
     fn as_bytes(self) -> Vec<u8> {
-        let mut result = Vec::<u8>::new();
+        ByteBuilder::new()
+            .add_string(self.addr)
+            .build()
+    }
+}
 
-        if self.addr.to_string() != "" {
-            // 126 as char equals ~
-            result.push(126);
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use payload::Parser;
 
-            for i in self.addr.to_string().into_bytes() {
-                result.push(i);
-            }
+    #[test]
+    fn test_building_and_parsing() {
+        let addr = String::from("172.0.0.1");
 
-            result.push(126);
+        let register_ack = RegisterAckPayload {
+            addr: addr.clone()
+        };
+
+        let register_ack = register_ack.as_bytes();
+        let complete = Parser::parse_payload(&register_ack);
+        let parsed = RegisterAckPayload::parse(complete);
+
+        assert_eq!(addr, parsed.addr);
+    }
+
+    quickcheck! {
+        fn test_quickcheck(addr: String) -> bool {
+            let addr = addr;
+
+            let register_ack = RegisterAckPayload {
+                addr: addr.clone()
+            };
+
+            let register_ack = register_ack.as_bytes();
+
+            let complete = Parser::parse_payload(&register_ack);
+            let parsed = RegisterAckPayload::parse(complete);
+
+            assert_eq!(addr, parsed.addr);
+            true
         }
-
-        result
     }
 }

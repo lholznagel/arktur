@@ -19,22 +19,6 @@ pub struct PeerRegisteringPayload {
     pub addr: String,
 }
 
-impl PeerRegisteringPayload {
-    /// Sets the address of the peer
-    ///
-    /// # Parameters
-    ///
-    /// - `addr` - address of the peer containing the IP and port
-    ///
-    /// # Returns
-    ///
-    /// Updated model
-    pub fn set_addr(mut self, addr: String) -> Self {
-        self.addr = addr;
-        self
-    }
-}
-
 impl PayloadModel for PeerRegisteringPayload {
     fn new() -> Self {
         Self { addr: String::from("") }
