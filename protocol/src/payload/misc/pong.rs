@@ -1,10 +1,10 @@
-use payload::PayloadModel;
+use payload::Payload;
 
 /// Model for the event `Pong`
 #[derive(Clone, Debug, PartialEq)]
 pub struct PongPayload;
 
-impl PayloadModel for PongPayload {
+impl Payload for PongPayload {
     fn new() -> Self {
         PongPayload
     }
@@ -13,11 +13,7 @@ impl PayloadModel for PongPayload {
         PongPayload
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
+    fn to_bytes(self) -> Vec<u8> {
         vec![0]
     }
 }

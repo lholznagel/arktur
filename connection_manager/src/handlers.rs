@@ -1,7 +1,7 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, PayloadModel, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
+use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
@@ -113,7 +113,7 @@ impl Hooks for HookHandlers {
     ///
     /// Handles a new peer
     fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
-        let message = BlockchainProtocol::<RegisterPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         
         let last_peer = KnownPeers::get_latest();
@@ -151,7 +151,7 @@ impl Hooks for HookHandlers {
     }
 
     fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
-        let message = BlockchainProtocol::<PossibleBlockPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         self.current_block = message.payload.clone();
 
@@ -184,7 +184,7 @@ impl Hooks for HookHandlers {
     }
 
     fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
-        let message = BlockchainProtocol::<ValidatedHash>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<ValidatedHash>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!(format!("VALIDATED_HASH | {:?}", message));
 

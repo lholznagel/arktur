@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::ByteBuilder;
+use payload::{Payload, PayloadBuilder};
 
 use std::str;
 
@@ -19,7 +18,7 @@ pub struct PeerRegisteringPayload {
     pub addr: String,
 }
 
-impl PayloadModel for PeerRegisteringPayload {
+impl Payload for PeerRegisteringPayload {
     fn new() -> Self {
         Self { addr: String::from("") }
     }
@@ -34,12 +33,8 @@ impl PayloadModel for PeerRegisteringPayload {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_string(self.addr)
             .build()
     }
@@ -58,7 +53,7 @@ mod tests {
             addr: addr.clone()
         };
 
-        let peer_registering = peer_registering.as_bytes();
+        let peer_registering = peer_registering.to_bytes();
         let complete = Parser::parse_payload(&peer_registering);
         let parsed = PeerRegisteringPayload::parse(complete);
 
@@ -73,7 +68,7 @@ mod tests {
                 addr: addr.clone()
             };
 
-            let peer_registering = peer_registering.as_bytes();
+            let peer_registering = peer_registering.to_bytes();
 
             let complete = Parser::parse_payload(&peer_registering);
             let parsed = PeerRegisteringPayload::parse(complete);

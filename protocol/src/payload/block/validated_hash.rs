@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::{ByteBuilder, Parser};
+use payload::{Parser, Payload, PayloadBuilder};
 
 use std::str;
 
@@ -23,7 +22,7 @@ pub struct ValidatedHash {
     pub hash: String
 }
 
-impl PayloadModel for ValidatedHash {
+impl Payload for ValidatedHash {
     fn new() -> Self {
         Self {
             index: 0,
@@ -42,12 +41,8 @@ impl PayloadModel for ValidatedHash {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_u64(self.index)
             .add_string(self.hash)
             .build()
@@ -69,7 +64,7 @@ mod tests {
             hash: hash.clone()
         };
 
-        let validated_hash = validated_hash.as_bytes();
+        let validated_hash = validated_hash.to_bytes();
         let complete = Parser::parse_payload(&validated_hash);
         let parsed = ValidatedHash::parse(complete);
 
@@ -87,7 +82,7 @@ mod tests {
                 hash: hash.clone()
             };
 
-            let validated_hash = validated_hash.as_bytes();
+            let validated_hash = validated_hash.to_bytes();
 
             let complete = Parser::parse_payload(&validated_hash);
             let parsed = ValidatedHash::parse(complete);

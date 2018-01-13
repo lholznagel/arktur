@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::{ByteBuilder, Parser};
+use payload::{Parser, Payload, PayloadBuilder};
 
 use std::str;
 
@@ -48,7 +47,7 @@ pub struct PossibleBlockPayload {
     pub content: String,
 }
 
-impl PayloadModel for PossibleBlockPayload {
+impl Payload for PossibleBlockPayload {
     fn new() -> Self {
         Self {
             index: 0,
@@ -77,12 +76,8 @@ impl PayloadModel for PossibleBlockPayload {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
             .add_u8(0) // empty
             .add_u8(0) // empty
@@ -120,7 +115,7 @@ mod tests {
             content: content.clone()
         };
 
-        let possible_block = possible_block.as_bytes();
+        let possible_block = possible_block.to_bytes();
         let complete = Parser::parse_payload(&possible_block);
         let parsed = PossibleBlockPayload::parse(complete);
 
@@ -150,7 +145,7 @@ mod tests {
             content: content.clone()
         };
 
-        let possible_block = possible_block.as_bytes();
+        let possible_block = possible_block.to_bytes();
         assert_eq!(possible_block[1], 2);
 
         let complete = Parser::parse_payload(&possible_block);
@@ -182,7 +177,7 @@ mod tests {
             content: content.clone()
         };
 
-        let possible_block = possible_block.as_bytes();
+        let possible_block = possible_block.to_bytes();
         assert_eq!(possible_block[1], 4);
 
         let complete = Parser::parse_payload(&possible_block);
@@ -214,7 +209,7 @@ mod tests {
                 content: content.clone()
             };
 
-            let possible_block = possible_block.as_bytes();
+            let possible_block = possible_block.to_bytes();
 
             let complete = Parser::parse_payload(&possible_block);
             let parsed = PossibleBlockPayload::parse(complete);

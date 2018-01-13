@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::ByteBuilder;
+use payload::{Payload, PayloadBuilder};
 
 use std::str;
 
@@ -19,7 +18,7 @@ pub struct RegisterAckPayload {
     pub addr: String,
 }
 
-impl PayloadModel for RegisterAckPayload {
+impl Payload for RegisterAckPayload {
     fn new() -> Self {
         Self { addr: String::from("") }
     }
@@ -34,12 +33,8 @@ impl PayloadModel for RegisterAckPayload {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_string(self.addr)
             .build()
     }
@@ -58,7 +53,7 @@ mod tests {
             addr: addr.clone()
         };
 
-        let register_ack = register_ack.as_bytes();
+        let register_ack = register_ack.to_bytes();
         let complete = Parser::parse_payload(&register_ack);
         let parsed = RegisterAckPayload::parse(complete);
 
@@ -73,7 +68,7 @@ mod tests {
                 addr: addr.clone()
             };
 
-            let register_ack = register_ack.as_bytes();
+            let register_ack = register_ack.to_bytes();
 
             let complete = Parser::parse_payload(&register_ack);
             let parsed = RegisterAckPayload::parse(complete);

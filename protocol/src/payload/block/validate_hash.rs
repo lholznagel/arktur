@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::{ByteBuilder, Parser};
+use payload::{Parser, Payload, PayloadBuilder};
 
 use std::str;
 
@@ -43,7 +42,7 @@ pub struct ValidateHash {
     pub content: String,
 }
 
-impl PayloadModel for ValidateHash {
+impl Payload for ValidateHash {
     fn new() -> Self {
         Self {
             index: 0,
@@ -70,12 +69,8 @@ impl PayloadModel for ValidateHash {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
             .add_u8(0) // empty
             .add_u8(0) // empty
@@ -110,7 +105,7 @@ mod tests {
             content: content.clone()
         };
 
-        let validate_hash = validate_hash.as_bytes();
+        let validate_hash = validate_hash.to_bytes();
         let complete = Parser::parse_payload(&validate_hash);
         let parsed = ValidateHash::parse(complete);
 
@@ -137,7 +132,7 @@ mod tests {
             content: content.clone()
         };
 
-        let validate_hash = validate_hash.as_bytes();
+        let validate_hash = validate_hash.to_bytes();
         assert_eq!(validate_hash[1], 2);
 
         let complete = Parser::parse_payload(&validate_hash);
@@ -166,7 +161,7 @@ mod tests {
             content: content.clone()
         };
 
-        let validate_hash = validate_hash.as_bytes();
+        let validate_hash = validate_hash.to_bytes();
         assert_eq!(validate_hash[1], 4);
 
         let complete = Parser::parse_payload(&validate_hash);
@@ -195,7 +190,7 @@ mod tests {
                 content: content.clone()
             };
 
-            let validate_hash = validate_hash.as_bytes();
+            let validate_hash = validate_hash.to_bytes();
 
             let complete = Parser::parse_payload(&validate_hash);
             let parsed = ValidateHash::parse(complete);

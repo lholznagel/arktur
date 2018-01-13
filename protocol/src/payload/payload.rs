@@ -1,7 +1,7 @@
 
 /// Trait that is needed by every model that represents
 /// a payload of an event
-pub trait PayloadModel {
+pub trait Payload {
     /// Creates a new empty instance of the model
     fn new() -> Self;
 
@@ -23,12 +23,5 @@ pub trait PayloadModel {
     /// # Returns
     /// 
     /// Vector of bytes that represent the payload model
-    fn as_bytes(self) -> Vec<u8>;
-    
-    /// Gets the length of the payload model
-    ///
-    /// # Returns
-    ///
-    /// Length of all values combined
-    fn length(&self) -> u16;
+    fn to_bytes(self) -> Vec<u8>;
 }

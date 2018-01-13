@@ -4,7 +4,7 @@ extern crate blockchain_protocol;
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{PayloadModel, RegisterAckPayload};
+use blockchain_protocol::payload::{Payload, RegisterAckPayload};
 
 #[test]
 fn test_basic() {
