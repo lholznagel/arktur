@@ -1,6 +1,4 @@
-use payload::{Payload, PayloadBuilder};
-
-use std::str;
+use payload::{Parser, Payload, PayloadBuilder};
 
 /// Model for the event `PeerRegistering`
 ///
@@ -26,7 +24,7 @@ impl Payload for PeerRegisteringPayload {
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
             Self {
-                addr: String::from(str::from_utf8(&bytes[0]).unwrap())
+                addr: Parser::u8_to_string(&bytes[0])
             }
         } else {
             Self::new()

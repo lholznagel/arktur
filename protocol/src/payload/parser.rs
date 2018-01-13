@@ -1,4 +1,5 @@
 use std::mem::transmute;
+use std::str;
 
 /// Contains functions for parsing
 pub struct Parser;
@@ -96,21 +97,36 @@ impl Parser {
         }
     }
 
+    /// Converts an array of u8 values to a string
+    ///
+    /// # Parameters
+    ///
+    /// - `value: &[u8]` - byte array
+    ///
+    /// # Returns
+    ///
+    /// Given u8 array as string
+    pub fn u8_to_string(value: &[u8]) -> String {
+        let result = match str::from_utf8(value) {
+            Ok(value) => value,
+            Err(_) => ""
+        };
+        String::from(result)
+    }
+
     /// Combines an string overflow back together
     ///
     /// # Parameters
     ///
-    /// - `count: u8` - amount of splitted strings
-    /// - `start: u8` - index of the first splitted string
     /// - `value: Vec<Vec<u8>>` - complete payload
     ///
     /// # Return
     ///
     /// Vector containing all splitted strings together
-    pub fn string_overflow(count: u8, start: u8, value: Vec<Vec<u8>>) -> Vec<u8> {
+    pub fn string_overflow(values: &[Vec<u8>]) -> Vec<u8> {
         let mut content = Vec::new();
-        for i in 0..count {
-            content.extend(value[(start + i) as usize].iter());
+        for current in values {
+            content.extend(current.iter());
         };
         content
     }

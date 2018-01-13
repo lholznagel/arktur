@@ -228,7 +228,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///
     /// - `Vec<u8>` - Vector containing the header values as u8
     fn header_to_bytes(&self) -> Vec<u8> {
-        let mut enums = vec![as_number_event(self.event_code.clone()), as_number_status(self.status_code.clone())];
+        let mut result = vec![as_number_event(self.event_code.clone()), as_number_status(self.status_code.clone())];
         let slice_u16: &[u16] = &*vec![self.id, self.payload_length, self.reserved];
         let converted_slice: &[u8] = unsafe {
             slice::from_raw_parts(
@@ -236,8 +236,8 @@ impl<T: Payload> BlockchainProtocol<T> {
                 slice_u16.len() * mem::size_of::<u16>(),
             )
         };
-        enums.append(&mut converted_slice.to_vec());
-        enums
+        result.append(&mut converted_slice.to_vec());
+        result
     }
 
     /// Turns the checksum bytes
