@@ -1,12 +1,12 @@
 /// Converts an vector of string to a vector of u8
 ///
 /// Used for parsing the payloads to bytes
-pub struct ByteBuilder {
+pub struct PayloadBuilder {
     byte_vec: Vec<u8>
 }
 
-impl ByteBuilder {
-    /// Creates a new instance of the ByteBuilder
+impl PayloadBuilder {
+    /// Creates a new instance of the PayloadBuilder
     pub fn new() -> Self {
         Self {
             byte_vec: Vec::new()
@@ -21,7 +21,7 @@ impl ByteBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of ByteBuilder
+    /// Updated instance of PayloadBuilder
     pub fn add_string(mut self, value: String) -> Self {
         let value_byte = value.clone().into_bytes();
 
@@ -38,7 +38,7 @@ impl ByteBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of ByteBuilder
+    /// Updated instance of PayloadBuilder
     pub fn add_u8(mut self, value: u8) -> Self {
         self.byte_vec.push(1);
         self.byte_vec.push(value);
@@ -53,7 +53,7 @@ impl ByteBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of ByteBuilder
+    /// Updated instance of PayloadBuilder
     pub fn add_u64(mut self, value: u64) -> Self {
         let b1 = ((value >> 56) & 0xFF) as u8;
         let b2 = ((value >> 48) & 0xFF) as u8;
@@ -77,7 +77,7 @@ impl ByteBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of ByteBuilder
+    /// Updated instance of PayloadBuilder
     pub fn add_string_overflow(mut self, value: String) -> Self {
         let value_byte = value.clone().into_bytes();
         let mut current_index = 0;
@@ -124,9 +124,7 @@ mod tests {
 
     #[test]
     fn test_string_vec_to_byte_vec() {
-        let byte_builder = ByteBuilder::new();
-
-        let result = byte_builder
+        let result = PayloadBuilder::new()
             .add_string(String::from("SomeString"))
             .add_string(String::from("SomeOtherString"))
             .build();

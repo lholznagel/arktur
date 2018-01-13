@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::{ByteBuilder, Parser};
+use payload::{Parser, Payload, PayloadBuilder};
 
 use std::str;
 use time::get_time;
@@ -56,7 +55,7 @@ impl NewBlockPayload {
     }
 }
 
-impl PayloadModel for NewBlockPayload {
+impl Payload for NewBlockPayload {
     fn new() -> Self {
         Self {
             index: 0,
@@ -83,12 +82,8 @@ impl PayloadModel for NewBlockPayload {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
             .add_u8(0) // empty
             .add_u8(0) // empty
@@ -123,7 +118,7 @@ mod tests {
             content: content.clone()
         };
 
-        let new_block = new_block.as_bytes();
+        let new_block = new_block.to_bytes();
         let complete = Parser::parse_payload(&new_block);
         let parsed = NewBlockPayload::parse(complete);
 
@@ -150,7 +145,7 @@ mod tests {
             content: content.clone()
         };
 
-        let new_block = new_block.as_bytes();
+        let new_block = new_block.to_bytes();
         assert_eq!(new_block[1], 2);
 
         let complete = Parser::parse_payload(&new_block);
@@ -179,7 +174,7 @@ mod tests {
             content: content.clone()
         };
 
-        let new_block = new_block.as_bytes();
+        let new_block = new_block.to_bytes();
         assert_eq!(new_block[1], 4);
 
         let complete = Parser::parse_payload(&new_block);
@@ -208,7 +203,7 @@ mod tests {
                 content: content.clone()
             };
 
-            let new_block = new_block.as_bytes();
+            let new_block = new_block.to_bytes();
 
             let complete = Parser::parse_payload(&new_block);
             let parsed = NewBlockPayload::parse(complete);

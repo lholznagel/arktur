@@ -1,5 +1,4 @@
-use payload::PayloadModel;
-use payload::ByteBuilder;
+use payload::{Payload, PayloadBuilder};
 
 use std::str;
 
@@ -10,7 +9,7 @@ pub struct RegisterPayload {
     pub name: String,
 }
 
-impl PayloadModel for RegisterPayload {
+impl Payload for RegisterPayload {
     fn new() -> Self {
         Self { name: String::from("") }
     }
@@ -25,12 +24,8 @@ impl PayloadModel for RegisterPayload {
         }
     }
 
-    fn length(&self) -> u16 {
-        0
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        ByteBuilder::new()
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
             .add_string(self.name)
             .build()
     }
@@ -49,7 +44,7 @@ mod tests {
             name: name.clone()
         };
 
-        let register = register.as_bytes();
+        let register = register.to_bytes();
         let complete = Parser::parse_payload(&register);
         let parsed = RegisterPayload::parse(complete);
 
@@ -64,7 +59,7 @@ mod tests {
                 name: name.clone()
             };
 
-            let register = register.as_bytes();
+            let register = register.to_bytes();
 
             let complete = Parser::parse_payload(&register);
             let parsed = RegisterPayload::parse(complete);
