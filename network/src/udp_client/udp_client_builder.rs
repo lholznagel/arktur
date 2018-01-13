@@ -198,7 +198,6 @@ mod tests {
 
     use super::UdpClientBuilder;
     use blockchain_hooks::HookRegister;
-    use std::net::Ipv6Addr;
 
     #[test]
     fn start_basic_udp_client() {
@@ -216,18 +215,5 @@ mod tests {
             udp_client.port,
             udp.connection().local_addr().unwrap().port()
         );
-    }
-
-    #[test]
-    fn set_port_and_ip() {
-        let ip = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
-        let udp_client = UdpClientBuilder::new()
-            .set_ipv6(ip)
-            .set_port(50000);
-        let udp = udp_client.build(HookRegister::new().get_notification());
-        let udp = udp.connection();
-
-        assert_eq!(udp_client.ip, udp.local_addr().unwrap().ip());
-        assert_eq!(udp_client.port, udp.local_addr().unwrap().port());
     }
 }
