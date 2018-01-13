@@ -7,8 +7,6 @@ extern crate quickcheck;
 
 extern crate blockchain_hooks;
 extern crate crc;
-#[macro_use]
-extern crate nom;
 extern crate time;
 
 pub mod enums;

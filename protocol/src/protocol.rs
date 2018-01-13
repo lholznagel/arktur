@@ -2,12 +2,8 @@
 use blockchain_hooks::{as_enum as as_enum_event, as_number as as_number_event, EventCodes};
 use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
 use payload::{Parser, Payload};
-use nom::GetInput;
 use std::{slice, mem};
 use crc::crc32;
-
-/// Parser for the protocol
-named!(parse_protocol<&[u8], (u8, u8, u16, u16, u16, u32)>, bits!(tuple!(take_bits!(u8, 8), take_bits!(u8, 8), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u16, 16), take_bits!(u32, 32))));
 
 /// Parser error messages
 #[derive(Debug)]
@@ -41,7 +37,7 @@ pub struct BlockchainProtocol<T> {
     pub status_code: StatusCodes,
     /// Identification of this message
     pub id: u16,
-    /// Length of the added payload field
+    /// Identification of this message
     pub payload_length: u16,
     /// Reserved for future use
     pub reserved: u16,
@@ -97,7 +93,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 21, 30, 249, 135, 0];
+    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
@@ -161,7 +157,8 @@ impl<T: Payload> BlockchainProtocol<T> {
     }
 
     /// Combines the struct to a vector of bytes
-    pub fn build(self) -> Vec<u8> {
+    pub fn build(mut self) -> Vec<u8> {
+        self.payload_length = self.payload.clone().to_bytes().len() as u16;
         let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
         result.append(&mut checksum);
@@ -201,25 +198,20 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 21, 30, 249, 135, 0];
+    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
     /// ```
     fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
-        let parsed = parse_protocol(bytes);
-        let result = parsed.clone().to_result().unwrap();
-        let remaining = Parser::parse_payload(parsed.remaining_input().unwrap());
-        let payload = T::parse(remaining);
-
         let protocol = BlockchainProtocol {
-            event_code: as_enum_event(result.0),
-            status_code: as_enum_status(result.1),
-            id: result.2,
-            payload_length: result.3,
-            reserved: result.4,
-            checksum: result.5,
-            payload: payload
+            event_code: as_enum_event(bytes[0]),
+            status_code: as_enum_status(bytes[1]),
+            id: Parser::u8_to_u16(&bytes[2..4]),
+            payload_length: Parser::u8_to_u16(&bytes[4..6]),
+            reserved: 0,
+            checksum: Parser::u8_to_u32(&bytes[8..12]),
+            payload: T::parse(Parser::parse_payload(&bytes[12..]))
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
@@ -263,7 +255,7 @@ impl<T: Payload> BlockchainProtocol<T> {
         let b3 = ((checksum >> 8) & 0xFF) as u8;
         let b4 = (checksum & 0xFF) as u8;
 
-        vec![b1, b2, b3, b4]
+        vec![b4, b3, b2, b1]
     }
 }
 
@@ -287,7 +279,7 @@ mod tests {
             payload: payload,
         };
 
-        let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 21, 30, 249, 135, 0];
+        let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
         let result = BlockchainProtocol::<PingPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
@@ -305,7 +297,7 @@ mod tests {
             payload: payload,
         };
 
-        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x15, 0x1E, 0xF9, 0x87, 0x00];
+        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x87, 0xF9, 0x1E, 0x15, 0x00];
         let result = BlockchainProtocol::<PingPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }

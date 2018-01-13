@@ -1,7 +1,7 @@
 
 /// Trait that is needed by every model that represents
 /// a payload of an event
-pub trait Payload {
+pub trait Payload: Clone {
     /// Creates a new empty instance of the model
     fn new() -> Self;
 
