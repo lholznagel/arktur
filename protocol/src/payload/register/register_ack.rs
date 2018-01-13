@@ -2,7 +2,7 @@ use payload::PayloadModel;
 use std::str;
 
 /// Model for the event `RegisterAck`
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RegisterAckPayload {
     /// Address of another peer
     pub addr: String,

@@ -15,7 +15,7 @@ use std::str;
 /// // |                                                                                               |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ValidatedHash {
     /// Index of the block
     pub index: u64,
