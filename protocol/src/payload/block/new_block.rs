@@ -1,6 +1,5 @@
 use payload::{Parser, Payload, PayloadBuilder};
 
-use std::str;
 use time::get_time;
 
 /// Model for the event `NewBlock`
@@ -68,14 +67,14 @@ impl Payload for NewBlockPayload {
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
-            let content = Parser::string_overflow(bytes[0][0], 8, bytes.clone());
+            let content = Parser::string_overflow(&bytes[8..]);
 
             Self {
                 index: Parser::u8_to_u64(bytes[4].as_slice()),
                 timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
-                prev: String::from(str::from_utf8(&bytes[6]).unwrap()),
-                sign_key: String::from(str::from_utf8(&bytes[7]).unwrap()),
-                content: String::from(str::from_utf8(&content).unwrap())
+                prev: Parser::u8_to_string(&bytes[6]),
+                sign_key: Parser::u8_to_string(&bytes[7]),
+                content: Parser::u8_to_string(&content)
             }
         } else {
             Self::new()

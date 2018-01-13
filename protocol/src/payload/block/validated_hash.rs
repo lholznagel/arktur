@@ -1,7 +1,5 @@
 use payload::{Parser, Payload, PayloadBuilder};
 
-use std::str;
-
 /// Model for the event `FoundBlock`
 ///
 /// ```
@@ -34,7 +32,7 @@ impl Payload for ValidatedHash {
         if !bytes.is_empty() {
             Self {
                 index: Parser::u8_to_u64(bytes[0].as_slice()),
-                hash: String::from(str::from_utf8(&bytes[1]).unwrap())
+                hash: Parser::u8_to_string(&bytes[1])
             }
         } else {
             Self::new()

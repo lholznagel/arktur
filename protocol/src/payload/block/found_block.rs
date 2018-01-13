@@ -1,7 +1,5 @@
 use payload::{Parser, Payload, PayloadBuilder};
 
-use std::str;
-
 /// Struct of the FoundBlock payload
 ///
 /// ```
@@ -61,15 +59,15 @@ impl Payload for FoundBlockPayload {
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
-            let content = Parser::string_overflow(bytes[0][0], 9, bytes.clone());
+            let content = Parser::string_overflow(&bytes[9..]);
 
             Self {
                 index: Parser::u8_to_u64(bytes[4].as_slice()),
                 timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
                 nonce: Parser::u8_to_u64(bytes[6].as_slice()),
-                prev: String::from(str::from_utf8(&bytes[7]).unwrap()),
-                hash: String::from(str::from_utf8(&bytes[8]).unwrap()),
-                content: String::from(str::from_utf8(&content).unwrap()),
+                prev: Parser::u8_to_string(&bytes[7]),
+                hash: Parser::u8_to_string(&bytes[8]),
+                content: Parser::u8_to_string(&content),
             }
         } else {
             Self::new()
