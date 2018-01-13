@@ -122,7 +122,9 @@ impl Hooks for HookHandlers {
         if last_peer.get_name() == "" {
             status = StatusCodes::NoPeer;
         } else {
-            let payload = PeerRegisteringPayload::new().set_addr(source.to_string());
+            let mut payload = PeerRegisteringPayload::new();
+            payload.addr = source.to_string();
+
             let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::PeerRegistering)
                 .set_payload(payload)
@@ -137,7 +139,9 @@ impl Hooks for HookHandlers {
             self.send_genesis(&udp);
         }
 
-        let payload = RegisterAckPayload::new().set_addr(String::from(last_peer.get_socket()));
+        let mut payload = RegisterAckPayload::new();
+        payload.addr = String::from(last_peer.get_socket());
+
         sending!(format!("ACK_REGISTER | {:?}", payload));
         BlockchainProtocol::new()
             .set_event_code(EventCodes::AckRegister)
