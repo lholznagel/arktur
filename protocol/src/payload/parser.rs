@@ -39,6 +39,44 @@ impl Parser {
         complete
     }
 
+    /// Converts an array of u8 values to a u16
+    ///
+    /// # Parameters
+    ///
+    /// - `value: &[u8]` - byte array
+    ///
+    /// # Returns
+    ///
+    /// Given u8 array as u16
+    pub fn u8_to_u16(value: &[u8]) -> u16 {
+        let mut value_byte: [u8; 2] = [0u8, 0u8];
+        for i in 0..2 {
+            value_byte[i] = value[i];
+        }
+        unsafe {
+            transmute::<[u8; 2], u16>(value_byte)
+        }
+    }
+
+    /// Converts an array of u8 values to a u32
+    ///
+    /// # Parameters
+    ///
+    /// - `value: &[u8]` - byte array
+    ///
+    /// # Returns
+    ///
+    /// Given u8 array as u32
+    pub fn u8_to_u32(value: &[u8]) -> u32 {
+        let mut value_byte: [u8; 4] = [0u8, 0u8, 0u8, 0u8];
+        for i in 0..4 {
+            value_byte[i] = value[i];
+        }
+        unsafe {
+            transmute::<[u8; 4], u32>(value_byte)
+        }
+    }
+
     /// Converts an array of u8 values to a u64
     ///
     /// # Parameters
