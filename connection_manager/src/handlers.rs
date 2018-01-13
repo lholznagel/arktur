@@ -132,7 +132,7 @@ impl Hooks for HookHandlers {
             udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();
         }
 
-        KnownPeers::new(Peer::new(message.payload.name(), source.to_string())).save();
+        KnownPeers::new(Peer::new(message.payload.name, source.to_string())).save();
         self.connected_peers_addr.push(source.to_string());
 
         if self.connected_peers_addr.len() >= 3 && self.current_block.index == 0 {

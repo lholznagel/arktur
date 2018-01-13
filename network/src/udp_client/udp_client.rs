@@ -52,7 +52,8 @@ impl UdpClient {
     /// # }
     /// ```
     pub fn notify_hole_puncher(self, address: SocketAddr, name: String) -> Self {
-        let payload = RegisterPayload::new().set_name(name);
+        let mut payload = RegisterPayload::new();
+        payload.name = name;
 
         let message = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::Register)
