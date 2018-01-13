@@ -13,14 +13,14 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct ValidatedHash {
+pub struct ValidatedHashPayload {
     /// Index of the block
     pub index: u64,
     /// Hash of the block
     pub hash: String
 }
 
-impl Payload for ValidatedHash {
+impl Payload for ValidatedHashPayload {
     fn new() -> Self {
         Self {
             index: 0,
@@ -57,14 +57,14 @@ mod tests {
         let index = 65485;
         let hash = String::from("ngiurengoiurehgbiuergneoigjoierhg");
 
-        let validated_hash = ValidatedHash {
+        let validated_hash = ValidatedHashPayload {
             index: index.clone(),
             hash: hash.clone()
         };
 
         let validated_hash = validated_hash.to_bytes();
         let complete = Parser::parse_payload(&validated_hash);
-        let parsed = ValidatedHash::parse(complete);
+        let parsed = ValidatedHashPayload::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(hash, parsed.hash);
@@ -75,7 +75,7 @@ mod tests {
             let index = index;
             let hash = hash;
 
-            let validated_hash = ValidatedHash {
+            let validated_hash = ValidatedHashPayload {
                 index: index.clone(),
                 hash: hash.clone()
             };
@@ -83,7 +83,7 @@ mod tests {
             let validated_hash = validated_hash.to_bytes();
 
             let complete = Parser::parse_payload(&validated_hash);
-            let parsed = ValidatedHash::parse(complete);
+            let parsed = ValidatedHashPayload::parse(complete);
 
             assert_eq!(index, parsed.index);
             assert_eq!(hash, parsed.hash);

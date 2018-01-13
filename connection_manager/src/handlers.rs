@@ -1,7 +1,7 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHash, ValidatedHash};
+use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHashPayload, ValidatedHashPayload};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
@@ -162,12 +162,13 @@ impl Hooks for HookHandlers {
         event!(format!("POSSIBLE_BLOCK | {:?}", message));
 
         if !self.validation_in_progress {
-            let mut payload = ValidateHash::new();
-            payload.content = message.payload.content;
-            payload.index = message.payload.index;
-            payload.nonce = message.payload.nonce;
-            payload.prev = message.payload.prev;
-            payload.timestamp = message.payload.timestamp;
+            let payload = ValidateHashPayload {
+                content: message.payload.content,
+                index: message.payload.index,
+                nonce: message.payload.nonce,
+                prev: message.payload.prev,
+                timestamp: message.payload.timestamp
+            };
 
             let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::ValidateHash)
@@ -184,7 +185,7 @@ impl Hooks for HookHandlers {
     }
 
     fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
-        let message = BlockchainProtocol::<ValidatedHash>::from_bytes(&payload_buffer);
+        let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!(format!("VALIDATED_HASH | {:?}", message));
 

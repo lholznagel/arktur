@@ -10,8 +10,8 @@ mod payload_builder;
 pub use self::block::found_block::FoundBlockPayload;
 pub use self::block::new_block::NewBlockPayload;
 pub use self::block::possible_block::PossibleBlockPayload;
-pub use self::block::validate_hash::ValidateHash;
-pub use self::block::validated_hash::ValidatedHash;
+pub use self::block::validate_hash::ValidateHashPayload;
+pub use self::block::validated_hash::ValidatedHashPayload;
 
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;
