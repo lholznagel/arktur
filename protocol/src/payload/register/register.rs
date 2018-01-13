@@ -1,73 +1,76 @@
 use payload::PayloadModel;
+use payload::ByteBuilder;
+
 use std::str;
 
 /// Model for the event `Register`
 #[derive(Clone, Debug, PartialEq)]
 pub struct RegisterPayload {
-    name: String,
-}
-
-impl RegisterPayload {
-    /// Sets the name of the peer
-    ///
-    /// # Parameters
-    ///
-    /// - `name` - name of the peer
-    ///
-    /// # Return
-    ///
-    /// Updated instance of itself
-    pub fn set_name(mut self, name: String) -> Self {
-        self.name = name;
-        self
-    }
-
-    /// Gets the peer name
-    ///
-    /// # Return
-    ///
     /// Name of the peer
-    pub fn name(self) -> String {
-        self.name
-    }
+    pub name: String,
 }
 
 impl PayloadModel for RegisterPayload {
     fn new() -> Self {
-        RegisterPayload { name: String::from("") }
+        Self { name: String::from("") }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
-        if bytes.len() > 0 {
-            RegisterPayload { name: String::from(str::from_utf8(&bytes[0]).unwrap()) }
+        if !bytes.is_empty() {
+            Self {
+                name: String::from(str::from_utf8(&bytes[0]).unwrap())
+            }
         } else {
-            RegisterPayload { name: String::from("") }
+            Self::new()
         }
     }
 
     fn length(&self) -> u16 {
-        let mut result = 0;
-        if self.name.len() != 0 {
-            result = self.name.len().to_string().parse::<u16>().unwrap() + 2
-        }
-
-        result
+        0
     }
 
     fn as_bytes(self) -> Vec<u8> {
-        let mut result = Vec::<u8>::new();
+        ByteBuilder::new()
+            .add_string(self.name)
+            .build()
+    }
+}
 
-        if self.name.to_string() != "" {
-            // 126 as char equals ~
-            result.push(126);
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use payload::Parser;
 
-            for i in self.name.to_string().into_bytes() {
-                result.push(i);
-            }
+    #[test]
+    fn test_building_and_parsing() {
+        let name = String::from("172.0.0.1");
 
-            result.push(126);
+        let register = RegisterPayload {
+            name: name.clone()
+        };
+
+        let register = register.as_bytes();
+        let complete = Parser::parse_payload(&register);
+        let parsed = RegisterPayload::parse(complete);
+
+        assert_eq!(name, parsed.name);
+    }
+
+    quickcheck! {
+        fn test_quickcheck(name: String) -> bool {
+            let name = name;
+
+            let register = RegisterPayload {
+                name: name.clone()
+            };
+
+            let register = register.as_bytes();
+
+            let complete = Parser::parse_payload(&register);
+            let parsed = RegisterPayload::parse(complete);
+
+            assert_eq!(name, parsed.name);
+            true
         }
-
-        result
     }
 }
