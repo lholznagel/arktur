@@ -2,7 +2,7 @@ use payload::PayloadModel;
 use std::str;
 
 /// Model for the event `Register`
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RegisterPayload {
     name: String,
 }

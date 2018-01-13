@@ -1,7 +1,7 @@
 use payload::PayloadModel;
 
 /// Model for the event `Pong`
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PongPayload;
 
 impl PayloadModel for PongPayload {
