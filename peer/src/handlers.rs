@@ -12,15 +12,15 @@ pub struct HookHandlers;
 
 impl Hooks for HookHandlers {
     fn on_ping(&self, _: Vec<u8>, source: String) -> Vec<u8> { 
-        event!(format!("PING from peer {:?}", source));
-        sending!(format!("PONG to peer {:?}", source));
+        event!("PING from peer {:?}", source);
+        sending!("PONG to peer {:?}", source);
         let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
-        success!(format!("Send PONG to {:?}", source));
+        success!("Send PONG to {:?}", source);
         answer
     }
 
     fn on_pong(&self, _: Vec<u8>, source: String) -> Vec<u8> { 
-        event!(format!("PONG from peer {:?}", source));
+        event!("PONG from peer {:?}", source);
         Vec::new()
      }
 
@@ -28,14 +28,14 @@ impl Hooks for HookHandlers {
         let mut result = Vec::new();
         let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
-        event!(format!("ACK_REGISTER {:?}", message));
+        event!("ACK_REGISTER {:?}", message);
 
         if message.status_code == StatusCodes::NoPeer {
             error!("No peer");
         } else {
-            sending!(format!("PING to peer {:?}", message.payload));
+            sending!("PING to peer {:?}", message.payload);
             result = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
-            success!(format!("Send PING to {:?}", message.payload));
+            success!("Send PING to {:?}", message.payload);
         }
         result
      }
@@ -44,17 +44,17 @@ impl Hooks for HookHandlers {
         let message = BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
 
-        event!(format!("PEER_REGISTERING {:?}", message.payload));
-        sending!(format!("PING to new peer {:?}", message.payload));
+        event!("PEER_REGISTERING {:?}", message.payload);
+        sending!("PING to new peer {:?}", message.payload);
         let answer = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
-        success!(format!("Send PING {:?}", message.payload));
+        success!("Send PING {:?}", message.payload);
         answer
      }
 
     fn on_new_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
         let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
-        event!(format!("NEW_BLOCK {:?}", message.payload));
+        event!("NEW_BLOCK {:?}", message.payload);
     
         let hash;
         let mut nonce = 0;
@@ -79,7 +79,7 @@ impl Hooks for HookHandlers {
             }
         }
 
-        debug!(format!("Found hash! {:?}", hash));
+        debug!("Found hash! {:?}", hash);
         let mut answer = BlockchainProtocol::<PossibleBlockPayload>::new().set_event_code(EventCodes::PossibleBlock);
         answer.payload.content = message.payload.content;
         answer.payload.timestamp = message.payload.timestamp;
@@ -87,7 +87,7 @@ impl Hooks for HookHandlers {
         answer.payload.prev = message.payload.prev;
         answer.payload.nonce = nonce;
         answer.payload.hash = hash;
-        sending!(format!("POSSIBLE_BLOCK | {:?}", answer.payload));
+        sending!("POSSIBLE_BLOCK | {:?}", answer.payload);
         success!("Send block back.");
         answer.build()
     }
@@ -95,7 +95,7 @@ impl Hooks for HookHandlers {
     fn on_validate_hash(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
         let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
-        event!(format!("VALIDATE_HASH {:?}", message.payload));
+        event!("VALIDATE_HASH {:?}", message.payload);
 
         let mut generated_block = String::from("");
         generated_block.push_str(&message.payload.content);
@@ -116,7 +116,7 @@ impl Hooks for HookHandlers {
     fn on_found_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
         let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
-        event!(format!("FOUND_BLOCK {:?}", message.payload));
+        event!("FOUND_BLOCK {:?}", message.payload);
 
         Block::init();
         let mut block = Block::new();

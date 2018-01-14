@@ -142,7 +142,7 @@ impl Hooks for HookHandlers {
         let mut payload = RegisterAckPayload::new();
         payload.addr = String::from(last_peer.get_socket());
 
-        sending!(format!("ACK_REGISTER | {:?}", payload));
+        sending!("ACK_REGISTER | {:?}", payload);
         BlockchainProtocol::new()
             .set_event_code(EventCodes::AckRegister)
             .set_status_code(status)
@@ -159,7 +159,7 @@ impl Hooks for HookHandlers {
             self.validation_in_progress = false;
         }
 
-        event!(format!("POSSIBLE_BLOCK | {:?}", message));
+        event!("POSSIBLE_BLOCK | {:?}", message);
 
         if !self.validation_in_progress {
             let payload = ValidateHashPayload {
@@ -187,7 +187,7 @@ impl Hooks for HookHandlers {
     fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
         let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
-        event!(format!("VALIDATED_HASH | {:?}", message));
+        event!("VALIDATED_HASH | {:?}", message);
 
         if message.payload.index == self.current_block.index {
             self.hashes.push(message.payload.hash);
@@ -214,7 +214,7 @@ impl Hooks for HookHandlers {
             }
 
             self.hashes = Vec::new();
-            debug!(format!("Hash {} for block: {:?}", result.0, self.current_block));
+            debug!("Hash {} for block: {:?}", result.0, self.current_block);
 
             self.current_block.hash = result.0;
 
