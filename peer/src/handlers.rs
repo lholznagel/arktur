@@ -2,7 +2,7 @@ use blockchain_file::blocks::Block;
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload, NewBlockPayload, PossibleBlockPayload, ValidateHash, ValidatedHash};
+use blockchain_protocol::payload::{FoundBlockPayload, PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload};
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::UdpSocket;
@@ -26,7 +26,8 @@ impl Hooks for HookHandlers {
 
     fn on_ack_register(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
         let mut result = Vec::new();
-        let message = BlockchainProtocol::<RegisterAckPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
         event!(format!("ACK_REGISTER {:?}", message));
 
         if message.status_code == StatusCodes::NoPeer {
@@ -40,7 +41,8 @@ impl Hooks for HookHandlers {
      }
 
     fn on_peer_registering(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let message = BlockchainProtocol::<PeerRegisteringPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
 
         event!(format!("PEER_REGISTERING {:?}", message.payload));
         sending!(format!("PING to new peer {:?}", message.payload));
@@ -50,7 +52,8 @@ impl Hooks for HookHandlers {
      }
 
     fn on_new_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let message = BlockchainProtocol::<NewBlockPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
         event!(format!("NEW_BLOCK {:?}", message.payload));
     
         let hash;
@@ -90,7 +93,8 @@ impl Hooks for HookHandlers {
     }
 
     fn on_validate_hash(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let message = BlockchainProtocol::<ValidateHash>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
         event!(format!("VALIDATE_HASH {:?}", message.payload));
 
         let mut generated_block = String::from("");
@@ -103,14 +107,15 @@ impl Hooks for HookHandlers {
         let mut hasher = Sha3::sha3_256();
         hasher.input_str(generated_block.as_str());
 
-        let mut answer = BlockchainProtocol::<ValidatedHash>::new().set_event_code(EventCodes::ValidatedHash);
+        let mut answer = BlockchainProtocol::<ValidatedHashPayload>::new().set_event_code(EventCodes::ValidatedHash);
         answer.payload.index = message.payload.index;
         answer.payload.hash = hasher.result_str();
         answer.build()
     }
 
     fn on_found_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let message = BlockchainProtocol::<FoundBlockPayload>::from_vec(payload_buffer);
+        let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
         event!(format!("FOUND_BLOCK {:?}", message.payload));
 
         Block::init();

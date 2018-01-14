@@ -4,6 +4,9 @@ name = "blockchain_protocol"
 version = "0.1.0"
 
 [dependencies]
-nom = "3.2.1"
+crc = "1.7.0"
 time = "0.1.38"
 blockchain_hooks = { path = "../hooks" }
+
+[dev-dependencies]
+quickcheck = "0.6.0"

@@ -3,8 +3,12 @@
 default:
 	cargo build
 
+test-all:
+	rustup run stable cargo test
+	rustup run nightly cargo test
+
 commit:
-	cargo test
+	make test-all
 	git add -A
 	git commit
 

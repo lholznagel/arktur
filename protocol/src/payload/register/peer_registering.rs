@@ -1,65 +1,78 @@
-use payload::PayloadModel;
-use std::str;
+use payload::{Parser, Payload, PayloadBuilder};
 
 /// Model for the event `PeerRegistering`
-#[derive(Debug, PartialEq)]
+///
+/// ```
+/// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// // |                                                                                               |
+/// // // Address                                                                                       |
+/// // |                                                                                               |
+/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+/// ```
+#[derive(Clone, Debug, PartialEq)]
 pub struct PeerRegisteringPayload {
     /// Address of the peer that just registered
     pub addr: String,
 }
 
-impl PeerRegisteringPayload {
-    /// Sets the address of the peer
-    ///
-    /// # Parameters
-    ///
-    /// - `addr` - address of the peer containing the IP and port
-    ///
-    /// # Returns
-    ///
-    /// Updated model
-    pub fn set_addr(mut self, addr: String) -> Self {
-        self.addr = addr;
-        self
+impl Payload for PeerRegisteringPayload {
+    fn new() -> Self {
+        Self { addr: String::from("") }
+    }
+
+    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+        if !bytes.is_empty() {
+            Self {
+                addr: Parser::u8_to_string(&bytes[0])
+            }
+        } else {
+            Self::new()
+        }
+    }
+
+    fn to_bytes(self) -> Vec<u8> {
+        PayloadBuilder::new()
+            .add_string(self.addr)
+            .build()
     }
 }
 
-impl PayloadModel for PeerRegisteringPayload {
-    fn new() -> Self {
-        PeerRegisteringPayload { addr: String::from("") }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use payload::Parser;
+
+    #[test]
+    fn test_building_and_parsing() {
+        let addr = String::from("172.0.0.1");
+
+        let peer_registering = PeerRegisteringPayload {
+            addr: addr.clone()
+        };
+
+        let peer_registering = peer_registering.to_bytes();
+        let complete = Parser::parse_payload(&peer_registering);
+        let parsed = PeerRegisteringPayload::parse(complete);
+
+        assert_eq!(addr, parsed.addr);
     }
 
-    fn parse(bytes: Vec<&[u8]>) -> Self {
-        if bytes.len() > 0 {
-            PeerRegisteringPayload { addr: String::from(str::from_utf8(bytes[0]).unwrap()) }
-        } else {
-            PeerRegisteringPayload { addr: String::from("") }
+    quickcheck! {
+        fn test_quickcheck(addr: String) -> bool {
+            let addr = addr;
+
+            let peer_registering = PeerRegisteringPayload {
+                addr: addr.clone()
+            };
+
+            let peer_registering = peer_registering.to_bytes();
+
+            let complete = Parser::parse_payload(&peer_registering);
+            let parsed = PeerRegisteringPayload::parse(complete);
+
+            assert_eq!(addr, parsed.addr);
+            true
         }
-    }
-
-    fn length(&self) -> u16 {
-        let mut result = 0;
-        if self.addr.len() != 0 {
-            result = self.addr.len().to_string().parse::<u16>().unwrap() + 2
-        }
-
-        result
-    }
-
-    fn as_bytes(self) -> Vec<u8> {
-        let mut result = Vec::<u8>::new();
-
-        if self.addr.to_string() != "" {
-            // 126 as char equals ~
-            result.push(126);
-
-            for i in self.addr.to_string().into_bytes() {
-                result.push(i);
-            }
-
-            result.push(126);
-        }
-
-        result
     }
 }
