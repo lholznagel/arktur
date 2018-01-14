@@ -29,12 +29,8 @@ macro_rules! log {
 /// Color of the output is orange
 #[macro_export]
 macro_rules! debug {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[93mDebug   - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[93mDebug   - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[93mDebug   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }
 
 /// Logs an error message
@@ -42,12 +38,8 @@ macro_rules! debug {
 /// Color of the output is red
 #[macro_export]
 macro_rules! error {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[31mError   - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[31mError   - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[31mError   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }
 
 
@@ -56,12 +48,8 @@ macro_rules! error {
 /// Color of the output is green
 #[macro_export]
 macro_rules! success {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[32mSuccess - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[32mSuccess - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[32mSuccess - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }
 
 /// Logs an info message
@@ -69,12 +57,8 @@ macro_rules! success {
 /// Color of the output is blue
 #[macro_export]
 macro_rules! info {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[1;34mInfo    - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[1;34mInfo    - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[1;34mInfo    - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }
 
 /// Logs an sending message
@@ -84,12 +68,8 @@ macro_rules! info {
 /// Color of the output is purple
 #[macro_export]
 macro_rules! sending {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[35mSending - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[35mSending - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[35mSending - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }
 
 /// Logs an event message
@@ -99,10 +79,6 @@ macro_rules! sending {
 /// Color of the output is red
 #[macro_export]
 macro_rules! event {
-    ($msg:expr) => {
-        let mut output = String::from("\x1B[36mEvent   - ");
-        output.push_str(&$msg);
-        output.push_str("\x1B[0m");
-        log!(output);
-    }
+    ($msg:expr) => (print!(concat!("\x1B[36mEvent   - ", $msg, "\x1B[0m", "\n")));
+    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[36mEvent   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
 }

@@ -49,7 +49,7 @@ fn main() {
     combined.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
     combined.push_str(":");
     combined.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
-    info!(format!("Hole puncher: {:?}", combined));
+    info!("Hole puncher: {:?}", combined);
     connect(combined.parse::<SocketAddr>().unwrap(), String::from(matches.value_of("PEER_NAME").unwrap()));
 }
 
