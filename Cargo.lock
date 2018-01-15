@@ -48,6 +48,10 @@ name = "blockchain_file"
 version = "0.1.0"
 
 [[package]]
+name = "blockchain_hole_puncher"
+version = "0.1.0"
+
+[[package]]
 name = "blockchain_hooks"
 version = "0.1.0"
 
