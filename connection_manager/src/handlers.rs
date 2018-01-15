@@ -112,7 +112,7 @@ impl Hooks for HookHandlers {
     /// - The connection between both networks should be good to go
     ///
     /// Handles a new peer
-    fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) -> Vec<u8> {
+    fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         
@@ -143,14 +143,15 @@ impl Hooks for HookHandlers {
         payload.addr = String::from(last_peer.get_socket());
 
         sending!("ACK_REGISTER | {:?}", payload);
-        BlockchainProtocol::new()
+        let answer = BlockchainProtocol::new()
             .set_event_code(EventCodes::AckRegister)
             .set_status_code(status)
             .set_payload(payload)
-            .build()
+            .build();
+        udp.send_to(&answer, source).expect("Sending a response should be successful");
     }
 
-    fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
+    fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         self.current_block = message.payload.clone();
@@ -180,11 +181,9 @@ impl Hooks for HookHandlers {
                 udp.send_to(message.as_slice(), peer.parse::<SocketAddr>().unwrap()).unwrap();
             }
         }
-
-        Vec::new()
     }
 
-    fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) -> Vec<u8> {
+    fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("VALIDATED_HASH | {:?}", message);
@@ -243,15 +242,13 @@ impl Hooks for HookHandlers {
                 }
             }
         }
-
-        Vec::new()
     }
 
-    fn on_ping(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_pong(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_ack_register(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_peer_registering(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_new_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_validate_hash(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_found_block(&self, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
+    fn on_ping(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_pong(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_ack_register(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_peer_registering(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_validate_hash(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
 }

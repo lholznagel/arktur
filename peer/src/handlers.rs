@@ -11,21 +11,19 @@ use std::net::UdpSocket;
 pub struct HookHandlers;
 
 impl Hooks for HookHandlers {
-    fn on_ping(&self, _: Vec<u8>, source: String) -> Vec<u8> { 
+    fn on_ping(&self, udp: &UdpSocket, _: Vec<u8>, source: String) {
         event!("PING from peer {:?}", source);
         sending!("PONG to peer {:?}", source);
-        let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
         success!("Send PONG to {:?}", source);
-        answer
+        let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
+        udp.send_to(&answer, source).expect("Sending a response should be successful");
     }
 
-    fn on_pong(&self, _: Vec<u8>, source: String) -> Vec<u8> { 
+    fn on_pong(&self, _: &UdpSocket, _: Vec<u8>, source: String) {
         event!("PONG from peer {:?}", source);
-        Vec::new()
      }
 
-    fn on_ack_register(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let mut result = Vec::new();
+    fn on_ack_register(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("ACK_REGISTER {:?}", message);
@@ -34,26 +32,25 @@ impl Hooks for HookHandlers {
             error!("No peer");
         } else {
             sending!("PING to peer {:?}", message.payload);
-            result = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
-            success!("Send PING to {:?}", message.payload);
+            success!("Send PING to {:?}", source);
+            let result = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
+            udp.send_to(&result, source).expect("Sending a response should be successful");
         }
-        result
      }
 
-    fn on_peer_registering(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
+    fn on_peer_registering(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
 
         event!("PEER_REGISTERING {:?}", message.payload);
         sending!("PING to new peer {:?}", message.payload);
-        let answer = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
         success!("Send PING {:?}", message.payload);
-        answer
+        let answer = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
+        udp.send_to( &answer, source).expect("Sending a response should be successful");
      }
 
-    fn on_new_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
-        let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer);
-        let message = message.unwrap();
+    fn on_new_block(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+        let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer).unwrap();
         event!("NEW_BLOCK {:?}", message.payload);
     
         let hash;
@@ -89,10 +86,10 @@ impl Hooks for HookHandlers {
         answer.payload.hash = hash;
         sending!("POSSIBLE_BLOCK | {:?}", answer.payload);
         success!("Send block back.");
-        answer.build()
+        udp.send_to(&answer.build(), source).expect("Sending a response should be successful");
     }
 
-    fn on_validate_hash(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
+    fn on_validate_hash(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("VALIDATE_HASH {:?}", message.payload);
@@ -110,10 +107,10 @@ impl Hooks for HookHandlers {
         let mut answer = BlockchainProtocol::<ValidatedHashPayload>::new().set_event_code(EventCodes::ValidatedHash);
         answer.payload.index = message.payload.index;
         answer.payload.hash = hasher.result_str();
-        answer.build()
+        udp.send_to(&answer.build(), source).expect("Sending a response should be successful");
     }
 
-    fn on_found_block(&self, payload_buffer: Vec<u8>, _: String) -> Vec<u8> { 
+    fn on_found_block(&self, _: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("FOUND_BLOCK {:?}", message.payload);
@@ -127,11 +124,9 @@ impl Hooks for HookHandlers {
         block.prev = message.payload.prev;
         block.hash = message.payload.hash;
         block.save();
-
-        Vec::new()
     }
 
-    fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
-    fn on_validated_hash(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) -> Vec<u8> { Vec::new() }
+    fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_validated_hash(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
 }
