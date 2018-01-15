@@ -7,6 +7,7 @@ members = [
   "connection_manager",
   "hooks",
   "file",
+  "hole_puncher",
   "logging",
   "network",
   "peer",
