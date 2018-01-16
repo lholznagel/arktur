@@ -11,8 +11,9 @@ The main project consits of mutliple sub projects. Each project is specialized f
 
 Name | Description
 -- | --
-connection_manager | Contains the hole puncher and sends all blocks to the connected peers.
+connection_manager | DEPRECATED - Contains the hole puncher and sends all blocks to the connected peers.
 file | Handles files actions. For example saving the current connected peers or storing the block data
+hole_puncher | Helps two peers connect through NAT
 logging | Small crate for logging. Contains some macros for logging across all crates
 network | Contains a UDP-Builder and handles UDP-Connections
 peer | Generates the hashes for a block
