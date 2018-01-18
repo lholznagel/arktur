@@ -25,9 +25,10 @@ impl HookNotification {
         match event {
             EventCodes::Ping => self.hook.on_ping(udp, payload_buffer, source),
             EventCodes::Pong => self.hook.on_pong(udp, payload_buffer, source),
-            EventCodes::Register => self.hook.on_register(udp, payload_buffer, source),
-            EventCodes::AckRegister => self.hook.on_ack_register(udp, payload_buffer, source),
-            EventCodes::PeerRegistering => self.hook.on_peer_registering(udp, payload_buffer, source),
+            EventCodes::RegisterHolePuncher => self.hook.on_register_hole_puncher(udp, payload_buffer, source),
+            EventCodes::RegisterHolePuncherAck => self.hook.on_register_hole_puncher_ack(udp, payload_buffer, source),
+            EventCodes::RegisterPeer => self.hook.on_register_peer(udp, payload_buffer, source),
+            EventCodes::RegisterPeerAck => self.hook.on_register_peer_ack(udp, payload_buffer, source),
             EventCodes::NewBlock => self.hook.on_new_block(udp, payload_buffer, source),
             EventCodes::PossibleBlock => self.hook.on_possible_block(udp, payload_buffer, source),
             EventCodes::ValidateHash => self.hook.on_validate_hash(udp, payload_buffer, source),

@@ -166,26 +166,6 @@ quickcheck! {
 }
 
 quickcheck! {
-    fn test_peer_registering(addr: String) -> bool {
-        let addr = addr;
-
-        let payload = PeerRegisteringPayload {
-            addr: addr.clone()
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<PeerRegisteringPayload>::new()
-            .set_event_code(EventCodes::PeerRegistering)
-            .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
-            .build();
-
-        let blockchain_parsed = BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&blockchain_protocol).unwrap();
-        assert_eq!(addr, blockchain_parsed.payload.addr);
-        true
-    }
-}
-
-quickcheck! {
     fn test_register_ack(addr: String) -> bool {
         let addr = addr;
 
@@ -194,7 +174,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
-            .set_event_code(EventCodes::AckRegister)
+            .set_event_code(EventCodes::RegisterHolePuncherAck)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -214,7 +194,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
-            .set_event_code(EventCodes::Register)
+            .set_event_code(EventCodes::RegisterHolePuncher)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();

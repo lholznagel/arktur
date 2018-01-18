@@ -56,7 +56,7 @@ impl UdpClient {
         payload.name = name;
 
         let message = BlockchainProtocol::<RegisterPayload>::new()
-            .set_event_code(EventCodes::Register)
+            .set_event_code(EventCodes::RegisterHolePuncher)
             .set_payload(payload)
             .build();
 

@@ -112,7 +112,7 @@ impl Hooks for HookHandlers {
     /// - The connection between both networks should be good to go
     ///
     /// Handles a new peer
-    fn on_register(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+    fn on_register_hole_puncher(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         
@@ -125,11 +125,11 @@ impl Hooks for HookHandlers {
             let mut payload = PeerRegisteringPayload::new();
             payload.addr = source.to_string();
 
-            let message = BlockchainProtocol::new()
+            /*let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::PeerRegistering)
                 .set_payload(payload)
                 .build();
-            udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();
+            udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();*/
         }
 
         KnownPeers::new(Peer::new(message.payload.name, source.to_string())).save();
@@ -144,7 +144,7 @@ impl Hooks for HookHandlers {
 
         sending!("ACK_REGISTER | {:?}", payload);
         let answer = BlockchainProtocol::new()
-            .set_event_code(EventCodes::AckRegister)
+            .set_event_code(EventCodes::RegisterHolePuncherAck)
             .set_status_code(status)
             .set_payload(payload)
             .build();
@@ -246,8 +246,9 @@ impl Hooks for HookHandlers {
 
     fn on_ping(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_pong(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_ack_register(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_peer_registering(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_validate_hash(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}

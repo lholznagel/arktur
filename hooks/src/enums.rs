@@ -22,24 +22,20 @@ pub enum EventCodes {
     /// This event should be used to register at a hole puncher.
     ///
     /// Code: 16
-    Register,
-    /// This event is send by the hole puncher, when  the registration
+    RegisterHolePuncher,
+    /// This event is send by the hole puncher, when the registration
     /// is successful.
-    /// The body of the message contains the IP and Port of another peer.
-    /// The peer shall send a PING event to the given peer in order
-    /// to open a connection.
     ///
     /// Code: 17
-    AckRegister,
-    /// This event is send by the hole puncher, when a new
-    /// peer registers itself.
-    /// Content of this message includes the IP, and Port of
-    /// the new peer.
-    /// The peer shall send a PING event to the new peer
-    /// in order to open a connection.
+    RegisterHolePuncherAck,
+    /// Used to register a peer at another peer
     ///
     /// Code: 18
-    PeerRegistering,
+    RegisterPeer,
+    /// Send by the other peer when the registration was successful
+    ///
+    /// Code: 19
+    RegisterPeerAck,
     /// This event is send by the connection manager, when a new block
     /// should be mined
     /// Content of the message contains the index of the block,
@@ -98,9 +94,10 @@ pub fn as_enum(value: u8) -> EventCodes {
     match value {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
-        16 => EventCodes::Register,
-        17 => EventCodes::AckRegister,
-        18 => EventCodes::PeerRegistering,
+        16 => EventCodes::RegisterHolePuncher,
+        17 => EventCodes::RegisterHolePuncherAck,
+        18 => EventCodes::RegisterPeer,
+        19 => EventCodes::RegisterPeerAck,
         32 => EventCodes::NewBlock,
         33 => EventCodes::PossibleBlock,
         34 => EventCodes::ValidateHash,
@@ -130,9 +127,10 @@ pub fn as_number(value: EventCodes) -> u8 {
     match value {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
-        EventCodes::Register => 16,
-        EventCodes::AckRegister => 17,
-        EventCodes::PeerRegistering => 18,
+        EventCodes::RegisterHolePuncher => 16,
+        EventCodes::RegisterHolePuncherAck => 17,
+        EventCodes::RegisterPeer => 18,
+        EventCodes::RegisterPeerAck => 19,
         EventCodes::NewBlock => 32,
         EventCodes::PossibleBlock => 33,
         EventCodes::ValidateHash => 34,
