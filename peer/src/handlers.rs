@@ -2,7 +2,7 @@ use blockchain_file::blocks::Block;
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, PingPayload, PongPayload, RegisterAckPayload, PeerRegisteringPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload};
+use blockchain_protocol::payload::{FoundBlockPayload, PingPayload, PongPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload};
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::net::UdpSocket;
@@ -23,7 +23,7 @@ impl Hooks for HookHandlers {
         event!("PONG from peer {:?}", source);
      }
 
-    fn on_ack_register(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+    fn on_register_hole_puncher_ack(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("ACK_REGISTER {:?}", message);
@@ -38,7 +38,7 @@ impl Hooks for HookHandlers {
         }
      }
 
-    fn on_peer_registering(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+    /*fn on_peer_registering(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
 
@@ -47,7 +47,7 @@ impl Hooks for HookHandlers {
         success!("Send PING {:?}", message.payload);
         let answer = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
         udp.send_to( &answer, source).expect("Sending a response should be successful");
-     }
+     }*/
 
     fn on_new_block(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer).unwrap();
@@ -126,7 +126,9 @@ impl Hooks for HookHandlers {
         block.save();
     }
 
-    fn on_register(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_validated_hash(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
 }
