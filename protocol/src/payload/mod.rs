@@ -22,4 +22,3 @@ pub use self::payload_builder::PayloadBuilder;
 
 pub use self::register::register::RegisterPayload;
 pub use self::register::register_ack::RegisterAckPayload;
-pub use self::register::peer_registering::PeerRegisteringPayload;

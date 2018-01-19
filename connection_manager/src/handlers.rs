@@ -1,7 +1,7 @@
 use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, PeerRegisteringPayload, ValidateHashPayload, ValidatedHashPayload};
+use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, ValidateHashPayload, ValidatedHashPayload};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
@@ -122,10 +122,10 @@ impl Hooks for HookHandlers {
         if last_peer.get_name() == "" {
             status = StatusCodes::NoPeer;
         } else {
-            let mut payload = PeerRegisteringPayload::new();
+            /*let mut payload = PeerRegisteringPayload::new();
             payload.addr = source.to_string();
 
-            /*let message = BlockchainProtocol::new()
+            let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::PeerRegistering)
                 .set_payload(payload)
                 .build();
