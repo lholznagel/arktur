@@ -140,23 +140,6 @@ fn bench_pong(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_peer_block(b: &mut Bencher) {
-    b.iter(|| {
-        let payload = PeerRegisteringPayload {
-            addr: String::from("asdasdasfagewg")
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<PeerRegisteringPayload>::new()
-            .set_event_code(EventCodes::PeerRegistering)
-            .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
-            .build();
-
-        BlockchainProtocol::<PeerRegisteringPayload>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
 fn bench_register_ack(b: &mut Bencher) {
     b.iter(|| {
         let payload = RegisterAckPayload {
@@ -164,7 +147,7 @@ fn bench_register_ack(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
-            .set_event_code(EventCodes::AckRegister)
+            .set_event_code(EventCodes::RegisterHolePuncherAck)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -181,7 +164,7 @@ fn bench_register(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
-            .set_event_code(EventCodes::Register)
+            .set_event_code(EventCodes::RegisterHolePuncher)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
