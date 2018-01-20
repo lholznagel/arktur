@@ -10,6 +10,7 @@ extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_network;
+extern crate blockchain_protocol;
 
 mod hooks;
 
@@ -24,8 +25,10 @@ fn main() {
 }
 
 fn connect() {
+    let hook_handler = hooks::HookHandler::new();
+
     let hook_notification = HookRegister::new()
-        .set_hook(hooks::HookHandler)
+        .set_hook(hook_handler)
         .get_notification();
 
     UdpClientBuilder::new()

@@ -54,6 +54,7 @@ dependencies = [
  "blockchain_hooks 0.1.0",
  "blockchain_logging 0.1.0",
  "blockchain_network 0.1.0",
+ "blockchain_protocol 0.1.0",
 ]
 
 [[package]]
