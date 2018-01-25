@@ -23,7 +23,7 @@ impl Hooks for HookHandlers {
         event!("PONG from peer {:?}", source);
      }
 
-    fn on_register_hole_puncher_ack(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+    fn on_register_hole_puncher_ack(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("ACK_REGISTER {:?}", message);
@@ -32,9 +32,12 @@ impl Hooks for HookHandlers {
             error!("No peer");
         } else {
             sending!("PING to peer {:?}", message.payload);
-            success!("Send PING to {:?}", source);
-            let result = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
-            udp.send_to(&result, source).expect("Sending a response should be successful");
+
+            for address in message.payload.addresses {
+                success!("Send PING to {:?}", address);
+                let result = BlockchainProtocol::<PingPayload>::new().set_event_code(EventCodes::Ping).build();
+                udp.send_to(&result, address).expect("Sending a response should be successful");
+            }
         }
      }
 

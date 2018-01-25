@@ -42,7 +42,7 @@ fn main() {
             .value_name("port")
             .help("Sets the port of the Hole puncher service.")
             .takes_value(true)
-            .default_value("45000"))
+            .default_value("50000"))
         .get_matches();
 
     let mut combined = String::from("");
