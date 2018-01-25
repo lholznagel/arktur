@@ -166,26 +166,6 @@ quickcheck! {
 }
 
 quickcheck! {
-    fn test_register_ack(addr: String) -> bool {
-        let addr = addr;
-
-        let payload = RegisterAckPayload {
-            addr: addr.clone()
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
-            .set_event_code(EventCodes::RegisterHolePuncherAck)
-            .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
-            .build();
-
-        let blockchain_parsed = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&blockchain_protocol).unwrap();
-        assert_eq!(addr, blockchain_parsed.payload.addr);
-        true
-    }
-}
-
-quickcheck! {
     fn test_register(name: String) -> bool {
         let name = name;
 
