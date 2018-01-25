@@ -1,5 +1,7 @@
 use payload::{Parser, Payload, PayloadBuilder};
 
+use std::collections::HashMap;
+
 /// Model for the event `RegisterAck`
 ///
 /// ```
@@ -12,19 +14,37 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct RegisterAckPayload {
-    /// Address of another peer
-    pub addr: String,
+    /// Addresses of all peers
+    pub addresses: Vec<String>,
+}
+
+impl RegisterAckPayload {
+    /// Sets the peers that should be send
+    pub fn set_peers(mut self, peers: &HashMap<String, String>) -> Self {
+        for (source, _) in peers {
+            self.addresses.push(source.to_string());
+        }
+        self
+    }
 }
 
 impl Payload for RegisterAckPayload {
     fn new() -> Self {
-        Self { addr: String::from("") }
+        Self { addresses: Vec::new() }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
+            let content = Parser::string_overflow(&bytes[0..]);
+            let stuff = String::from(Parser::u8_to_string(&content));
+            let mut result: Vec<String> = Vec::new();
+
+            for address in stuff.split(", ").collect::<Vec<&str>>() {
+                result.push(String::from(address));
+            }
+
             Self {
-                addr: Parser::u8_to_string(&bytes[0])
+                addresses: result
             }
         } else {
             Self::new()
@@ -33,7 +53,7 @@ impl Payload for RegisterAckPayload {
 
     fn to_bytes(self) -> Vec<u8> {
         PayloadBuilder::new()
-            .add_string(self.addr)
+            .add_string_overflow(self.addresses.join(", "))
             .build()
     }
 }
@@ -45,34 +65,16 @@ mod tests {
 
     #[test]
     fn test_building_and_parsing() {
-        let addr = String::from("172.0.0.1");
+        let addresses = vec![String::from("172.0.0.1")];
 
         let register_ack = RegisterAckPayload {
-            addr: addr.clone()
+            addresses: addresses.clone()
         };
 
         let register_ack = register_ack.to_bytes();
         let complete = Parser::parse_payload(&register_ack);
         let parsed = RegisterAckPayload::parse(complete);
 
-        assert_eq!(addr, parsed.addr);
-    }
-
-    quickcheck! {
-        fn test_quickcheck(addr: String) -> bool {
-            let addr = addr;
-
-            let register_ack = RegisterAckPayload {
-                addr: addr.clone()
-            };
-
-            let register_ack = register_ack.to_bytes();
-
-            let complete = Parser::parse_payload(&register_ack);
-            let parsed = RegisterAckPayload::parse(complete);
-
-            assert_eq!(addr, parsed.addr);
-            true
-        }
+        assert_eq!(addresses, parsed.addresses);
     }
 }

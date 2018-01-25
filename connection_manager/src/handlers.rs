@@ -1,7 +1,5 @@
-use blockchain_file::peers::{KnownPeers, Peer};
 use blockchain_hooks::Hooks;
-use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, RegisterAckPayload, PossibleBlockPayload, RegisterPayload, ValidateHashPayload, ValidatedHashPayload};
+use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, Payload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload};
 use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 
@@ -28,7 +26,7 @@ impl HookHandlers {
         }
     }
 
-    fn send_genesis(&mut self, udp: &UdpSocket) {
+    /*fn send_genesis(&mut self, udp: &UdpSocket) {
         let payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
         self.last_block_time = payload.timestamp;
         self.validation_in_progress = false;
@@ -44,7 +42,7 @@ impl HookHandlers {
                 peer.parse::<SocketAddr>().unwrap(),
             ).unwrap();
         }
-    }
+    }*/
 
     fn send_next_block(&mut self, udp: &UdpSocket) {
         let payload = NewBlockPayload::block(self.current_block.index + 1, self.current_block.hash.clone());
@@ -112,8 +110,8 @@ impl Hooks for HookHandlers {
     /// - The connection between both networks should be good to go
     ///
     /// Handles a new peer
-    fn on_register_hole_puncher(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
+    fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {
+        /*let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         
         let last_peer = KnownPeers::get_latest();
@@ -122,14 +120,14 @@ impl Hooks for HookHandlers {
         if last_peer.get_name() == "" {
             status = StatusCodes::NoPeer;
         } else {
-            /*let mut payload = PeerRegisteringPayload::new();
+            let mut payload = PeerRegisteringPayload::new();
             payload.addr = source.to_string();
 
             let message = BlockchainProtocol::new()
                 .set_event_code(EventCodes::PeerRegistering)
                 .set_payload(payload)
                 .build();
-            udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();*/
+            udp.send_to(message.as_slice(), last_peer.get_socket().parse::<SocketAddr>().unwrap()).unwrap();
         }
 
         KnownPeers::new(Peer::new(message.payload.name, source.to_string())).save();
@@ -148,7 +146,7 @@ impl Hooks for HookHandlers {
             .set_status_code(status)
             .set_payload(payload)
             .build();
-        udp.send_to(&answer, source).expect("Sending a response should be successful");
+        udp.send_to(&answer, source).expect("Sending a response should be successful");*/
     }
 
     fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
