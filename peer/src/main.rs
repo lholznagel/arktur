@@ -56,7 +56,7 @@ fn main() {
 /// Builds up a UDP connection with the connection manager
 fn connect(addr: SocketAddr, name: String) {
     let hook_notification = HookRegister::new()
-        .set_hook(handlers::HookHandlers)
+        .set_hook(handlers::HookHandler::new())
         .get_notification();
 
     let udp_client = UdpClientBuilder::new().build(hook_notification);
