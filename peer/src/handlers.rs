@@ -42,14 +42,14 @@ impl Hooks for HookHandler {
         event!("ACK_REGISTER {:?}", message);
 
         if message.status_code == StatusCodes::NoPeer {
-            error!("No peer");
+            info!("No peer registered at the hole puncher");
         } else {
             sending!("PING to peer {:?}", message.payload);
 
             for address in message.payload.addresses {
-                success!("Send REGISTER_PEER to {:?}", address);
                 let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
-                udp.send_to(&result, address).expect("Sending a response should be successful");
+                udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
+                success!("Send REGISTER_PEER to {:?}", address);
             }
         }
      }
@@ -62,7 +62,7 @@ impl Hooks for HookHandler {
         if self.peers.is_empty() {
             sending!("ACK_REGISTER | NO_PEER");
             let answer = BlockchainProtocol::new()
-                .set_event_code(EventCodes::RegisterHolePuncherAck)
+                .set_event_code(EventCodes::RegisterPeerAck)
                 .set_status_code(StatusCodes::NoPeer)
                 .set_payload(RegisterAckPayload::new())
                 .build();
@@ -70,7 +70,7 @@ impl Hooks for HookHandler {
         } else {
             sending!("ACK_REGISTER | PEER");
             let answer = BlockchainProtocol::new()
-                .set_event_code(EventCodes::RegisterHolePuncherAck)
+                .set_event_code(EventCodes::RegisterPeerAck)
                 .set_status_code(StatusCodes::Ok)
                 .set_payload(RegisterAckPayload::new().set_peers(&self.peers))
                 .build();
@@ -78,6 +78,28 @@ impl Hooks for HookHandler {
         }
 
         self.peers.insert(source, message.payload.name);
+        debug!("REGISTER: {}", self.peers.len());
+     }
+
+     fn on_register_peer_ack(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
+        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
+        let message = message.unwrap();
+        event!("ACK_REGISTER {:?}", message);
+
+        if message.status_code == StatusCodes::NoPeer {
+            info!("No peer from other peer");
+        } else {
+            for address in message.payload.addresses {
+                if !self.peers.contains_key(&address) {
+                    let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
+                    udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
+                    self.peers.insert(address.clone(), String::from(""));
+                    success!("Send REGISTER_PEER to {:?}", address);
+                } else {
+                    debug!("Peer already known");
+                }
+            }
+        }
      }
 
     fn on_new_block(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
@@ -158,7 +180,6 @@ impl Hooks for HookHandler {
     }
 
     fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_validated_hash(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
 }
