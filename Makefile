@@ -1,14 +1,14 @@
-.PHONY: debug doc release peer
+.PHONY: test-all commit release doc peer hole_puncher
 
 default:
 	cargo build
 
-test-all:
+test:
 	rustup run stable cargo test
 	rustup run nightly cargo test
 
 commit:
-	make test-all
+	make test
 	git add -A
 	git commit
 
@@ -23,8 +23,8 @@ doc:
 
 peer:
 	clear
-	cd peer; cargo run -- 0.0.0.0 $(NAME)
+	cd peer; cargo run -- --name $(NAME)
 
-connection:
+hole_puncher:
 	clear
-	cd connection_manager; cargo run
+	cd hole_puncher; cargo run
