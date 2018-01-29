@@ -54,6 +54,10 @@ use std::net::UdpSocket;
 ///     fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {
 ///         // handle hook
 ///     }
+///
+///     fn on_explore_network(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {
+///         // handle hook
+///     }
 /// }
 /// ```
 pub trait Hooks {
@@ -166,4 +170,14 @@ pub trait Hooks {
     /// - `message` - Raw message. Needs to be parsed, before usage
     /// - `source` - source address, that send this message
     fn on_found_block(&self, udp: &UdpSocket, message: Vec<u8>, source: String);
+
+    /// Executed on a `EXPLORE_NETWORK` event
+    /// Code: 240
+    ///
+    /// # Parameters
+    ///
+    /// - `udp` - Open udp connection to send an answer
+    /// - `message` - Raw message. Needs to be parsed, before usage
+    /// - `source` - source address, that send this message
+    fn on_explore_network(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String);
 }

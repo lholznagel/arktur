@@ -2,7 +2,7 @@ use blockchain_file::blocks::Block;
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{Payload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload};
+use blockchain_protocol::payload::{Payload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload};
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
@@ -177,6 +177,16 @@ impl Hooks for HookHandler {
         block.prev = message.payload.prev;
         block.hash = message.payload.hash;
         block.save();
+    }
+
+    fn on_explore_network(&mut self, udp: &UdpSocket, _: Vec<u8>, source: String) {
+        debug!("Sending peers to debugger");
+        let answer = BlockchainProtocol::new()
+            .set_event_code(EventCodes::ExploreNetwork)
+            .set_status_code(StatusCodes::Ok)
+            .set_payload(ExploreNetworkPayload::new().set_peers(&self.peers))
+            .build();
+        udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
     }
 
     fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}

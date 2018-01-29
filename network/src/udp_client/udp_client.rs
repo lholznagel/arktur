@@ -7,7 +7,7 @@ use std::net::{IpAddr, UdpSocket, SocketAddr};
 /// Stores all needed information about a udp client
 pub struct UdpClient {
     /// open udp socket
-    udp: UdpSocket,
+    pub udp: UdpSocket,
     /// Contains all registered event handlers
     register: HookNotification
 }

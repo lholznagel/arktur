@@ -143,7 +143,7 @@ fn bench_pong(b: &mut Bencher) {
 fn bench_register_ack(b: &mut Bencher) {
     b.iter(|| {
         let payload = RegisterAckPayload {
-            addr: String::from("geggwegwegwegweg")
+            addresses: vec![String::from("geggwegwegwegweg")]
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()

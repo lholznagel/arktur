@@ -1,5 +1,5 @@
 use blockchain_hooks::{EventCodes, Hooks};
-use blockchain_protocol::payload::{Payload, RegisterPayload, RegisterAckPayload};
+use blockchain_protocol::payload::{Payload, RegisterPayload, RegisterAckPayload, ExploreNetworkPayload};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 
@@ -41,6 +41,16 @@ impl Hooks for HookHandler {
         }
 
         self.peers.insert(source, message.payload.name);
+    }
+
+    fn on_explore_network(&mut self, udp: &UdpSocket, _: Vec<u8>, source: String) {
+        debug!("Sending peers to debugger");
+        let answer = BlockchainProtocol::new()
+            .set_event_code(EventCodes::ExploreNetwork)
+            .set_status_code(StatusCodes::Ok)
+            .set_payload(ExploreNetworkPayload::new().set_peers(&self.peers))
+            .build();
+        udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
     }
 
     fn on_ping(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
