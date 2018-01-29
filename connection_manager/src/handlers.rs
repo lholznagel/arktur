@@ -250,4 +250,5 @@ impl Hooks for HookHandlers {
     fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_validate_hash(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
     fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_explore_network(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
 }

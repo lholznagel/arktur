@@ -1,4 +1,4 @@
-use enums::EventCodes;
+use event_codes::EventCodes;
 use hooks::Hooks;
 use std::net::UdpSocket;
 
@@ -34,6 +34,7 @@ impl HookNotification {
             EventCodes::ValidateHash => self.hook.on_validate_hash(udp, payload_buffer, source),
             EventCodes::ValidatedHash => self.hook.on_validated_hash(udp, payload_buffer, source),
             EventCodes::FoundBlock => self.hook.on_found_block(udp, payload_buffer, source),
+            EventCodes::ExploreNetwork => self.hook.on_explore_network(udp, payload_buffer, source),
             EventCodes::NotAValidEvent => (),
         };
     }

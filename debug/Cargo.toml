@@ -1,0 +1,10 @@
+[package]
+authors = ["lholznagel <contact@lholznagel.info>"]
+name = "blockchain_debug"
+version = "0.1.0"
+
+[dependencies]
+blockchain_hooks = { path = "../hooks" }
+blockchain_logging = { path = "../logging" }
+blockchain_network = { path = "../network" }
+blockchain_protocol = { path = "../protocol" }

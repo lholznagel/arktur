@@ -3,11 +3,16 @@
 default:
 	cargo build
 
+bench:
+	rustup run nightly cargo bench
+
 test:
 	rustup run stable cargo test
 	rustup run nightly cargo test
 
+# check that everything works before commiting
 commit:
+	make bench
 	make test
 	git add -A
 	git commit

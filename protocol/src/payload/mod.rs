@@ -1,5 +1,6 @@
 //! Module for all payload models
 mod block;
+mod debug;
 mod misc;
 mod register;
 
@@ -12,6 +13,8 @@ pub use self::block::new_block::NewBlockPayload;
 pub use self::block::possible_block::PossibleBlockPayload;
 pub use self::block::validate_hash::ValidateHashPayload;
 pub use self::block::validated_hash::ValidatedHashPayload;
+
+pub use self::debug::explore_network::ExploreNetworkPayload;
 
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;

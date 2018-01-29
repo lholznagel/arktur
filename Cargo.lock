@@ -44,6 +44,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "blockchain_debug"
+version = "0.1.0"
+dependencies = [
+ "blockchain_hooks 0.1.0",
+ "blockchain_logging 0.1.0",
+ "blockchain_network 0.1.0",
+ "blockchain_protocol 0.1.0",
+]
+
+[[package]]
 name = "blockchain_file"
 version = "0.1.0"
 
