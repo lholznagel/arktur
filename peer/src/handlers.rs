@@ -44,12 +44,16 @@ impl Hooks for HookHandler {
         if message.status_code == StatusCodes::NoPeer {
             info!("No peer registered at the hole puncher");
         } else {
-            sending!("PING to peer {:?}", message.payload);
+            sending!("REGISTER to peer {:?}", message.payload);
 
             for address in message.payload.addresses {
                 let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
                 udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
                 success!("Send REGISTER_PEER to {:?}", address);
+
+                if !self.peers.contains_key(&address) {
+                    self.peers.insert(address, String::from(""));
+                }
             }
         }
      }
