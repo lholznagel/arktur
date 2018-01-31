@@ -28,6 +28,7 @@ impl Parser {
                 let current_length = payload[index as usize];
 
                 for i in (index + 1)..(index + current_length as u64 + 1) {
+                    //println!("{}, {}, {}", index, payload.len(), (index + current_length as u64 + 1));
                     current.push(payload[i as usize]);
                     index += 1;
                 }

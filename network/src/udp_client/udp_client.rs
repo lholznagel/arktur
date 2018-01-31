@@ -151,7 +151,7 @@ impl UdpClient {
     /// This function is blocking!
     pub fn listen(mut self) -> Self {
         loop {
-            let mut buffer = [0; 1024];
+            let mut buffer = [0; 65535];
 
             match self.udp.recv_from(&mut buffer) {
                 Ok((bytes, source)) => {
