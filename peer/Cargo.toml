@@ -9,5 +9,5 @@ blockchain_hooks = { path = "../hooks" }
 blockchain_logging = { path = "../logging" }
 blockchain_network = { path = "../network" }
 blockchain_protocol = { path = "../protocol" }
-clap = "2.26.2"
+clap = "2.29.2"
 rust-crypto = "0.2.36"
