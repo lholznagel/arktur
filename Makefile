@@ -30,6 +30,20 @@ peer:
 	clear
 	cd peer; cargo run -- --name $(NAME)
 
+peer_docker_run:
+	make peer_docker_build
+	docker run --net="host" blockchain_peer:latest
+
+peer_docker_run_multi:
+	make peer_docker_build
+	./docker/start.sh
+
+peer_docker_build:
+	clear
+	cd peer; cargo build
+	cp target/debug/blockchain_peer docker/blockchain_peer
+	cd docker; docker build -t blockchain_peer .
+
 hole_puncher:
 	clear
 	cd hole_puncher; cargo run

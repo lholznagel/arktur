@@ -73,22 +73,28 @@ impl Hooks for ExploreHandler {
             self.repeats += 1;
 
             if self.repeats == self.peers_to_check.len() as u8 {
-                let mut peers_not_answer = 0;
+                let mut excluded = 0;
+                let mut success = 0;
+                let mut fail = 0;
 
                 for address in &self.peers_to_check {
                     if !self.peers.contains_key(address) {
                         error!("No response from {}. Excluding", address);
-                        peers_not_answer += 1;
+                        excluded += 1;
                     }
                 }
 
                 for (address, value) in &self.peers {
-                    if self.peers.len() - 1 == value.len() - peers_not_answer {
+                    if self.peers.len() - 1 == value.len() - excluded {
                         success!("Peer {} knows all peers", address);
+                        success += 1;
                     } else {
                         error!("Peer {} does not know all peers", address);
+                        fail += 1;
                     }
                 }
+
+                info!("Success: {}, Fail: {}, Excluded: {}", success, fail, excluded);
 
                 exit(0);
             }
