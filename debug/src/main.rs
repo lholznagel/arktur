@@ -6,30 +6,40 @@ extern crate blockchain_hooks;
 extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
+extern crate clap;
 
-use blockchain_hooks::{EventCodes, HookRegister};
-use blockchain_network::udp_client::UdpClientBuilder;
-use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{ExploreNetworkPayload, Payload};
-use blockchain_protocol::enums::status::StatusCodes;
+use clap::{App, Arg, SubCommand};
 
-use std::net::SocketAddr;
-
-/// Contains all handlers the peer listens to
-pub mod handlers;
+mod explore;
 
 fn main() {
-    let hook_notification = HookRegister::new()
-        .set_hook(handlers::HookHandler::new())
-        .get_notification();
+    let matches = App::new("Blockchain debug cli")
+        .version("0.1.0")
+        .author("Lars Holznagel")
+        .about("Debug tool for rust-blockchain")
+        .arg(Arg::with_name("HOLE_PUNCHER_IP")
+            .value_name("ip")
+            .help("Sets the IP of the Hole puncher service")
+            .takes_value(true)
+            .long("puncher_ip")
+            .default_value("0.0.0.0"))
+        .arg(Arg::with_name("HOLE_PUNCHER_PORT")
+            .value_name("port")
+            .help("Sets the port of the Hole puncher service.")
+            .takes_value(true)
+            .long("puncher_port")
+            .default_value("50000"))
+        .subcommand(SubCommand::with_name("explore")
+            .about("Checks if all peers know each other."))
+        .get_matches();
 
-    let udp_client = UdpClientBuilder::new().build(hook_notification);
+    let mut hole_puncher = String::from("");
+    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
+    hole_puncher.push_str(":");
+    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
 
-    let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-            .set_event_code(EventCodes::ExploreNetwork)
-            .set_status_code(StatusCodes::Ok)
-            .build();
-    udp_client.udp.send_to(&request, "0.0.0.0:50000".parse::<SocketAddr>().unwrap()).expect("Sending a request should be successful");
-
-    udp_client.listen();
+    match matches.subcommand() {
+        ("explore", Some(sub_matches)) => explore::execute(hole_puncher, sub_matches),
+        (_, _) => error!("Nothing to do")
+    };
 }
