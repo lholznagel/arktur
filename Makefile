@@ -10,6 +10,9 @@ test:
 	rustup run stable cargo test
 	rustup run nightly cargo test
 
+docker_clean:
+	docker ps -a -q -f label=peer | xargs --no-run-if-empty docker rm -f 
+
 # check that everything works before commiting
 commit:
 	make bench
@@ -32,7 +35,7 @@ peer:
 
 peer_docker_run:
 	make peer_docker_build
-	docker run --net="host" blockchain_peer:latest
+	docker run -it --net="host" blockchain_peer:latest
 
 peer_docker_run_multi:
 	make peer_docker_build

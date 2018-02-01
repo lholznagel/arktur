@@ -6,3 +6,4 @@ target/
 
 connection_manager/peers
 peer/block_data
+docker/blockchain_peer
