@@ -2,6 +2,6 @@
 
 for number in {1..100}
 do
-  docker run --net="host" blockchain_peer:latest &
-  sleep 2
+  docker run -d --net="host" --label peer blockchain_peer:latest
+  #sleep 1
 done

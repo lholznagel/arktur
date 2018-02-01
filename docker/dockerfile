@@ -1,10 +1,8 @@
-FROM    rustlang/rust:nightly
+FROM    phusion/baseimage:latest
 
-RUN     mkdir /data
+COPY    ./blockchain_peer /etc/service/blockchain_peer/peer
+COPY    ./run.sh /etc/service/blockchain_peer/run
 
-WORKDIR /data
-ADD     ./blockchain_peer .
-
-RUN     chmod +x ./blockchain_peer
-
-CMD     [ "./blockchain_peer", "--name", "\"\"" ]
+RUN     chmod +x /etc/service/blockchain_peer/run && \
+        chmod +x /etc/service/blockchain_peer/peer && \
+        chown -R root: /etc/service/blockchain_peer
