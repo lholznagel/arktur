@@ -48,12 +48,11 @@ impl UdpClient {
     /// # fn main() {
     /// 
     ///     let address = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
-    ///     UdpClientBuilder::new().set_port(50000).build(HookRegister::new().get_notification()).notify_hole_puncher(address, String::from("PeerName"));
+    ///     UdpClientBuilder::new().set_port(50000).build(HookRegister::new().get_notification()).notify_hole_puncher(address);
     /// # }
     /// ```
-    pub fn notify_hole_puncher(self, address: SocketAddr, name: String) -> Self {
-        let mut payload = RegisterPayload::new();
-        payload.name = name;
+    pub fn notify_hole_puncher(self, address: SocketAddr) -> Self {
+        let payload = RegisterPayload::new();
 
         let message = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::RegisterHolePuncher)

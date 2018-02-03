@@ -164,23 +164,3 @@ quickcheck! {
         true
     }
 }
-
-quickcheck! {
-    fn test_register(name: String) -> bool {
-        let name = name;
-
-        let payload = RegisterPayload {
-            name: name.clone()
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
-            .set_event_code(EventCodes::RegisterHolePuncher)
-            .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
-            .build();
-
-        let blockchain_parsed = BlockchainProtocol::<RegisterPayload>::from_bytes(&blockchain_protocol).unwrap();
-        assert_eq!(name, blockchain_parsed.payload.name);
-        true
-    }
-}

@@ -1,27 +1,24 @@
 use blockchain_hooks::{EventCodes, Hooks};
-use blockchain_protocol::payload::{Payload, RegisterPayload, RegisterAckPayload, ExploreNetworkPayload};
+use blockchain_protocol::payload::{Payload, RegisterAckPayload, ExploreNetworkPayload};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 
 use std::net::UdpSocket;
-use std::collections::HashMap;
 
 pub struct HookHandler {
-    peers: HashMap<String, String>
+    peers: Vec<String>
 }
 
 impl HookHandler {
     pub fn new() -> Self {
         Self {
-            peers: HashMap::new()
+            peers: Vec::new()
         }
     }
 }
 
 impl Hooks for HookHandler {
-    fn on_register_hole_puncher(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer).expect("Parsing payload should be successful.");
-
+    fn on_register_hole_puncher(&mut self, udp: &UdpSocket, _: Vec<u8>, source: String) {
         if self.peers.is_empty() {
             sending!("ACK_REGISTER | NO_PEER");
             let answer = BlockchainProtocol::new()
@@ -35,12 +32,12 @@ impl Hooks for HookHandler {
             let answer = BlockchainProtocol::new()
                 .set_event_code(EventCodes::RegisterHolePuncherAck)
                 .set_status_code(StatusCodes::Ok)
-                .set_payload(RegisterAckPayload::new().set_peers(&self.peers))
+                .set_payload(RegisterAckPayload::new().set_peers(self.peers.clone()))
                 .build();
             udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
         }
 
-        self.peers.insert(source, message.payload.name);
+        self.peers.push(source);
     }
 
     fn on_explore_network(&mut self, udp: &UdpSocket, _: Vec<u8>, source: String) {
@@ -48,7 +45,7 @@ impl Hooks for HookHandler {
         let answer = BlockchainProtocol::new()
             .set_event_code(EventCodes::ExploreNetwork)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(ExploreNetworkPayload::new().set_peers(&self.peers))
+            .set_payload(ExploreNetworkPayload::new().set_peers(self.peers.clone()))
             .build();
         udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
     }
