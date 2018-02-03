@@ -1,7 +1,5 @@
 use payload::{Parser, Payload, PayloadBuilder};
 
-use std::collections::HashMap;
-
 /// Model for the event `RegisterAck`
 ///
 /// ```
@@ -20,10 +18,8 @@ pub struct RegisterAckPayload {
 
 impl RegisterAckPayload {
     /// Sets the peers that should be send
-    pub fn set_peers(mut self, peers: &HashMap<String, String>) -> Self {
-        for (source, _) in peers {
-            self.addresses.push(source.to_string());
-        }
+    pub fn set_peers(mut self, peers: Vec<String>) -> Self {
+        self.addresses = peers;
         self
     }
 }

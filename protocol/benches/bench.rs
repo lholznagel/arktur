@@ -159,14 +159,10 @@ fn bench_register_ack(b: &mut Bencher) {
 #[bench]
 fn bench_register(b: &mut Bencher) {
     b.iter(|| {
-        let payload = RegisterPayload {
-            name: String::from("ewrherhgehe4hhre")
-        };
-
         let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
             .set_event_code(EventCodes::RegisterHolePuncher)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
+            .set_payload(RegisterPayload::new())
             .build();
 
         BlockchainProtocol::<RegisterPayload>::from_bytes(&blockchain_protocol).unwrap();

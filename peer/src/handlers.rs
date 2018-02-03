@@ -6,19 +6,18 @@ use blockchain_protocol::payload::{Payload, FoundBlockPayload, PongPayload, Regi
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
-use std::collections::HashMap;
 use std::net::UdpSocket;
 
 /// Contains all hooks that the peer listens to
 pub struct HookHandler {
-    peers: HashMap<String, String>
+    peers: Vec<String>
 }
 
 impl HookHandler {
     /// Creates a new empty instance of HookHandler
     pub fn new() -> Self {
         Self {
-            peers: HashMap::new()
+            peers: Vec::new()
         }
     }
 }
@@ -51,8 +50,8 @@ impl Hooks for HookHandler {
                 udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
                 success!("Send REGISTER_PEER to {:?}", address);
 
-                if !self.peers.contains_key(&address) {
-                    self.peers.insert(address, String::from(""));
+                if !self.peers.contains(&address) {
+                    self.peers.push(address);
                 }
             }
         }
@@ -76,12 +75,12 @@ impl Hooks for HookHandler {
             let answer = BlockchainProtocol::new()
                 .set_event_code(EventCodes::RegisterPeerAck)
                 .set_status_code(StatusCodes::Ok)
-                .set_payload(RegisterAckPayload::new().set_peers(&self.peers))
+                .set_payload(RegisterAckPayload::new().set_peers(self.peers.clone()))
                 .build();
             udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
         }
 
-        self.peers.insert(source, message.payload.name);
+        self.peers.push(source);
         debug!("REGISTER: {}", self.peers.len());
      }
 
@@ -94,10 +93,10 @@ impl Hooks for HookHandler {
             info!("No peer from other peer");
         } else {
             for address in message.payload.addresses {
-                if !self.peers.contains_key(&address) {
+                if !self.peers.contains(&address) {
                     let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
                     udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
-                    self.peers.insert(address.clone(), String::from(""));
+                    self.peers.push(address.clone());
                     success!("Send REGISTER_PEER to {:?}", address);
                 } else {
                     debug!("Peer already known");
@@ -188,7 +187,7 @@ impl Hooks for HookHandler {
         let answer = BlockchainProtocol::new()
             .set_event_code(EventCodes::ExploreNetwork)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(ExploreNetworkPayload::new().set_peers(&self.peers))
+            .set_payload(ExploreNetworkPayload::new().set_peers(self.peers.clone()))
             .build();
         udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
     }

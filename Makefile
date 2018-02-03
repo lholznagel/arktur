@@ -39,7 +39,7 @@ hole_puncher:
 # start a peer
 peer:
 	clear
-	cd peer; cargo run -- --name $(NAME)
+	cd peer; cargo run
 
 # start a peer in a docker container
 peer_docker_run:

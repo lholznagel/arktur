@@ -41,13 +41,6 @@ fn main() {
             .takes_value(true)
             .long("puncher_port")
             .default_value("50000"))
-        .arg(Arg::with_name("PEER_NAME")
-            .value_name("name")
-            .help("Name of the peer")
-            .takes_value(true)
-            .required(true)
-            .short("n")
-            .long("name"))
         .get_matches();
 
     let mut combined = String::from("");
@@ -55,16 +48,16 @@ fn main() {
     combined.push_str(":");
     combined.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
     info!("Hole puncher: {:?}", combined);
-    connect(combined.parse::<SocketAddr>().unwrap(), String::from(matches.value_of("PEER_NAME").unwrap()));
+    connect(combined.parse::<SocketAddr>().unwrap());
 }
 
 /// Builds up a UDP connection with the connection manager
-fn connect(addr: SocketAddr, name: String) {
+fn connect(addr: SocketAddr) {
     let hook_notification = HookRegister::new()
         .set_hook(handlers::HookHandler::new())
         .get_notification();
 
     let udp_client = UdpClientBuilder::new().build(hook_notification);
-    let udp_client = udp_client.notify_hole_puncher(addr, name);
+    let udp_client = udp_client.notify_hole_puncher(addr);
     udp_client.listen();
 }
