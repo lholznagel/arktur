@@ -12,6 +12,23 @@ use blockchain_protocol::enums::status::StatusCodes;
 use test::Bencher;
 
 #[bench]
+fn bench_data_for_block(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = DataForBlockPayload {
+            content: String::from("asdasdasfagewg")
+        };
+
+        let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
+            .set_event_code(EventCodes::FoundBlock)
+            .set_status_code(StatusCodes::Ok)
+            .set_payload(payload)
+            .build();
+
+        BlockchainProtocol::<DataForBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
 fn bench_found_block(b: &mut Bencher) {
     b.iter(|| {
         let payload = FoundBlockPayload {

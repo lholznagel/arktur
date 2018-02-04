@@ -2,7 +2,7 @@ use blockchain_file::blocks::Block;
 use blockchain_hooks::{EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{Payload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload};
+use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload};
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
@@ -10,6 +10,7 @@ use std::net::UdpSocket;
 
 /// Contains all hooks that the peer listens to
 pub struct HookHandler {
+    next_block: Vec<String>,
     peers: Vec<String>
 }
 
@@ -17,6 +18,7 @@ impl HookHandler {
     /// Creates a new empty instance of HookHandler
     pub fn new() -> Self {
         Self {
+            next_block: Vec::new(),
             peers: Vec::new()
         }
     }
@@ -85,8 +87,7 @@ impl Hooks for HookHandler {
      }
 
      fn on_register_peer_ack(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
-        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
-        let message = message.unwrap();
+        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
         event!("ACK_REGISTER {:?}", message);
 
         if message.status_code == StatusCodes::NoPeer {
@@ -104,6 +105,19 @@ impl Hooks for HookHandler {
             }
         }
      }
+
+    fn on_data_for_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
+        let message = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
+        event!("DATA_FOR_BLOCK {:?}", message);
+
+        if !self.next_block.contains(&message.payload.content) {
+            self.next_block.push(message.payload.content);
+
+            for peer in &self.peers {
+                udp.send_to(&payload_buffer, peer).expect("Sending should be successful");
+            }
+        }
+    }
 
     fn on_new_block(&self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer).unwrap();
