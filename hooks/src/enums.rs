@@ -36,6 +36,10 @@ pub enum EventCodes {
     ///
     /// Code: 19
     RegisterPeerAck,
+    /// This event is to add data for the next block
+    ///
+    /// Code: 32
+    DataForBlock,
     /// This event is send by the connection manager, when a new block
     /// should be mined
     /// Content of the message contains the index of the block,
@@ -44,26 +48,26 @@ pub enum EventCodes {
     /// The expected result is hash and a nonce that was used to generate
     /// this block
     ///
-    /// Code 32
+    /// Code: 33
     NewBlock,
     /// This event is fired by a peer that found a possible block
     /// Content of this message should be the nonce and the hash
     ///
-    /// Code 33
+    /// Code: 34
     PossibleBlock,
     /// When a possible block is found all peers need to validate it
     ///
-    /// Code 34
+    /// Code: 35
     ValidateHash,
     /// Validated hash by the peers
     ///
-    /// Code 35
+    /// Code: 36
     ValidatedHash,
     /// Fired by the connection manager, when a block was found
     /// Contains the all information about a block
     /// All peers should stop mining when this message comes
     ///
-    /// Code 36
+    /// Code: 37
     FoundBlock,
     /// Fired when the umber does not match any events
     ///
@@ -98,11 +102,12 @@ pub fn as_enum(value: u8) -> EventCodes {
         17 => EventCodes::RegisterHolePuncherAck,
         18 => EventCodes::RegisterPeer,
         19 => EventCodes::RegisterPeerAck,
-        32 => EventCodes::NewBlock,
-        33 => EventCodes::PossibleBlock,
-        34 => EventCodes::ValidateHash,
-        35 => EventCodes::ValidatedHash,
-        36 => EventCodes::FoundBlock,
+        32 => EventCodes::DataForBlock,
+        33 => EventCodes::NewBlock,
+        34 => EventCodes::PossibleBlock,
+        35 => EventCodes::ValidateHash,
+        36 => EventCodes::ValidatedHash,
+        37 => EventCodes::FoundBlock,
         _ => EventCodes::NotAValidEvent,
     }
 }
@@ -131,11 +136,12 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::RegisterHolePuncherAck => 17,
         EventCodes::RegisterPeer => 18,
         EventCodes::RegisterPeerAck => 19,
-        EventCodes::NewBlock => 32,
-        EventCodes::PossibleBlock => 33,
-        EventCodes::ValidateHash => 34,
-        EventCodes::ValidatedHash => 35,
-        EventCodes::FoundBlock => 36,
+        EventCodes::DataForBlock => 32,
+        EventCodes::NewBlock => 33,
+        EventCodes::PossibleBlock => 34,
+        EventCodes::ValidateHash => 35,
+        EventCodes::ValidatedHash => 36,
+        EventCodes::FoundBlock => 37,
         EventCodes::NotAValidEvent => 255,
     }
 }

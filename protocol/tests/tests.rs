@@ -9,6 +9,26 @@ use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::*;
 
 quickcheck! {
+    fn test_data_for_block(content: String) -> bool {
+        let content = content;
+
+        let payload = DataForBlockPayload {
+            content: content.clone()
+        };
+
+        let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
+            .set_event_code(EventCodes::FoundBlock)
+            .set_status_code(StatusCodes::Ok)
+            .set_payload(payload)
+            .build();
+
+        let blockchain_parsed = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        assert_eq!(content, blockchain_parsed.payload.content);
+        true
+    }
+}
+
+quickcheck! {
     fn test_found_block(index: u64, timestamp: i64, nonce: u64, hash: String, prev: String, content: String) -> bool {
         let index = index;
         let timestamp = timestamp;

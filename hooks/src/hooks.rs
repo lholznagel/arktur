@@ -35,6 +35,10 @@ use std::net::UdpSocket;
 ///         // handle hook
 ///     }
 ///
+///     fn on_data_for_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {
+///         // handle hook
+///     }
+///
 ///     fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {
 ///         // handle hook
 ///     }
@@ -121,8 +125,18 @@ pub trait Hooks {
     /// - `source` - source address, that send this message
     fn on_register_peer_ack(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String);
 
-    /// Executed on a `NEW_BLOCK` event
+    /// Executed on a `DATA_FOR_BLOCK` event
     /// Code: 32
+    ///
+    /// # Parameters
+    ///
+    /// - `udp` - Open udp connection to send an answer
+    /// - `message` - Raw message. Needs to be parsed, before usage
+    /// - `source` - source address, that send this message
+    fn on_data_for_block(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String);
+
+    /// Executed on a `NEW_BLOCK` event
+    /// Code: 33
     ///
     /// # Parameters
     ///
@@ -132,7 +146,7 @@ pub trait Hooks {
     fn on_new_block(&self, udp: &UdpSocket, message: Vec<u8>, source: String);
 
     /// Executed on a `POSSIBLE_BLOCK` event
-    /// Code: 33
+    /// Code: 34
     ///
     /// # Parameters
     ///
@@ -142,7 +156,7 @@ pub trait Hooks {
     fn on_possible_block(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String);
 
     /// Executed on a `VALIDATE_HASH` event
-    /// Code: 34
+    /// Code: 35
     ///
     /// # Parameters
     ///
@@ -152,7 +166,7 @@ pub trait Hooks {
     fn on_validate_hash(&self, udp: &UdpSocket, message: Vec<u8>, source: String);
 
     /// Executed on a `VALIDATED_HASH` event
-    /// Code: 35
+    /// Code: 36
     ///
     /// # Parameters
     ///
@@ -162,7 +176,7 @@ pub trait Hooks {
     fn on_validated_hash(&mut self, udp: &UdpSocket, message: Vec<u8>, source: String);
 
     /// Executed on a `FOUND_BLOCK` event
-    /// Code: 36
+    /// Code: 37
     ///
     /// # Parameters
     ///
