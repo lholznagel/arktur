@@ -29,6 +29,7 @@ impl HookNotification {
             EventCodes::RegisterHolePuncherAck => self.hook.on_register_hole_puncher_ack(udp, payload_buffer, source),
             EventCodes::RegisterPeer => self.hook.on_register_peer(udp, payload_buffer, source),
             EventCodes::RegisterPeerAck => self.hook.on_register_peer_ack(udp, payload_buffer, source),
+            EventCodes::DataForBlock => self.hook.on_data_for_block(udp, payload_buffer, source),
             EventCodes::NewBlock => self.hook.on_new_block(udp, payload_buffer, source),
             EventCodes::PossibleBlock => self.hook.on_possible_block(udp, payload_buffer, source),
             EventCodes::ValidateHash => self.hook.on_validate_hash(udp, payload_buffer, source),

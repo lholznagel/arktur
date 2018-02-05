@@ -52,6 +52,7 @@ dependencies = [
  "blockchain_network 0.1.0",
  "blockchain_protocol 0.1.0",
  "clap 2.29.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

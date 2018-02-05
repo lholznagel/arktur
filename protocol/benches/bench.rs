@@ -15,6 +15,7 @@ use test::Bencher;
 fn bench_data_for_block(b: &mut Bencher) {
     b.iter(|| {
         let payload = DataForBlockPayload {
+            unique_key: String::from("asdafhgr"),
             content: String::from("asdasdasfagewg")
         };
 

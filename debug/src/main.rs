@@ -7,9 +7,11 @@ extern crate blockchain_logging;
 extern crate blockchain_network;
 extern crate blockchain_protocol;
 extern crate clap;
+extern crate rand;
 
 use clap::{App, Arg, SubCommand};
 
+mod block;
 mod explore;
 
 fn main() {
@@ -30,7 +32,28 @@ fn main() {
             .long("puncher_port")
             .default_value("50000"))
         .subcommand(SubCommand::with_name("explore")
-            .about("Checks if all peers know each other."))
+            .about("Explores the p2p network."))
+        .subcommand(SubCommand::with_name("block")
+            .about("Everything for blocks.")
+            .arg(Arg::with_name("PEER_IP")
+                .value_name("ip")
+                .help("Sets the IP to a peer")
+                .takes_value(true)
+                .long("peer_ip")
+                .default_value("0.0.0.0"))
+            .arg(Arg::with_name("PEER_PORT")
+                .value_name("port")
+                .help("Sets the port to a peer.")
+                .takes_value(true)
+                .short("p")
+                .long("peer_port")
+                .required(true))
+            .arg(Arg::with_name("MESSAGE")
+                .value_name("message")
+                .help("Message to send.")
+                .takes_value(true)
+                .short("m")
+                .long("message")))
         .get_matches();
 
     let mut hole_puncher = String::from("");
@@ -40,6 +63,7 @@ fn main() {
 
     match matches.subcommand() {
         ("explore", Some(sub_matches)) => explore::execute(hole_puncher, sub_matches),
+        ("block", Some(sub_matches)) => block::execute(sub_matches),
         (_, _) => error!("Nothing to do")
     };
 }
