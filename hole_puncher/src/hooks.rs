@@ -19,6 +19,7 @@ impl HookHandler {
 
 impl Hooks for HookHandler {
     fn on_register_hole_puncher(&mut self, udp: &UdpSocket, _: Vec<u8>, source: String) {
+        event!("New peer: {}", source);
         if self.peers.is_empty() {
             sending!("ACK_REGISTER | NO_PEER");
             let answer = BlockchainProtocol::new()

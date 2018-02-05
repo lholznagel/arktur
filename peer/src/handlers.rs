@@ -6,11 +6,12 @@ use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPaylo
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
+use std::collections::HashMap;
 use std::net::UdpSocket;
 
 /// Contains all hooks that the peer listens to
 pub struct HookHandler {
-    next_block: Vec<String>,
+    next_block: HashMap<String, String>,
     peers: Vec<String>
 }
 
@@ -18,7 +19,7 @@ impl HookHandler {
     /// Creates a new empty instance of HookHandler
     pub fn new() -> Self {
         Self {
-            next_block: Vec::new(),
+            next_block: HashMap::new(),
             peers: Vec::new()
         }
     }
@@ -110,8 +111,10 @@ impl Hooks for HookHandler {
         let message = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
         event!("DATA_FOR_BLOCK {:?}", message);
 
-        if !self.next_block.contains(&message.payload.content) {
-            self.next_block.push(message.payload.content);
+        debug!("{}", self.next_block.contains_key(&message.payload.unique_key));
+        if !self.next_block.contains_key(&message.payload.unique_key) {
+            self.next_block.insert(message.payload.unique_key, message.payload.content);
+            info!("Added new message.");
 
             for peer in &self.peers {
                 udp.send_to(&payload_buffer, peer).expect("Sending should be successful");
