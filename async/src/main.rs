@@ -1,57 +1,61 @@
-
 #![deny(deprecated)]
-extern crate futures;
 extern crate futures_cpupool;
 
-use futures::Future;
 use futures_cpupool::CpuPool;
 
-use std::time::Duration;
+use std::net::UdpSocket;
+use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Duration;
 
-fn is_prime() -> bool {
-    println!("Start sleep");
-    thread::sleep(Duration::from_secs(60));
-    true
+#[derive(Debug)]
+struct GlobalState {
+    counter: u8,
+    content: String
 }
 
-fn is_prime_short() -> bool {
+fn long_running_task() -> bool {
     println!("Start sleep");
-    thread::sleep(Duration::from_secs(10));
+    thread::sleep(Duration::from_secs(2));
     true
 }
 
 fn main() {
-    // set up a thread pool
+    let data = Arc::new(Mutex::new(GlobalState { counter: 0, content: String::from("") }));
+
+    // set up everything for threading
     let pool = CpuPool::new_num_cpus();
 
-    // spawn our computation, getting back a *future* of the answer
-    let prime_future = pool.spawn_fn(|| {
-        let prime = is_prime();
+    let mut threads = Vec::new();
 
-        // For reasons we'll see later, we need to return a Result here
-        let res: Result<bool, ()> = Ok(prime);
-        res
-    });
+    // setup udp
+    let socket = UdpSocket::bind("127.0.0.1:13337").unwrap();
+    
+    loop {
+        let mut buffer = [0; 1024];
 
-    println!("Created the future");
+        match socket.recv_from(&mut buffer) {
+            Ok((bytes, _)) => {
+                println!("{}", bytes);
+                let counter = Arc::clone(&data);
+                let prime = pool.spawn_fn((move || {
+                    println!("Start");
+                    long_running_task();
 
-    let mut primes = vec![];
-    for i in 0..10 {
-        println!("{}", i);
-        let prime = pool.spawn_fn((|| {
-            is_prime_short();
-            let res: Result<bool, ()> = Ok(true);
-            println!("Done");
-            res
-        }));
-        primes.push(prime);
-    }
+                    {
+                        let mut state = counter.lock().unwrap();
+                        state.counter += 1;
+                        state.content = String::from("Hello, its me");
+                    }
 
-    //let prime_future = futures::future::ok::<bool, ()>(true);
-    if prime_future.wait().unwrap() {
-        println!("Prime");
-    } else {
-        println!("Not prime");
+                    let res: Result<bool, ()> = Ok(true);
+                    println!("Done");
+                    res
+                }));
+                threads.push(prime);
+                println!("{:?}", data)
+            },
+            Err(e) => println!("Error {:?}", e)
+        };
     }
 }
