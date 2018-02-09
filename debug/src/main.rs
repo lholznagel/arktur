@@ -4,7 +4,6 @@
 extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
-extern crate blockchain_network;
 extern crate blockchain_protocol;
 extern crate clap;
 extern crate rand;

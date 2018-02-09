@@ -54,30 +54,41 @@
 extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
-extern crate blockchain_network;
 extern crate blockchain_protocol;
 
 mod hooks;
 
-use blockchain_hooks::HookRegister;
-use blockchain_network::udp_client::UdpClientBuilder;
+use blockchain_hooks::{as_enum, HookRegister};
 
-const UDP_PORT: u16 = 50000;
+use std::net::UdpSocket;
 
 fn main() {
-    info!("Starting hole puncher on port {}", UDP_PORT);
+    info!("Starting hole puncher on port 50000");
     connect();
 }
 
 fn connect() {
     let hook_handler = hooks::HookHandler::new();
-
-    let hook_notification = HookRegister::new()
+    let mut hook_notification = HookRegister::new()
         .set_hook(hook_handler)
         .get_notification();
 
-    UdpClientBuilder::new()
-        .set_port(UDP_PORT)
-        .build(hook_notification)
-        .listen();
+    let socket = UdpSocket::bind("0.0.0.0:50000").expect("Binding an UdpSocket should be successful.");
+
+    loop {
+        let mut buffer = [0; 65535];
+
+        match socket.recv_from(&mut buffer) {
+            Ok((bytes, source)) => {
+                let mut updated_buffer = Vec::new();
+                for i in 0..bytes {
+                    updated_buffer.push(buffer[i])
+                }
+
+                let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
+                hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
+            }
+            Err(e) => println!("Error: {:?}", e),
+        }
+    }
 }
