@@ -26,7 +26,7 @@ impl HookHandlers {
         }
     }
 
-    /*fn send_genesis(&mut self, udp: &UdpSocket) {
+    /*fn send_genesis(&mut self, udp: UdpSocket) {
         let payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
         self.last_block_time = payload.timestamp;
         self.validation_in_progress = false;
@@ -44,7 +44,7 @@ impl HookHandlers {
         }
     }*/
 
-    fn send_next_block(&mut self, udp: &UdpSocket) {
+    fn send_next_block(&mut self, udp: UdpSocket) {
         let payload = NewBlockPayload::block(self.current_block.index + 1, self.current_block.hash.clone());
         self.last_block_time = payload.timestamp;
         self.validation_in_progress = false;
@@ -110,7 +110,7 @@ impl Hooks for HookHandlers {
     /// - The connection between both networks should be good to go
     ///
     /// Handles a new peer
-    fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {
+    fn on_register_hole_puncher(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {
         /*let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         
@@ -149,7 +149,7 @@ impl Hooks for HookHandlers {
         udp.send_to(&answer, source).expect("Sending a response should be successful");*/
     }
 
-    fn on_possible_block(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
+    fn on_possible_block(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         self.current_block = message.payload.clone();
@@ -181,7 +181,7 @@ impl Hooks for HookHandlers {
         }
     }
 
-    fn on_validated_hash(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, _: String) {
+    fn on_validated_hash(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, _: String) {
         let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&payload_buffer);
         let message = message.unwrap();
         event!("VALIDATED_HASH | {:?}", message);
@@ -235,21 +235,21 @@ impl Hooks for HookHandlers {
             loop {
                 // for now every 2 minutes
                 if get_time().sec - self.last_block_time >= 120 {
-                    self.send_next_block(&udp);
+                    self.send_next_block(udp);
                     break;
                 }
             }
         }
     }
 
-    fn on_ping(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_pong(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_hole_puncher_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_data_for_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validate_hash(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_explore_network(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_ping(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_pong(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_data_for_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_new_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_validate_hash(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_found_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_explore_network(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
 }

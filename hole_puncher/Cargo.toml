@@ -6,5 +6,4 @@ authors = ["lholznagel <github@lholznagel.info>"]
 [dependencies]
 blockchain_hooks = { path = "../hooks" }
 blockchain_logging = { path = "../logging" }
-blockchain_network = { path = "../network" }
 blockchain_protocol = { path = "../protocol" }

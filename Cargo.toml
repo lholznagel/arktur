@@ -5,13 +5,11 @@ panic = 'abort'
 [workspace]
 members = [
   "async",
-  "connection_manager",
   "debug",
   "hooks",
   "file",
   "hole_puncher",
   "logging",
-  "network",
   "peer",
   "protocol"
 ]

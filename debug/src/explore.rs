@@ -1,5 +1,4 @@
-use blockchain_hooks::{EventCodes, Hooks, HookRegister};
-use blockchain_network::udp_client::UdpClientBuilder;
+use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::ExploreNetworkPayload;
@@ -11,20 +10,34 @@ use std::net::{UdpSocket, SocketAddr};
 use std::process::exit;
 
 pub fn execute(hole_puncher: String, _: &ArgMatches) {
-    let hook_notification = HookRegister::new()
+    let mut hook_notification = HookRegister::new()
         .set_hook(ExploreHandler::new())
         .get_notification();
 
-    let udp_client = UdpClientBuilder::new().build(hook_notification);
-
     let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-            .set_event_code(EventCodes::ExploreNetwork)
-            .set_status_code(StatusCodes::Ok)
-            .build();
+        .set_event_code(EventCodes::ExploreNetwork)
+        .set_status_code(StatusCodes::Ok)
+        .build();
 
-    udp_client.udp.send_to(&request, hole_puncher.parse::<SocketAddr>().unwrap()).expect("Sending a request should be successful");
+    let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
+    socket.send_to(&request, hole_puncher).expect("Sending a request should be successful");
 
-    udp_client.listen();
+    loop {
+        let mut buffer = [0; 65535];
+
+        match socket.recv_from(&mut buffer) {
+            Ok((bytes, source)) => {
+                let mut updated_buffer = Vec::new();
+                for i in 0..bytes {
+                    updated_buffer.push(buffer[i])
+                }
+
+                let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
+                hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
+            }
+            Err(e) => println!("Error: {:?}", e),
+        }
+    }
 }
 
 /// Contains all hooks that the peer listens to
@@ -48,7 +61,7 @@ impl ExploreHandler {
 }
 
 impl Hooks for ExploreHandler {
-    fn on_explore_network(&mut self, udp: &UdpSocket, payload_buffer: Vec<u8>, source: String) {
+    fn on_explore_network(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, source: String) {
         let message = BlockchainProtocol::<ExploreNetworkPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
 
         if !self.peers.contains_key(&source) {
@@ -101,16 +114,16 @@ impl Hooks for ExploreHandler {
         }
     }
 
-    fn on_ping(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_pong(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_hole_puncher_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer_ack(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_data_for_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_new_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validate_hash(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_found_block(&self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_hole_puncher(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_possible_block(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validated_hash(&mut self, _: &UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_ping(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_pong(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_peer_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_data_for_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_new_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_validate_hash(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_found_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_possible_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_validated_hash(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
 }
