@@ -1,17 +1,20 @@
-use empty::Empty;
 use hooks::Hooks;
 use notification::HookNotification;
 
+use std::sync::{Arc, Mutex};
+
 /// Registers all events
-pub struct HookRegister {
-    hook: Box<Hooks>
+pub struct HookRegister<T> {
+    hook: Box<Hooks<T>>,
+    state: Arc<Mutex<T>>
 }
 
-impl HookRegister {
+impl<T> HookRegister<T> {
     /// Creates new empty handlers
-    pub fn new() -> Self {
+    pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>) -> Self {
         Self {
-            hook: Box::new(Empty)
+            hook,
+            state
         }
     }
 
@@ -20,12 +23,12 @@ impl HookRegister {
     /// # Parameters
     ///
     /// - `hook` - Struct that implements the `Hooks` trait
-    pub fn set_hook<H: Hooks + 'static>(mut self, hook: H) -> Self {
+    pub fn set_hook<H: Hooks<T> + 'static>(mut self, hook: H) -> Self {
         self.hook = Box::new(hook);
         self
     }
 
-    pub fn get_notification(self) -> HookNotification {
-        HookNotification::new(self.hook)
+    pub fn get_notification(self) -> HookNotification<T> {
+        HookNotification::new(self.hook, self.state)
     }
 }

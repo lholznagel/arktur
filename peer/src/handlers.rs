@@ -1,5 +1,5 @@
 use blockchain_file::blocks::Block;
-use blockchain_hooks::{EventCodes, Hooks};
+use blockchain_hooks::{ApplicationState, EventCodes, Hooks};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload};
@@ -7,16 +7,13 @@ use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPaylo
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 use std::collections::HashMap;
-use std::net::UdpSocket;
 
-/// Contains all hooks that the peer listens to
-pub struct HookHandler {
+pub struct StateHandler {
     next_block: HashMap<String, String>,
     peers: Vec<String>
 }
 
-impl HookHandler {
-    /// Creates a new empty instance of HookHandler
+impl StateHandler {
     pub fn new() -> Self {
         Self {
             next_block: HashMap::new(),
@@ -25,22 +22,25 @@ impl HookHandler {
     }
 }
 
-impl Hooks for HookHandler {
-    fn on_ping(&self, udp: UdpSocket, _: Vec<u8>, source: String) {
-        event!("PING from peer {:?}", source);
-        sending!("PONG to peer {:?}", source);
-        success!("Send PONG to {:?}", source);
+/// Contains all hooks that the peer listens to
+pub struct HookHandler;
+
+impl Hooks<StateHandler> for HookHandler {
+    fn on_ping(&self, state: ApplicationState<StateHandler>) {
+        event!("PING from peer {:?}", state.source);
+        sending!("PONG to peer {:?}", state.source);
         let answer = BlockchainProtocol::<PongPayload>::new().set_event_code(EventCodes::Pong).build();
-        udp.send_to(&answer, source).expect("Sending a response should be successful");
+        state.udp.send_to(&answer, state.source.clone()).expect("Sending a response should be successful");
+        success!("Send PONG to {:?}", state.source);
     }
 
-    fn on_pong(&self, _: UdpSocket, _: Vec<u8>, source: String) {
-        event!("PONG from peer {:?}", source);
+    fn on_pong(&self, state: ApplicationState<StateHandler>) {
+        event!("PONG from peer {:?}", state.source);
      }
 
-    fn on_register_hole_puncher_ack(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, _: String) {
-        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer);
-        let message = message.unwrap();
+    fn on_register_hole_puncher_ack(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&state.payload_buffer).unwrap();
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         event!("ACK_REGISTER {:?}", message);
 
         if message.status_code == StatusCodes::NoPeer {
@@ -50,55 +50,56 @@ impl Hooks for HookHandler {
 
             for address in message.payload.addresses {
                 let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
-                udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
+                state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
                 success!("Send REGISTER_PEER to {:?}", address);
 
-                if !self.peers.contains(&address) {
-                    self.peers.push(address);
+                if !state_lock.peers.contains(&address) {
+                    state_lock.peers.push(address);
                 }
             }
         }
      }
 
-     fn on_register_peer(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&payload_buffer);
-        let message = message.unwrap();
+     fn on_register_peer(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&state.payload_buffer).unwrap();
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         event!("ACK_REGISTER {:?}", message);
 
-        if self.peers.is_empty() {
+        if state_lock.peers.is_empty() {
             sending!("ACK_REGISTER | NO_PEER");
             let answer = BlockchainProtocol::new()
                 .set_event_code(EventCodes::RegisterPeerAck)
                 .set_status_code(StatusCodes::NoPeer)
                 .set_payload(RegisterAckPayload::new())
                 .build();
-            udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
+            state.udp.send_to(&answer, state.source.clone()).expect("Sending a response should be successful");
         } else {
             sending!("ACK_REGISTER | PEER");
             let answer = BlockchainProtocol::new()
                 .set_event_code(EventCodes::RegisterPeerAck)
                 .set_status_code(StatusCodes::Ok)
-                .set_payload(RegisterAckPayload::new().set_peers(self.peers.clone()))
+                .set_payload(RegisterAckPayload::new().set_peers(state_lock.peers.clone()))
                 .build();
-            udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
+            state.udp.send_to(&answer, state.source.clone()).expect("Sending a response should be successful");
         }
 
-        self.peers.push(source);
-        debug!("REGISTER: {}", self.peers.len());
+        state_lock.peers.push(state.source);
+        debug!("REGISTER: {}", state_lock.peers.len());
      }
 
-     fn on_register_peer_ack(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, _: String) {
-        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
+     fn on_register_peer_ack(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         event!("ACK_REGISTER {:?}", message);
 
         if message.status_code == StatusCodes::NoPeer {
             info!("No peer from other peer");
         } else {
             for address in message.payload.addresses {
-                if !self.peers.contains(&address) {
+                if !state_lock.peers.contains(&address) {
                     let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
-                    udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
-                    self.peers.push(address.clone());
+                    state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
+                    state_lock.peers.push(address.clone());
                     success!("Send REGISTER_PEER to {:?}", address);
                 } else {
                     debug!("Peer already known");
@@ -107,23 +108,25 @@ impl Hooks for HookHandler {
         }
      }
 
-    fn on_data_for_block(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, _: String) {
-        let message = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
+    fn on_data_for_block(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
         event!("DATA_FOR_BLOCK {:?}", message);
 
-        debug!("{}", self.next_block.contains_key(&message.payload.unique_key));
-        if !self.next_block.contains_key(&message.payload.unique_key) {
-            self.next_block.insert(message.payload.unique_key, message.payload.content);
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+
+        debug!("{}", state_lock.next_block.contains_key(&message.payload.unique_key));
+        if !state_lock.next_block.contains_key(&message.payload.unique_key) {
+            state_lock.next_block.insert(message.payload.unique_key, message.payload.content);
             info!("Added new message.");
 
-            for peer in &self.peers {
-                udp.send_to(&payload_buffer, peer).expect("Sending should be successful");
+            for peer in &state_lock.peers {
+                state.udp.send_to(&state.payload_buffer, peer).expect("Sending should be successful");
             }
         }
     }
 
-    fn on_new_block(&self, udp: UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&payload_buffer).unwrap();
+    fn on_new_block(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&state.payload_buffer).unwrap();
         event!("NEW_BLOCK {:?}", message.payload);
     
         let hash;
@@ -150,20 +153,23 @@ impl Hooks for HookHandler {
         }
 
         debug!("Found hash! {:?}", hash);
-        let mut answer = BlockchainProtocol::<PossibleBlockPayload>::new().set_event_code(EventCodes::PossibleBlock);
-        answer.payload.content = message.payload.content;
-        answer.payload.timestamp = message.payload.timestamp;
-        answer.payload.index = message.payload.index;
-        answer.payload.prev = message.payload.prev;
-        answer.payload.nonce = nonce;
-        answer.payload.hash = hash;
+        let answer = BlockchainProtocol::<PossibleBlockPayload>::new()
+            .set_event_code(EventCodes::PossibleBlock)
+            .set_payload(PossibleBlockPayload {
+                content: message.payload.content,
+                timestamp: message.payload.timestamp,
+                index: message.payload.index,
+                prev: message.payload.prev,
+                nonce: nonce,
+                hash: hash
+            });
         sending!("POSSIBLE_BLOCK | {:?}", answer.payload);
         success!("Send block back.");
-        udp.send_to(&answer.build(), source).expect("Sending a response should be successful");
+        state.udp.send_to(&answer.build(), state.source).expect("Sending a response should be successful");
     }
 
-    fn on_validate_hash(&self, udp: UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&payload_buffer);
+    fn on_validate_hash(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&state.payload_buffer);
         let message = message.unwrap();
         event!("VALIDATE_HASH {:?}", message.payload);
 
@@ -180,11 +186,11 @@ impl Hooks for HookHandler {
         let mut answer = BlockchainProtocol::<ValidatedHashPayload>::new().set_event_code(EventCodes::ValidatedHash);
         answer.payload.index = message.payload.index;
         answer.payload.hash = hasher.result_str();
-        udp.send_to(&answer.build(), source).expect("Sending a response should be successful");
+        state.udp.send_to(&answer.build(), state.source).expect("Sending a response should be successful");
     }
 
-    fn on_found_block(&self, _: UdpSocket, payload_buffer: Vec<u8>, _: String) {
-        let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&payload_buffer);
+    fn on_found_block(&self, state: ApplicationState<StateHandler>) {
+        let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer);
         let message = message.unwrap();
         event!("FOUND_BLOCK {:?}", message.payload);
 
@@ -199,17 +205,19 @@ impl Hooks for HookHandler {
         block.save();
     }
 
-    fn on_explore_network(&mut self, udp: UdpSocket, _: Vec<u8>, source: String) {
+    fn on_explore_network(&self, state: ApplicationState<StateHandler>) {
         debug!("Sending peers to debugger");
+        let state_lock = state.state.lock().expect("Locking should be successful");
+
         let answer = BlockchainProtocol::new()
             .set_event_code(EventCodes::ExploreNetwork)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(ExploreNetworkPayload::new().set_peers(self.peers.clone()))
+            .set_payload(ExploreNetworkPayload::new().set_peers(state_lock.peers.clone()))
             .build();
-        udp.send_to(&answer, source.clone()).expect("Sending a response should be successful");
+        state.udp.send_to(&answer, state.source).expect("Sending a response should be successful");
     }
 
-    fn on_register_hole_puncher(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_possible_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validated_hash(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_register_hole_puncher(&self, _: ApplicationState<StateHandler>) {}
+    fn on_possible_block(&self, _: ApplicationState<StateHandler>) {}
+    fn on_validated_hash(&self, _: ApplicationState<StateHandler>) {}
 }

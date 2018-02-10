@@ -20,9 +20,10 @@ use blockchain_protocol::enums::status::StatusCodes;
 use clap::{Arg, App};
 
 use std::net::UdpSocket;
+use std::sync::{Arc, Mutex};
 
 /// Contains all handlers the peer listens to
-pub mod handlers;
+mod handlers;
 
 fn main() {
     let matches = App::new("Blockchain network cli")
@@ -54,9 +55,8 @@ fn main() {
 /// Builds up a UDP connection with the connection manager
 fn connect(hole_puncher: String) {
     info!("Hole puncher: {:?}", hole_puncher);
-
-    let mut hook_notification = HookRegister::new()
-        .set_hook(handlers::HookHandler::new())
+    let state_handler = handlers::StateHandler::new();
+    let mut hook_notification = HookRegister::new(Box::new(handlers::HookHandler), Arc::new(Mutex::new(state_handler)))
         .get_notification();
 
     let request = BlockchainProtocol::<RegisterPayload>::new()

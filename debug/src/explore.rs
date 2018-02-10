@@ -1,4 +1,4 @@
-use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
+use blockchain_hooks::{ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::ExploreNetworkPayload;
@@ -7,11 +7,11 @@ use clap::ArgMatches;
 
 use std::collections::HashMap;
 use std::net::{UdpSocket, SocketAddr};
+use std::sync::{Arc, Mutex};
 use std::process::exit;
 
 pub fn execute(hole_puncher: String, _: &ArgMatches) {
-    let mut hook_notification = HookRegister::new()
-        .set_hook(ExploreHandler::new())
+    let mut hook_notification = HookRegister::new(Box::new(ExploreHandler), Arc::new(Mutex::new(ExploreState::new())))
         .get_notification();
 
     let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
@@ -40,15 +40,14 @@ pub fn execute(hole_puncher: String, _: &ArgMatches) {
     }
 }
 
-/// Contains all hooks that the peer listens to
-pub struct ExploreHandler {
+pub struct ExploreState {
     is_first_run: bool,
     peers: HashMap<String, Vec<String>>,
     peers_to_check: Vec<String>,
     repeats: u8
 }
 
-impl ExploreHandler {
+impl ExploreState {
     /// Creates a new empty instance of ExploreHandler
     pub fn new() -> Self {
         Self {
@@ -60,16 +59,20 @@ impl ExploreHandler {
     }
 }
 
-impl Hooks for ExploreHandler {
-    fn on_explore_network(&mut self, udp: UdpSocket, payload_buffer: Vec<u8>, source: String) {
-        let message = BlockchainProtocol::<ExploreNetworkPayload>::from_bytes(&payload_buffer).expect("Parsing should be successful");
+/// Contains all hooks that the peer listens to
+pub struct ExploreHandler;
 
-        if !self.peers.contains_key(&source) {
-            if self.is_first_run {
-                self.is_first_run = false;
-                self.peers_to_check = message.payload.addresses.clone();
+impl Hooks<ExploreState> for ExploreHandler {
+    fn on_explore_network(&self, state: ApplicationState<ExploreState>) {
+        let message = BlockchainProtocol::<ExploreNetworkPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+
+        if !state_lock.peers.contains_key(&state.source) {
+            if state_lock.is_first_run {
+                state_lock.is_first_run = false;
+                state_lock.peers_to_check = message.payload.addresses.clone();
             } else {
-                self.peers.insert(source, message.payload.addresses.clone());
+                state_lock.peers.insert(state.source, message.payload.addresses.clone());
             }
 
             for address in message.payload.addresses {
@@ -78,27 +81,27 @@ impl Hooks for ExploreHandler {
                     .set_status_code(StatusCodes::Ok)
                     .build();
 
-                if !address.is_empty() && !self.peers.contains_key(&address) {
-                    udp.send_to(&request, address.parse::<SocketAddr>().unwrap()).expect("Sending a request should be successful");
+                if !address.is_empty() && !state_lock.peers.contains_key(&address) {
+                    state.udp.send_to(&request, address.parse::<SocketAddr>().unwrap()).expect("Sending a request should be successful");
                 }
             }
         } else {
-            self.repeats += 1;
+            state_lock.repeats += 1;
 
-            if self.repeats == self.peers_to_check.len() as u8 {
+            if state_lock.repeats == state_lock.peers_to_check.len() as u8 {
                 let mut excluded = 0;
                 let mut success = 0;
                 let mut fail = 0;
 
-                for address in &self.peers_to_check {
-                    if !self.peers.contains_key(address) {
+                for address in &state_lock.peers_to_check {
+                    if !state_lock.peers.contains_key(address) {
                         error!("No response from {}. Excluding", address);
                         excluded += 1;
                     }
                 }
 
-                for (address, value) in &self.peers {
-                    if self.peers.len() - 1 == value.len() - excluded {
+                for (address, value) in &state_lock.peers {
+                    if state_lock.peers.len() - 1 == value.len() - excluded {
                         success!("Peer {} knows all peers", address);
                         success += 1;
                     } else {
@@ -114,16 +117,16 @@ impl Hooks for ExploreHandler {
         }
     }
 
-    fn on_ping(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_pong(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_hole_puncher_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_peer_ack(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_data_for_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_new_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validate_hash(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_found_block(&self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_register_hole_puncher(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_possible_block(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
-    fn on_validated_hash(&mut self, _: UdpSocket, _: Vec<u8>, _: String) {}
+    fn on_ping(&self, _: ApplicationState<ExploreState>) {}
+    fn on_pong(&self, _: ApplicationState<ExploreState>) {}
+    fn on_register_hole_puncher_ack(&self, _: ApplicationState<ExploreState>) {}
+    fn on_register_peer(&self, _: ApplicationState<ExploreState>) {}
+    fn on_register_peer_ack(&self, _: ApplicationState<ExploreState>) {}
+    fn on_data_for_block(&self, _: ApplicationState<ExploreState>) {}
+    fn on_new_block(&self, _: ApplicationState<ExploreState>) {}
+    fn on_validate_hash(&self, _: ApplicationState<ExploreState>) {}
+    fn on_found_block(&self, _: ApplicationState<ExploreState>) {}
+    fn on_register_hole_puncher(&self, _: ApplicationState<ExploreState>) {}
+    fn on_possible_block(&self, _: ApplicationState<ExploreState>) {}
+    fn on_validated_hash(&self, _: ApplicationState<ExploreState>) {}
 }
