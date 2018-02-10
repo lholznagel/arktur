@@ -61,6 +61,7 @@ mod hooks;
 use blockchain_hooks::{as_enum, HookRegister};
 
 use std::net::UdpSocket;
+use std::sync::{Arc, Mutex};
 
 fn main() {
     info!("Starting hole puncher on port 50000");
@@ -68,9 +69,8 @@ fn main() {
 }
 
 fn connect() {
-    let hook_handler = hooks::HookHandler::new();
-    let mut hook_notification = HookRegister::new()
-        .set_hook(hook_handler)
+    let state_handler = hooks::StateHandler::new();
+    let mut hook_notification = HookRegister::new(Box::new(hooks::HookHandler), Arc::new(Mutex::new(state_handler)))
         .get_notification();
 
     let socket = UdpSocket::bind("0.0.0.0:50000").expect("Binding an UdpSocket should be successful.");
