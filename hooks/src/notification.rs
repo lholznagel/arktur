@@ -2,20 +2,25 @@ use event_codes::EventCodes;
 use hooks::Hooks;
 use state::ApplicationState;
 
-use std::sync::{Arc, Mutex};
+use futures_cpupool::{CpuFuture, CpuPool};
 
+use std::sync::{Arc, Mutex};
 use std::net::UdpSocket;
 
 pub struct HookNotification<T> {
-    hook: Box<Hooks<T>>,
-    state: Arc<Mutex<T>>
+    hook: Hooks<T>,
+    state: Arc<Mutex<T>>,
+    pool: CpuPool,
+    threads: Vec<CpuFuture<bool, ()>>
 }
 
-impl<T> HookNotification<T> {
-    pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>) -> Self {
+impl<T: 'static> HookNotification<T> where T: Send {
+    pub fn new(hook: Hooks<T>, state: Arc<Mutex<T>>) -> Self {
         Self {
             hook,
-            state
+            state,
+            pool: CpuPool::new_num_cpus(),
+            threads: Vec::new()
         }
     }
 
@@ -37,21 +42,35 @@ impl<T> HookNotification<T> {
             udp: udp_clone,
         };
 
-        match event {
-            EventCodes::Ping => self.hook.on_ping(state),
-            EventCodes::Pong => self.hook.on_pong(state),
-            EventCodes::RegisterHolePuncher => self.hook.on_register_hole_puncher(state),
-            EventCodes::RegisterHolePuncherAck => self.hook.on_register_hole_puncher_ack(state),
-            EventCodes::RegisterPeer => self.hook.on_register_peer(state),
-            EventCodes::RegisterPeerAck => self.hook.on_register_peer_ack(state),
-            EventCodes::DataForBlock => self.hook.on_data_for_block(state),
-            EventCodes::NewBlock => self.hook.on_new_block(state),
-            EventCodes::PossibleBlock => self.hook.on_possible_block(state),
-            EventCodes::ValidateHash => self.hook.on_validate_hash(state),
-            EventCodes::ValidatedHash => self.hook.on_validated_hash(state),
-            EventCodes::FoundBlock => self.hook.on_found_block(state),
-            EventCodes::ExploreNetwork => self.hook.on_explore_network(state),
-            EventCodes::NotAValidEvent => (),
+        let event_match = match event {
+            EventCodes::Ping => self.hook.on_ping,
+            EventCodes::Pong => self.hook.on_pong,
+            EventCodes::RegisterHolePuncher => self.hook.on_register_hole_puncher,
+            EventCodes::RegisterHolePuncherAck => self.hook.on_register_hole_puncher_ack,
+            EventCodes::RegisterPeer => self.hook.on_register_peer,
+            EventCodes::RegisterPeerAck => self.hook.on_register_peer_ack,
+            EventCodes::DataForBlock => self.hook.on_data_for_block,
+            EventCodes::NewBlock => self.hook.on_new_block,
+            EventCodes::PossibleBlock => self.hook.on_possible_block,
+            EventCodes::ValidateHash => self.hook.on_validate_hash,
+            EventCodes::ValidatedHash => self.hook.on_validated_hash,
+            EventCodes::FoundBlock => self.hook.on_found_block,
+            EventCodes::ExploreNetwork => self.hook.on_explore_network,
+            EventCodes::NotAValidEvent => None,
         };
+
+        let thread = self.pool.spawn_fn((move || {
+            match event_match {
+                Some(hook) => {
+                    (hook)(state);
+                },
+                None => ()
+            };
+
+            let res: Result<bool, ()> = Ok(true);
+            res
+        }));
+
+        self.threads.push(thread);
     }
 }
