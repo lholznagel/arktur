@@ -4,14 +4,15 @@ use notification::HookNotification;
 use std::sync::{Arc, Mutex};
 
 /// Registers all events
-pub struct HookRegister<T> {
-    hook: Box<Hooks<T>>,
+pub struct HookRegister<T> where T: Send {
+    hook: Hooks<T>,
     state: Arc<Mutex<T>>
 }
 
-impl<T> HookRegister<T> {
+impl<T: 'static> HookRegister<T> where T: Send {
     /// Creates new empty handlers
-    pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>) -> Self {
+    //pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>, ping: fn(ApplicationState<T>)) -> Self {
+    pub fn new(hook: Hooks<T>, state: Arc<Mutex<T>>) -> Self {
         Self {
             hook,
             state
@@ -23,8 +24,8 @@ impl<T> HookRegister<T> {
     /// # Parameters
     ///
     /// - `hook` - Struct that implements the `Hooks` trait
-    pub fn set_hook<H: Hooks<T> + 'static>(mut self, hook: H) -> Self {
-        self.hook = Box::new(hook);
+    pub fn set_hook(mut self, hook: Hooks<T>) -> Self {
+        self.hook = hook;
         self
     }
 

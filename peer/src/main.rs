@@ -12,7 +12,7 @@ extern crate blockchain_protocol;
 extern crate clap;
 extern crate crypto;
 
-use blockchain_hooks::{as_enum, EventCodes, HookRegister};
+use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::RegisterPayload;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -54,9 +54,22 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(hole_puncher: String) {
+    let hooks = Hooks::new()
+        .set_ping(handlers::on_ping)
+        .set_pong(handlers::on_pong)
+        .set_register_hole_puncher_ack(handlers::on_register_hole_puncher_ack)
+        .set_register_peer(handlers::on_register_peer)
+        .set_register_peer_ack(handlers::on_register_peer_ack)
+        .set_data_for_block(handlers::on_data_for_block)
+        .set_new_block(handlers::on_new_block)
+        .set_validate_hash(handlers::on_validate_hash)
+        .set_found_block(handlers::on_found_block)
+        .set_explore_network(handlers::on_explore_network);
+
     info!("Hole puncher: {:?}", hole_puncher);
     let state_handler = handlers::StateHandler::new();
-    let mut hook_notification = HookRegister::new(Box::new(handlers::HookHandler), Arc::new(Mutex::new(state_handler)))
+    //let mut hook_notification = HookRegister::new(Box::new(handlers::HookHandler), Arc::new(Mutex::new(state_handler)), ping)
+    let mut hook_notification = HookRegister::new(hooks, Arc::new(Mutex::new(state_handler)))
         .get_notification();
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
