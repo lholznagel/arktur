@@ -69,6 +69,12 @@ pub enum EventCodes {
     ///
     /// Code: 37
     FoundBlock,
+
+    /// Fired when a peer syncs his peers
+    ///
+    /// Code: 48
+    SyncPeers,
+
     /// Fired when the debugger explores the network
     ///
     /// Code: 240
@@ -113,6 +119,7 @@ pub fn as_enum(value: u8) -> EventCodes {
         35 => EventCodes::ValidateHash,
         36 => EventCodes::ValidatedHash,
         37 => EventCodes::FoundBlock,
+        48 => EventCodes::SyncPeers,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
@@ -148,6 +155,7 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::ValidateHash => 35,
         EventCodes::ValidatedHash => 36,
         EventCodes::FoundBlock => 37,
+        EventCodes::SyncPeers => 48,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }

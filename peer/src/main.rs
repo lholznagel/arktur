@@ -10,17 +10,20 @@ extern crate blockchain_hooks;
 extern crate blockchain_logging;
 extern crate blockchain_protocol;
 extern crate clap;
+extern crate futures_cpupool;
 extern crate crypto;
 
 use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::RegisterPayload;
+use blockchain_protocol::payload::{RegisterPayload, SyncPeersPayload, Payload};
 use blockchain_protocol::enums::status::StatusCodes;
 
 use clap::{Arg, App};
+use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::{thread, time};
 
 /// Contains all handlers the peer listens to
 mod handlers;
@@ -54,6 +57,9 @@ fn main() {
 
 /// Builds up a UDP connection with the connection manager
 fn connect(hole_puncher: String) {
+    let pool = CpuPool::new_num_cpus();
+    let mut threads = Vec::new();
+
     let hooks = Hooks::new()
         .set_ping(handlers::on_ping)
         .set_pong(handlers::on_pong)
@@ -64,12 +70,15 @@ fn connect(hole_puncher: String) {
         .set_new_block(handlers::on_new_block)
         .set_validate_hash(handlers::on_validate_hash)
         .set_found_block(handlers::on_found_block)
+        .set_sync_peers(handlers::on_sync_peers)
         .set_explore_network(handlers::on_explore_network);
 
-    info!("Hole puncher: {:?}", hole_puncher);
     let state_handler = handlers::StateHandler::new();
-    //let mut hook_notification = HookRegister::new(Box::new(handlers::HookHandler), Arc::new(Mutex::new(state_handler)), ping)
-    let mut hook_notification = HookRegister::new(hooks, Arc::new(Mutex::new(state_handler)))
+    let state = Arc::new(Mutex::new(state_handler));
+    let state_clone = Arc::clone(&state);
+
+    info!("Hole puncher: {:?}", hole_puncher);
+    let mut hook_notification = HookRegister::new(hooks, state)
         .get_notification();
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
@@ -79,6 +88,33 @@ fn connect(hole_puncher: String) {
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher).expect("Sending a request should be successful");
+
+    let udp_clone = socket.try_clone().expect("Cloning the UPD connection failed.");
+    #[allow(unreachable_code)]
+    let thread = pool.spawn_fn((move || {
+        loop {
+            // sync every 2 minutes
+            thread::sleep(time::Duration::from_secs(120));
+
+            {
+                let state_lock = state_clone.lock().unwrap();
+                for peer in state_lock.peers.clone() {
+                    let message = BlockchainProtocol::new()
+                        .set_event_code(EventCodes::SyncPeers)
+                        .set_status_code(StatusCodes::Ok)
+                        .set_payload(SyncPeersPayload::new().set_peers(state_lock.peers.clone()))
+                        .build();
+
+                    udp_clone.send_to(&message, peer).expect("Sending a UDP message should be successful");
+                }
+            }
+        }
+
+        let res: Result<bool, ()> = Ok(true);
+        res
+    }));
+
+    threads.push(thread);
 
     loop {
         let mut buffer = [0; 65535];

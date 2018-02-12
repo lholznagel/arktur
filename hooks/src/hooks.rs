@@ -31,7 +31,7 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub on_register_hole_puncher_ack: Option<fn(ApplicationState<T>)>,
-        /// Executed on a `REGISTER_PEER` event
+    /// Executed on a `REGISTER_PEER` event
     /// Code: 18
     ///
     /// # Parameters
@@ -90,6 +90,14 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub on_found_block: Option<fn(ApplicationState<T>)>,
 
+    /// Executed on a `SYNC_PEER` event
+    /// Code: 48
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub on_sync_peers: Option<fn(ApplicationState<T>)>,
+
     /// Executed on a `EXPLORE_NETWORK` event
     /// Code: 240
     ///
@@ -114,6 +122,7 @@ impl<T> Hooks<T> {
             on_validate_hash: None,
             on_validated_hash: None,
             on_found_block: None,
+            on_sync_peers: None,
             on_explore_network: None,
         }
     }
@@ -177,6 +186,12 @@ impl<T> Hooks<T> {
         self.on_found_block = Some(function);
         self
     }
+
+    pub fn set_sync_peers(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.on_sync_peers = Some(function);
+        self
+    }
+
 
     pub fn set_explore_network(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_explore_network = Some(function);
