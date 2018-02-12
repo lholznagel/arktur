@@ -186,3 +186,20 @@ fn bench_register(b: &mut Bencher) {
         BlockchainProtocol::<RegisterPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
+
+#[bench]
+fn bench_sync_peers(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = SyncPeersPayload {
+            peers: vec![String::from("geggwegwegwegweg"), String::from("sad"), String::from("sfgtgrekiuzhrged")]
+        };
+
+        let blockchain_protocol = BlockchainProtocol::<SyncPeersPayload>::new()
+            .set_event_code(EventCodes::SyncPeers)
+            .set_status_code(StatusCodes::Ok)
+            .set_payload(payload)
+            .build();
+
+        BlockchainProtocol::<SyncPeersPayload>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}

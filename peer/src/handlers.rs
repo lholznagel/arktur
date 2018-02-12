@@ -2,7 +2,7 @@ use blockchain_file::blocks::Block;
 use blockchain_hooks::{ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload};
+use blockchain_protocol::payload::{Payload, DataForBlockPayload, FoundBlockPayload, PongPayload, RegisterPayload, RegisterAckPayload, NewBlockPayload, PossibleBlockPayload, ValidateHashPayload, ValidatedHashPayload, ExploreNetworkPayload, SyncPeersPayload};
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
@@ -10,7 +10,8 @@ use std::collections::HashMap;
 
 pub struct StateHandler {
     next_block: HashMap<String, String>,
-    peers: Vec<String>
+    /// all peers this peer is connected to
+    pub peers: Vec<String>
 }
 
 impl StateHandler {
@@ -186,8 +187,7 @@ pub fn on_validate_hash(state: ApplicationState<StateHandler>) {
 }
 
 pub fn on_found_block(state: ApplicationState<StateHandler>) {
-    let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer);
-    let message = message.unwrap();
+    let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
     event!("FOUND_BLOCK {:?}", message.payload);
 
     Block::init();
@@ -211,4 +211,26 @@ pub fn on_explore_network(state: ApplicationState<StateHandler>) {
         .set_payload(ExploreNetworkPayload::new().set_peers(state_lock.peers.clone()))
         .build();
     state.udp.send_to(&answer, state.source).expect("Sending a response should be successful");
+}
+
+pub fn on_sync_peers(state: ApplicationState<StateHandler>) {
+    let message = BlockchainProtocol::<SyncPeersPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
+
+    {
+        let mut state_lock = state.state.lock().expect("Locking should be successful");
+
+        for new_peer in message.payload.peers {
+            let mut is_peer_known = false;
+
+            for peer in state_lock.peers.clone() {
+                if peer == new_peer {
+                    is_peer_known = true;
+                }
+            }
+
+            if !is_peer_known {
+                state_lock.peers.push(new_peer);
+            }
+        }
+    }
 }

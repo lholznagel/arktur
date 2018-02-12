@@ -3,6 +3,7 @@ mod block;
 mod debug;
 mod misc;
 mod register;
+mod sync;
 
 mod parser;
 mod payload;
@@ -26,3 +27,5 @@ pub use self::payload_builder::PayloadBuilder;
 
 pub use self::register::register::RegisterPayload;
 pub use self::register::register_ack::RegisterAckPayload;
+
+pub use self::sync::peers::SyncPeersPayload;
