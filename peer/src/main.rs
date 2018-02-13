@@ -10,12 +10,13 @@ extern crate blockchain_hooks;
 extern crate blockchain_logging;
 extern crate blockchain_protocol;
 extern crate clap;
-extern crate futures_cpupool;
 extern crate crypto;
+extern crate futures_cpupool;
+extern crate time;
 
 use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{RegisterPayload, SyncPeersPayload, Payload};
+use blockchain_protocol::payload::{NewBlockPayload, RegisterPayload, SyncPeersPayload, Payload};
 use blockchain_protocol::enums::status::StatusCodes;
 
 use clap::{Arg, App};
@@ -23,7 +24,7 @@ use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
-use std::{thread, time};
+use std::thread;
 
 /// Contains all handlers the peer listens to
 mod handlers;
@@ -75,7 +76,8 @@ fn connect(hole_puncher: String) {
 
     let state_handler = handlers::StateHandler::new();
     let state = Arc::new(Mutex::new(state_handler));
-    let state_clone = Arc::clone(&state);
+    let state_clone_peer = Arc::clone(&state);
+    let state_clone_block = Arc::clone(&state);    
 
     info!("Hole puncher: {:?}", hole_puncher);
     let mut hook_notification = HookRegister::new(hooks, state)
@@ -89,15 +91,15 @@ fn connect(hole_puncher: String) {
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher).expect("Sending a request should be successful");
 
-    let udp_clone = socket.try_clone().expect("Cloning the UPD connection failed.");
+    let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
     #[allow(unreachable_code)]
-    let thread = pool.spawn_fn((move || {
+    let peer_sync = pool.spawn_fn((move || {
         loop {
             // sync every 2 minutes
-            thread::sleep(time::Duration::from_secs(120));
+            thread::sleep_ms(120 * 1000);
 
             {
-                let state_lock = state_clone.lock().unwrap();
+                let state_lock = state_clone_peer.lock().unwrap();
                 for peer in state_lock.peers.clone() {
                     let message = BlockchainProtocol::new()
                         .set_event_code(EventCodes::SyncPeers)
@@ -105,7 +107,7 @@ fn connect(hole_puncher: String) {
                         .set_payload(SyncPeersPayload::new().set_peers(state_lock.peers.clone()))
                         .build();
 
-                    udp_clone.send_to(&message, peer).expect("Sending a UDP message should be successful");
+                    udp_clone_peer.send_to(&message, peer).expect("Sending a UDP message should be successful");
                 }
             }
         }
@@ -114,7 +116,48 @@ fn connect(hole_puncher: String) {
         res
     }));
 
-    threads.push(thread);
+    threads.push(peer_sync);
+
+    let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
+    #[allow(unreachable_code)]
+    let block = pool.spawn_fn((move || {
+        let mut block_send = false;
+        loop {
+            let current_time = time::now_utc();
+            println!("{} {}", current_time.tm_min, current_time.tm_sec);
+
+            if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
+                block_send = true;
+
+                {
+                    let state_lock = state_clone_block.lock().unwrap();
+                    // at least 3 peers are required
+                    if state_lock.peers.len() >= 2 {
+                        let payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
+
+                        let message = BlockchainProtocol::new()
+                            .set_event_code(EventCodes::NewBlock)
+                            .set_payload(payload)
+                            .build();
+
+                        for peer in state_lock.peers.clone() {
+                            udp_clone_block.send_to(message.as_slice(), peer).unwrap();
+                        }
+                    } else {
+                        error!("Not enough peers to create next block.");
+                    }
+                }
+            } else {
+                thread::sleep_ms(((60 - current_time.tm_sec) * 1000) as u32);
+                block_send = false;
+            }
+        }
+
+        let res: Result<bool, ()> = Ok(true);
+        res
+    }));
+
+    threads.push(block);
 
     loop {
         let mut buffer = [0; 65535];

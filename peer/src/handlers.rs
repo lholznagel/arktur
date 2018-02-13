@@ -11,14 +11,16 @@ use std::collections::HashMap;
 pub struct StateHandler {
     next_block: HashMap<String, String>,
     /// all peers this peer is connected to
-    pub peers: Vec<String>
+    pub peers: Vec<String>,
+    is_calculating: bool
 }
 
 impl StateHandler {
     pub fn new() -> Self {
         Self {
             next_block: HashMap::new(),
-            peers: Vec::new()
+            peers: Vec::new(),
+            is_calculating: false
         }
     }
 }
@@ -55,7 +57,7 @@ pub fn on_register_hole_puncher_ack(state: ApplicationState<StateHandler>) {
             }
         }
     }
-    }
+}
 
 pub fn on_register_peer(state: ApplicationState<StateHandler>) {
     let message = BlockchainProtocol::<RegisterPayload>::from_bytes(&state.payload_buffer).unwrap();
@@ -82,7 +84,7 @@ pub fn on_register_peer(state: ApplicationState<StateHandler>) {
 
     state_lock.peers.push(state.source);
     debug!("REGISTER: {}", state_lock.peers.len());
-    }
+}
 
 pub fn on_register_peer_ack(state: ApplicationState<StateHandler>) {
     let message = BlockchainProtocol::<RegisterAckPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
@@ -124,7 +126,15 @@ pub fn on_data_for_block(state: ApplicationState<StateHandler>) {
 
 pub fn on_new_block(state: ApplicationState<StateHandler>) {
     let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&state.payload_buffer).unwrap();
-    event!("NEW_BLOCK {:?}", message.payload);
+    {
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        if state_lock.is_calculating {
+            return;
+        } else {
+            event!("NEW_BLOCK {:?}", message.payload);
+            state_lock.is_calculating = true;
+        }
+    }
 
     let hash;
     let mut nonce = 0;
@@ -149,6 +159,11 @@ pub fn on_new_block(state: ApplicationState<StateHandler>) {
         }
     }
 
+    {
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.is_calculating = false;
+    }
+
     debug!("Found hash! {:?}", hash);
     let answer = BlockchainProtocol::<PossibleBlockPayload>::new()
         .set_event_code(EventCodes::PossibleBlock)
@@ -160,6 +175,7 @@ pub fn on_new_block(state: ApplicationState<StateHandler>) {
             nonce: nonce,
             hash: hash
         });
+
     sending!("POSSIBLE_BLOCK | {:?}", answer.payload);
     success!("Send block back.");
     state.udp.send_to(&answer.build(), state.source).expect("Sending a response should be successful");
