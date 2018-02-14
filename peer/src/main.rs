@@ -72,12 +72,14 @@ fn connect(hole_puncher: String) {
         .set_validate_hash(handlers::on_validate_hash)
         .set_found_block(handlers::on_found_block)
         .set_sync_peers(handlers::on_sync_peers)
-        .set_explore_network(handlers::on_explore_network);
+        .set_explore_network(handlers::on_explore_network)
+        .set_possible_block(handlers::on_possible_block)
+        .set_validated_hash(handlers::on_validated_hash);
 
     let state_handler = handlers::StateHandler::new();
     let state = Arc::new(Mutex::new(state_handler));
     let state_clone_peer = Arc::clone(&state);
-    let state_clone_block = Arc::clone(&state);    
+    let state_clone_block = Arc::clone(&state);
 
     info!("Hole puncher: {:?}", hole_puncher);
     let mut hook_notification = HookRegister::new(hooks, state)
@@ -89,7 +91,7 @@ fn connect(hole_puncher: String) {
         .build();
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
-    socket.send_to(request.as_slice(), hole_puncher).expect("Sending a request should be successful");
+    socket.send_to(request.as_slice(), hole_puncher).expect("Sending a request should be successful.");
 
     let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
     #[allow(unreachable_code)]
