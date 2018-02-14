@@ -9,17 +9,21 @@ use crypto::sha3::Sha3;
 use std::collections::HashMap;
 
 pub struct StateHandler {
+    current_block: FoundBlockPayload,
     next_block: HashMap<String, String>,
     /// all peers this peer is connected to
     pub peers: Vec<String>,
+    hashes: Vec<String>,
     is_calculating: bool
 }
 
 impl StateHandler {
     pub fn new() -> Self {
         Self {
+            current_block: FoundBlockPayload::new(),
             next_block: HashMap::new(),
             peers: Vec::new(),
+            hashes: Vec::new(),
             is_calculating: false
         }
     }
@@ -162,10 +166,18 @@ pub fn on_new_block(state: ApplicationState<StateHandler>) {
     {
         let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         state_lock.is_calculating = false;
+        state_lock.current_block = FoundBlockPayload {
+            content: message.payload.content.clone(),
+            timestamp: message.payload.timestamp.clone(),
+            index: message.payload.index.clone(),
+            prev: message.payload.prev.clone(),
+            nonce: nonce.clone(),
+            hash: hash.clone()
+        }
     }
 
     debug!("Found hash! {:?}", hash);
-    let answer = BlockchainProtocol::<PossibleBlockPayload>::new()
+    let message = BlockchainProtocol::<PossibleBlockPayload>::new()
         .set_event_code(EventCodes::PossibleBlock)
         .set_payload(PossibleBlockPayload {
             content: message.payload.content,
@@ -174,16 +186,19 @@ pub fn on_new_block(state: ApplicationState<StateHandler>) {
             prev: message.payload.prev,
             nonce: nonce,
             hash: hash
-        });
+        })
+        .build();
 
-    sending!("POSSIBLE_BLOCK | {:?}", answer.payload);
     success!("Send block back.");
-    state.udp.send_to(&answer.build(), state.source).expect("Sending a response should be successful");
+    
+    let state_lock = state.state.lock().expect("Locking should be successful");
+    for peer in state_lock.peers.clone() {
+        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+    }
 }
 
 pub fn on_validate_hash(state: ApplicationState<StateHandler>) {
-    let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&state.payload_buffer);
-    let message = message.unwrap();
+    let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&state.payload_buffer).unwrap();
     event!("VALIDATE_HASH {:?}", message.payload);
 
     let mut generated_block = String::from("");
@@ -196,10 +211,15 @@ pub fn on_validate_hash(state: ApplicationState<StateHandler>) {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(generated_block.as_str());
 
-    let mut answer = BlockchainProtocol::<ValidatedHashPayload>::new().set_event_code(EventCodes::ValidatedHash);
-    answer.payload.index = message.payload.index;
-    answer.payload.hash = hasher.result_str();
-    state.udp.send_to(&answer.build(), state.source).expect("Sending a response should be successful");
+    let mut message = BlockchainProtocol::<ValidatedHashPayload>::new().set_event_code(EventCodes::ValidatedHash);
+    message.payload.index = message.payload.index;
+    message.payload.hash = hasher.result_str();
+    let message = message.build();
+
+    let state_lock = state.state.lock().expect("Locking should be successful");
+    for peer in state_lock.peers.clone() {
+        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+    }
 }
 
 pub fn on_found_block(state: ApplicationState<StateHandler>) {
@@ -247,6 +267,81 @@ pub fn on_sync_peers(state: ApplicationState<StateHandler>) {
             if !is_peer_known {
                 state_lock.peers.push(new_peer);
             }
+        }
+    }
+}
+
+pub fn on_possible_block(state: ApplicationState<StateHandler>) {
+    let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
+
+    event!("POSSIBLE_BLOCK | {:?}", message);
+
+    let payload = ValidateHashPayload {
+        content: message.payload.content,
+        index: message.payload.index,
+        nonce: message.payload.nonce,
+        prev: message.payload.prev,
+        timestamp: message.payload.timestamp
+    };
+
+    let message = BlockchainProtocol::new()
+        .set_event_code(EventCodes::ValidateHash)
+        .set_payload(payload)
+        .build();
+
+    let state_lock = state.state.lock().expect("Locking should be successful");
+    for peer in state_lock.peers.clone() {
+        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+    }
+}
+
+pub fn on_validated_hash(state: ApplicationState<StateHandler>) {
+    let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
+    let mut state_lock = state.state.lock().expect("Locking should be successful");
+    event!("VALIDATED_HASH | {:?}", message);
+
+    state_lock.hashes.push(message.payload.hash);
+
+    if state_lock.hashes.len() == state_lock.peers.len() {
+        let mut hashes = HashMap::new();
+
+        for hash in state_lock.hashes.clone() {
+            let updated_value = match hashes.get(&hash) {
+                Some(current_val)   => current_val + 1,
+                None                => 1
+            };
+
+            hashes.insert(hash, updated_value);
+        }
+
+        let mut result: (String, u64) = (String::from(""), 0);
+        for (key, value) in hashes {
+            if result.1 == 0 || value > result.1 {
+                result.0 = key;
+                result.1 = value;
+            }
+        }
+
+        state_lock.hashes = Vec::new();
+        debug!("Hash {} for block: {:?}", result.0, state_lock.current_block);
+
+        state_lock.current_block.hash = result.0;
+
+        let mut payload = FoundBlockPayload::new();
+        payload.content = state_lock.current_block.content.clone();
+        payload.index = state_lock.current_block.index;
+        payload.nonce = state_lock.current_block.nonce;
+        payload.prev = state_lock.current_block.prev.clone();
+        payload.timestamp = state_lock.current_block.timestamp;
+        payload.hash = state_lock.current_block.hash.clone();
+
+        let message = BlockchainProtocol::new()
+            .set_event_code(EventCodes::FoundBlock)
+            .set_payload(payload)
+            .build();
+
+        for peer in state_lock.peers.clone() {
+            state.udp.send_to(message.as_slice(), peer).unwrap();
         }
     }
 }
