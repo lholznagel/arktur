@@ -9,7 +9,8 @@ use crypto::sha3::Sha3;
 use std::collections::HashMap;
 
 pub struct StateHandler {
-    current_block: FoundBlockPayload,
+    /// Current generated block
+    pub current_block: FoundBlockPayload,
     next_block: HashMap<String, String>,
     /// all peers this peer is connected to
     pub peers: Vec<String>,

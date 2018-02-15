@@ -23,8 +23,10 @@ use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::fs::read_dir;
 
 /// Contains all handlers the peer listens to
 mod handlers;
@@ -128,6 +130,12 @@ fn connect(hole_puncher: String) {
             let current_time = time::now_utc();
             println!("{} {}", current_time.tm_min, current_time.tm_sec);
 
+            let paths = read_dir("./block_data");
+            let blocks_saved = match paths {
+                Ok(path) => path.count(),
+                Err(_) => 0
+            };
+
             if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
                 block_send = true;
 
@@ -135,7 +143,11 @@ fn connect(hole_puncher: String) {
                     let state_lock = state_clone_block.lock().unwrap();
                     // at least 3 peers are required
                     if state_lock.peers.len() >= 2 {
-                        let payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
+                        let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
+
+                        if blocks_saved > 0 {
+                            payload = NewBlockPayload::block(blocks_saved as u64, state_lock.current_block.hash.clone());
+                        }
 
                         let message = BlockchainProtocol::new()
                             .set_event_code(EventCodes::NewBlock)
