@@ -23,13 +23,13 @@ use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
-use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::fs::read_dir;
+use std::time as std_time;
 
-/// Contains all handlers the peer listens to
-mod handlers;
+/// Contains all hook implementations
+mod hooks;
 
 fn main() {
     let matches = App::new("Blockchain network cli")
@@ -64,21 +64,21 @@ fn connect(hole_puncher: String) {
     let mut threads = Vec::new();
 
     let hooks = Hooks::new()
-        .set_ping(handlers::on_ping)
-        .set_pong(handlers::on_pong)
-        .set_register_hole_puncher_ack(handlers::on_register_hole_puncher_ack)
-        .set_register_peer(handlers::on_register_peer)
-        .set_register_peer_ack(handlers::on_register_peer_ack)
-        .set_data_for_block(handlers::on_data_for_block)
-        .set_new_block(handlers::on_new_block)
-        .set_validate_hash(handlers::on_validate_hash)
-        .set_found_block(handlers::on_found_block)
-        .set_sync_peers(handlers::on_sync_peers)
-        .set_explore_network(handlers::on_explore_network)
-        .set_possible_block(handlers::on_possible_block)
-        .set_validated_hash(handlers::on_validated_hash);
+        .set_ping(hooks::on_ping)
+        .set_pong(hooks::on_pong)
+        .set_register_hole_puncher_ack(hooks::on_register_hole_puncher_ack)
+        .set_register_peer(hooks::on_register_peer)
+        .set_register_peer_ack(hooks::on_register_peer_ack)
+        .set_data_for_block(hooks::on_data_for_block)
+        .set_new_block(hooks::on_new_block)
+        .set_validate_hash(hooks::on_validate_hash)
+        .set_found_block(hooks::on_found_block)
+        .set_sync_peers(hooks::on_sync_peers)
+        .set_explore_network(hooks::on_explore_network)
+        .set_possible_block(hooks::on_possible_block)
+        .set_validated_hash(hooks::on_validated_hash);
 
-    let state_handler = handlers::StateHandler::new();
+    let state_handler = hooks::State::new();
     let state = Arc::new(Mutex::new(state_handler));
     let state_clone_peer = Arc::clone(&state);
     let state_clone_block = Arc::clone(&state);
@@ -100,7 +100,7 @@ fn connect(hole_puncher: String) {
     let peer_sync = pool.spawn_fn((move || {
         loop {
             // sync every 2 minutes
-            thread::sleep_ms(120 * 1000);
+            thread::sleep(std_time::Duration::from_secs(120));
 
             {
                 let state_lock = state_clone_peer.lock().unwrap();
@@ -162,7 +162,7 @@ fn connect(hole_puncher: String) {
                     }
                 }
             } else {
-                thread::sleep_ms(((60 - current_time.tm_sec) * 1000) as u32);
+                thread::sleep(std_time::Duration::from_secs((60 - current_time.tm_sec) as u64));
                 block_send = false;
             }
         }
