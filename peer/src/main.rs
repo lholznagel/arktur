@@ -22,10 +22,11 @@ use blockchain_protocol::enums::status::StatusCodes;
 use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
+use std::collections::HashMap;
+use std::fs::read_dir;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::fs::read_dir;
 use std::time as std_time;
 
 /// Contains all hook implementations
@@ -97,7 +98,7 @@ fn connect(hole_puncher: String) {
 
     let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
     #[allow(unreachable_code)]
-    let peer_sync = pool.spawn_fn((move || {
+    let peer_sync = pool.spawn_fn(move || {
         loop {
             // sync every 2 minutes
             thread::sleep(std_time::Duration::from_secs(120));
@@ -118,13 +119,13 @@ fn connect(hole_puncher: String) {
 
         let res: Result<bool, ()> = Ok(true);
         res
-    }));
+    });
 
     threads.push(peer_sync);
 
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
     #[allow(unreachable_code)]
-    let block = pool.spawn_fn((move || {
+    let block = pool.spawn_fn(move || {
         let mut block_send = false;
         loop {
             let current_time = time::now_utc();
@@ -140,13 +141,19 @@ fn connect(hole_puncher: String) {
                 block_send = true;
 
                 {
-                    let state_lock = state_clone_block.lock().unwrap();
+                    let mut state_lock = state_clone_block.lock().unwrap();
                     // at least 3 peers are required
                     if state_lock.peers.len() >= 2 {
-                        let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)));
+                        let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)), String::from(""));
 
                         if blocks_saved > 0 {
-                            payload = NewBlockPayload::block(blocks_saved as u64, state_lock.current_block.hash.clone());
+                            let mut next_block = String::from("");
+                            for (_, content) in &state_lock.next_block {
+                                next_block.push_str(&content);
+                            }
+                            state_lock.next_block = HashMap::new();
+
+                            payload = NewBlockPayload::block(blocks_saved as u64, state_lock.current_block.hash.clone(), next_block);
                         }
 
                         let message = BlockchainProtocol::new()
@@ -169,7 +176,7 @@ fn connect(hole_puncher: String) {
 
         let res: Result<bool, ()> = Ok(true);
         res
-    }));
+    });
 
     threads.push(block);
 

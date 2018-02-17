@@ -43,13 +43,13 @@ pub struct NewBlockPayload {
 
 impl NewBlockPayload {
     /// Creates a new block
-    pub fn block(index: u64, prev: String) -> Self {
+    pub fn block(index: u64, prev: String, content: String) -> Self {
         Self {
             index: index,
             timestamp: get_time().sec,
             prev: prev,
             sign_key: "0".repeat(4),
-            content: String::from("")
+            content: content
         }
     }
 }

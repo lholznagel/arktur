@@ -60,7 +60,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::NotAValidEvent => None,
         };
 
-        let thread = self.pool.spawn_fn((move || {
+        let thread = self.pool.spawn_fn(move || {
             match event_match {
                 Some(hook) => {
                     (hook)(state);
@@ -70,7 +70,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
 
             let res: Result<bool, ()> = Ok(true);
             res
-        }));
+        });
 
         self.threads.push(thread);
     }
