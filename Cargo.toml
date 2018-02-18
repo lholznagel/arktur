@@ -6,7 +6,6 @@ panic = 'abort'
 members = [
   "debug",
   "hooks",
-  "file",
   "hole_puncher",
   "logging",
   "peer",

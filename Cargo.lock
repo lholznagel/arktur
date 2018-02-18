@@ -38,10 +38,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blockchain_file"
-version = "0.1.0"
-
-[[package]]
 name = "blockchain_hole_puncher"
 version = "0.1.0"
 dependencies = [
@@ -65,7 +61,6 @@ version = "0.1.0"
 name = "blockchain_peer"
 version = "0.1.0"
 dependencies = [
- "blockchain_file 0.1.0",
  "blockchain_hooks 0.1.0",
  "blockchain_logging 0.1.0",
  "blockchain_protocol 0.1.0",

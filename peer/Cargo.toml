@@ -4,7 +4,6 @@ name = "blockchain_peer"
 version = "0.1.0"
 
 [dependencies]
-blockchain_file = { path = "../file" }
 blockchain_hooks = { path = "../hooks" }
 blockchain_logging = { path = "../logging" }
 blockchain_protocol = { path = "../protocol" }
