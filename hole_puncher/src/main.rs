@@ -73,8 +73,8 @@ fn connect() {
         .set_register_hole_puncher(hooks::on_register_hole_puncher)
         .set_explore_network(hooks::on_explore_network);
 
-    let state_handler = hooks::StateHandler::new();
-    let mut hook_notification = HookRegister::new(hooks, Arc::new(Mutex::new(state_handler)))
+    let state = hooks::State::new();
+    let mut hook_notification = HookRegister::new(hooks, Arc::new(Mutex::new(state)))
         .get_notification();
 
     let socket = UdpSocket::bind("0.0.0.0:50000").expect("Binding an UdpSocket should be successful.");
