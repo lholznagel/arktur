@@ -1,21 +1,11 @@
 use blockchain_hooks::{ApplicationState, EventCodes};
-use blockchain_protocol::payload::{Payload, RegisterAckPayload, ExploreNetworkPayload};
+use blockchain_protocol::payload::{Payload, RegisterAckPayload};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 
-pub struct StateHandler {
-    peers: Vec<String>
-}
+use hooks::State;
 
-impl StateHandler {
-    pub fn new() -> Self {
-        Self {
-            peers: Vec::new()
-        }
-    }
-}
-
-pub fn on_register_hole_puncher(state: ApplicationState<StateHandler>) {
+pub fn on_register_hole_puncher(state: ApplicationState<State>) {
     let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
     event!("New peer: {}", state.source);
     if state_lock.peers.is_empty() {
@@ -37,16 +27,4 @@ pub fn on_register_hole_puncher(state: ApplicationState<StateHandler>) {
     }
 
     state_lock.peers.push(state.source);
-}
-
-pub fn on_explore_network(state: ApplicationState<StateHandler>) {
-    debug!("Sending peers to debugger");
-    let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
-
-    let answer = BlockchainProtocol::new()
-        .set_event_code(EventCodes::ExploreNetwork)
-        .set_status_code(StatusCodes::Ok)
-        .set_payload(ExploreNetworkPayload::new().set_peers(state_lock.peers.clone()))
-        .build();
-    state.udp.send_to(&answer, state.source).expect("Sending a response should be successful");
 }
