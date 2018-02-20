@@ -28,6 +28,8 @@ pub fn on_register_peer(state: ApplicationState<State>) {
         state.udp.send_to(&answer, state.source.clone()).expect("Sending a response should be successful");
     }
 
-    state_lock.peers.push(state.source);
+    if !state_lock.peers.contains(&state.source) {
+        state_lock.peers.push(state.source);
+    }
     debug!("REGISTER: {}", state_lock.peers.len());
 }

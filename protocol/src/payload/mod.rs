@@ -1,6 +1,7 @@
 //! Module for all payload models
 mod block;
 mod debug;
+mod hole_puncher;
 mod misc;
 mod register;
 mod sync;
@@ -17,6 +18,8 @@ pub use self::block::validate_hash::ValidateHashPayload;
 pub use self::block::validated_hash::ValidatedHashPayload;
 
 pub use self::debug::explore_network::ExploreNetworkPayload;
+
+pub use self::hole_puncher::conn::HolePuncherConn;
 
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;

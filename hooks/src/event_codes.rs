@@ -70,9 +70,14 @@ pub enum EventCodes {
     /// Code: 37
     FoundBlock,
 
-    /// Fired when a peer syncs his peers
+    /// Notifies a given peer that a connection should be established to another peer
     ///
     /// Code: 48
+    HolePuncherConn,
+
+    /// Fired when a peer syncs his peers
+    ///
+    /// Code: 96
     SyncPeers,
 
     /// Fired when the debugger explores the network
@@ -119,7 +124,8 @@ pub fn as_enum(value: u8) -> EventCodes {
         35 => EventCodes::ValidateHash,
         36 => EventCodes::ValidatedHash,
         37 => EventCodes::FoundBlock,
-        48 => EventCodes::SyncPeers,
+        48 => EventCodes::HolePuncherConn,
+        96 => EventCodes::SyncPeers,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
@@ -155,7 +161,8 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::ValidateHash => 35,
         EventCodes::ValidatedHash => 36,
         EventCodes::FoundBlock => 37,
-        EventCodes::SyncPeers => 48,
+        EventCodes::HolePuncherConn => 48,
+        EventCodes::SyncPeers => 96,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }

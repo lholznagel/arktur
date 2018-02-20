@@ -55,6 +55,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::ValidateHash => self.hook.on_validate_hash,
             EventCodes::ValidatedHash => self.hook.on_validated_hash,
             EventCodes::FoundBlock => self.hook.on_found_block,
+            EventCodes::HolePuncherConn => self.hook.on_hole_puncher_conn,
             EventCodes::SyncPeers => self.hook.on_sync_peers,
             EventCodes::ExploreNetwork => self.hook.on_explore_network,
             EventCodes::NotAValidEvent => None,
