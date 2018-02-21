@@ -8,13 +8,16 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn on_new_block(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&state.payload_buffer).unwrap();
+    let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+
     {
-        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        let mut state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+
         if state_lock.is_calculating {
             return;
         } else {
-            event!("NEW_BLOCK {:?}", message.payload);
             state_lock.is_calculating = true;
         }
     }
@@ -22,6 +25,7 @@ pub fn on_new_block(state: ApplicationState<State>) {
     let hash;
     let mut nonce = 0;
 
+    info!("Starting generating a new block.");
     loop {
         let mut generated_block = String::from("");
         generated_block.push_str(&message.payload.content);
@@ -43,7 +47,8 @@ pub fn on_new_block(state: ApplicationState<State>) {
     }
 
     {
-        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        let mut state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
         state_lock.is_calculating = false;
         state_lock.current_block = FoundBlockPayload {
             content: message.payload.content.clone(),
@@ -55,7 +60,7 @@ pub fn on_new_block(state: ApplicationState<State>) {
         }
     }
 
-    debug!("Found hash! {:?}", hash);
+    info!("Found hash! {:?}", hash);
     let message = BlockchainProtocol::<PossibleBlockPayload>::new()
         .set_event_code(EventCodes::PossibleBlock)
         .set_payload(PossibleBlockPayload {
@@ -68,10 +73,11 @@ pub fn on_new_block(state: ApplicationState<State>) {
         })
         .build();
 
-    success!("Send block back.");
     
-    let state_lock = state.state.lock().expect("Locking should be successful");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
     for peer in state_lock.peers.clone() {
-        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+        state.udp.send_to(message.as_slice(), peer)
+            .expect("Sending using UDP should be successful.");
     }
 }

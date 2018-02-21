@@ -8,8 +8,9 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn on_validate_hash(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&state.payload_buffer).unwrap();
-    event!("VALIDATE_HASH {:?}", message.payload);
+    let message = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+    info!("Validating hash.");
 
     let mut generated_block = String::from("");
     generated_block.push_str(&message.payload.content);
@@ -26,8 +27,9 @@ pub fn on_validate_hash(state: ApplicationState<State>) {
     message.payload.hash = hasher.result_str();
     let message = message.build();
 
-    let state_lock = state.state.lock().expect("Locking should be successful");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
     for peer in state_lock.peers.clone() {
-        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+        state.udp.send_to(message.as_slice(), peer).expect("Sending using UDP should be successful.");
     }
 }

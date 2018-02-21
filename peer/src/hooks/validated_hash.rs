@@ -7,9 +7,10 @@ use hooks::State;
 use std::collections::HashMap;
 
 pub fn on_validated_hash(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
-    let mut state_lock = state.state.lock().expect("Locking should be successful");
-    event!("VALIDATED_HASH | {:?}", message);
+    let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+    let mut state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
 
     state_lock.hashes.push(message.payload.hash);
 
@@ -34,8 +35,6 @@ pub fn on_validated_hash(state: ApplicationState<State>) {
         }
 
         state_lock.hashes = Vec::new();
-        debug!("Hash {} for block: {:?}", result.0, state_lock.current_block);
-
         state_lock.current_block.hash = result.0;
 
         let mut payload = FoundBlockPayload::new();

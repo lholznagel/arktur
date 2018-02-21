@@ -5,9 +5,9 @@ use blockchain_protocol::payload::{PossibleBlockPayload, ValidateHashPayload};
 use hooks::State;
 
 pub fn on_possible_block(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
-
-    event!("POSSIBLE_BLOCK | {:?}", message);
+    let message = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+    info!("New possible block.");
 
     let payload = ValidateHashPayload {
         content: message.payload.content,
@@ -22,8 +22,10 @@ pub fn on_possible_block(state: ApplicationState<State>) {
         .set_payload(payload)
         .build();
 
-    let state_lock = state.state.lock().expect("Locking should be successful");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
     for peer in state_lock.peers.clone() {
-        state.udp.send_to(message.as_slice(), peer).expect("Sending a UDP message should be successful");
+        state.udp.send_to(message.as_slice(), peer)
+            .expect("Sending using UDP should be successful.");
     }
 }
