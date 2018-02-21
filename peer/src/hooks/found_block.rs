@@ -10,17 +10,11 @@ use std::io::Write;
 use std::path::Path;
 
 pub fn on_found_block(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer).expect("Parsing the protocol should be successful");
-    event!("FOUND_BLOCK {:?}", message.payload);
-
+    let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+    info!("Saving new block to disk.");
     create_folder();
-    save_file(
-        message.payload.index,
-        message.payload.content, 
-        message.payload.timestamp,
-        message.payload.nonce,
-        message.payload.prev,
-        message.payload.hash);
+    save_file(message.payload);
 }
 
 fn create_folder() {
@@ -29,25 +23,26 @@ fn create_folder() {
     }
 }
 
-fn save_file(index: u64, content: String, timestamp: i64, nonce: u64, prev: String, hash: String) {
+fn save_file(block: FoundBlockPayload) {
     let mut filename = String::from("");
 
     for i in 0..16 {
-        filename = filename + &hash.chars().nth(48 + i).unwrap().to_string();
+        filename = filename + &block.hash.chars().nth(48 + i).unwrap().to_string();
     }
 
     let mut file = File::create(format!("{}/{}", "./block_data", filename))
-        .expect("Could not write block file.");
+        .expect("Could not create block file.");
+
     file.write_all(
         format!(
             "{}\n{}\n{}\n{}\n{}\n{}", 
-            index, 
-            content, 
-            timestamp, 
-            nonce, 
-            prev, 
-            hash
+            block.index,
+            block.content, 
+            block.timestamp,
+            block.nonce,
+            block.prev,
+            block.hash
         )
         .as_bytes())
-    .expect("Error writing block information");
+        .expect("Error writing block information into file.");
 }

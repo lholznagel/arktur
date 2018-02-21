@@ -55,6 +55,7 @@ fn main() {
     hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
     hole_puncher.push_str(":");
     hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
+
     connect(hole_puncher);
 }
 
@@ -76,7 +77,8 @@ fn connect(hole_puncher: String) {
         .set_sync_peers(hooks::on_sync_peers)
         .set_explore_network(hooks::on_explore_network)
         .set_possible_block(hooks::on_possible_block)
-        .set_validated_hash(hooks::on_validated_hash);
+        .set_validated_hash(hooks::on_validated_hash)
+        .set_hole_puncher_conn(hooks::on_hole_puncher_conn);
 
     let state_handler = hooks::State::new();
     let state = Arc::new(Mutex::new(state_handler));
