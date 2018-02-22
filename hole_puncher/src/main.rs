@@ -70,6 +70,7 @@ fn main() {
 
 fn connect() {
     let hooks = Hooks::new()
+        .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
         .set_register_hole_puncher(hooks::on_register_hole_puncher)
         .set_explore_network(hooks::on_explore_network);
 
