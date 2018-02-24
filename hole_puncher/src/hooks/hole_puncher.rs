@@ -19,14 +19,19 @@ pub fn on_register_hole_puncher(state: ApplicationState<State>) {
             .expect("Sending using UDP should be successful.");
     } else {
         info!("Got some peers.");
+        let mut peers = Vec::new();
+        for (peer, _) in state_lock.peers.clone() {
+            peers.push(peer);
+        }
+
         let answer = BlockchainProtocol::new()
             .set_event_code(EventCodes::RegisterHolePuncherAck)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(RegisterAckPayload::new().set_peers(state_lock.peers.clone()))
+            .set_payload(RegisterAckPayload::new().set_peers(peers))
             .build();
         state.udp.send_to(&answer, state.source.clone())
             .expect("Sending using UDP should be successful.");
     }
 
-    state_lock.peers.push(state.source);
+    state_lock.peers.insert(state.source, 0);
 }
