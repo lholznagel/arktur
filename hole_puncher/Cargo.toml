@@ -7,3 +7,4 @@ authors = ["lholznagel <github@lholznagel.info>"]
 blockchain_hooks = { path = "../hooks" }
 blockchain_logging = { path = "../logging" }
 blockchain_protocol = { path = "../protocol" }
+futures-cpupool = "0.1.8"

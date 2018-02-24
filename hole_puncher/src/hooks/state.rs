@@ -1,12 +1,14 @@
+use std::collections::HashMap;
+
 pub struct State {
     // All known peers
-    pub peers: Vec<String>
+    pub peers: HashMap<String, u8>
 }
 
 impl State {
     pub fn new() -> Self {
         Self {
-            peers: Vec::new()
+            peers: HashMap::new()
         }
     }
 }

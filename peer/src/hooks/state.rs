@@ -12,7 +12,7 @@ pub struct State {
     /// contains the data for the next block
     pub next_block: HashMap<String, String>,
     /// all peers this peer is connected to
-    pub peers: HashMap<String, u64>
+    pub peers: HashMap<String, u8>
 }
 
 impl State {

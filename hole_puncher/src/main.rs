@@ -55,13 +55,20 @@ extern crate blockchain_hooks;
 #[macro_use]
 extern crate blockchain_logging;
 extern crate blockchain_protocol;
+extern crate futures_cpupool;
 
 mod hooks;
 
-use blockchain_hooks::{as_enum, Hooks, HookRegister};
+use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
+use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::enums::status::StatusCodes;
+use blockchain_protocol::payload::{Payload, PingPayload};
+
+use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::{thread, time};
 
 fn main() {
     info!("Starting hole puncher on port 50000");
@@ -69,16 +76,55 @@ fn main() {
 }
 
 fn connect() {
+    let pool = CpuPool::new_num_cpus();
+    let mut threads = Vec::new();
+
     let hooks = Hooks::new()
+        .set_pong(hooks::on_pong)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
         .set_register_hole_puncher(hooks::on_register_hole_puncher)
         .set_explore_network(hooks::on_explore_network);
 
-    let state = hooks::State::new();
-    let mut hook_notification = HookRegister::new(hooks, Arc::new(Mutex::new(state)))
+    let state = Arc::new(Mutex::new(hooks::State::new()));
+    let state_clone_peer_ping = Arc::clone(&state);
+    let mut hook_notification = HookRegister::new(hooks, state)
         .get_notification();
 
     let socket = UdpSocket::bind("0.0.0.0:50000").expect("Binding an UdpSocket should be successful.");
+
+    let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
+    #[allow(unreachable_code)]
+    let peer_ping = pool.spawn_fn(move || {
+        loop {
+            // ping every 30 seconds
+            thread::sleep(time::Duration::from_secs(30));
+
+            {
+                let mut state_lock = state_clone_peer_ping.lock().unwrap();
+
+                for (peer, counter) in state_lock.peers.clone() {
+                    // if we pinged him 6 times he is considered dead
+                    if counter == 6 {
+                        state_lock.peers.remove(&peer);
+                    } else {
+                        state_lock.peers.insert(peer.clone(), counter + 1);
+
+                        let message = BlockchainProtocol::new()
+                            .set_event_code(EventCodes::Ping)
+                            .set_status_code(StatusCodes::Ok)
+                            .set_payload(PingPayload::new())
+                            .build();
+
+                        udp_clone_peer_ping.send_to(&message, peer).expect("Sending a UDP message should be successful");
+                    }
+                }
+            }
+        }
+
+        let res: Result<bool, ()> = Ok(true);
+        res
+    });
+    threads.push(peer_ping);
 
     loop {
         let mut buffer = [0; 65535];
