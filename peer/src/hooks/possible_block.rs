@@ -24,7 +24,7 @@ pub fn on_possible_block(state: ApplicationState<State>) {
 
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
-    for peer in state_lock.peers.clone() {
+    for (peer, _) in state_lock.peers.clone() {
         state.udp.send_to(message.as_slice(), peer)
             .expect("Sending using UDP should be successful.");
     }
