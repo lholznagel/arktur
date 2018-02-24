@@ -16,14 +16,14 @@ pub fn on_sync_peers(state: ApplicationState<State>) {
         for new_peer in message.payload.peers {
             let mut is_peer_known = false;
 
-            for peer in state_lock.peers.clone() {
+            for (peer, _) in state_lock.peers.clone() {
                 if peer == new_peer {
                     is_peer_known = true;
                 }
             }
 
             if !is_peer_known {
-                state_lock.peers.push(new_peer);
+                state_lock.peers.insert(new_peer, 0);
             }
         }
     }

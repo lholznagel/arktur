@@ -14,7 +14,7 @@ pub fn on_data_for_block(state: ApplicationState<State>) {
         state_lock.next_block.insert(message.payload.unique_key, message.payload.content);
         info!("New message for next block. Notifying peers");
 
-        for peer in &state_lock.peers {
+        for (peer, _) in &state_lock.peers {
             state.udp.send_to(&state.payload_buffer, peer).expect("Sending using UDP should be successful.");
         }
     }

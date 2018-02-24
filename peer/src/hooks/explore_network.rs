@@ -8,8 +8,13 @@ pub fn on_explore_network(state: ApplicationState<State>) {
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
+    let mut peers = Vec::new();
+    for (peer, _) in state_lock.peers.clone() {
+        peers.push(peer);
+    }
+
     let payload = ExploreNetworkPayload {
-        addresses: state_lock.peers.clone()
+        addresses: peers
     };
     let answer = BlockchainProtocol::new()
         .set_event_code(EventCodes::ExploreNetwork)

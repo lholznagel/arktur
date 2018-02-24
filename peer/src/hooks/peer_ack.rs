@@ -15,12 +15,12 @@ pub fn on_register_peer_ack(state: ApplicationState<State>) {
         info!("No peer.");
     } else {
         for address in message.payload.addresses {
-            if !state_lock.peers.contains(&address) {
+            if !state_lock.peers.contains_key(&address) {
                 let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
                 state.udp.send_to(&result, address.clone())
                     .expect("Sending using UDP should be successful.");
                 info!("Registered a new peer.");
-                state_lock.peers.push(address.clone());
+                state_lock.peers.insert(address.clone(), 0);
             }
         }
     }

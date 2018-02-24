@@ -50,7 +50,7 @@ pub fn on_validated_hash(state: ApplicationState<State>) {
             .set_payload(payload)
             .build();
 
-        for peer in state_lock.peers.clone() {
+        for (peer, _) in state_lock.peers.clone() {
             state.udp.send_to(message.as_slice(), peer).unwrap();
         }
     }

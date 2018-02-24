@@ -30,9 +30,9 @@ pub fn on_register_hole_puncher_ack(state: ApplicationState<State>) {
                 state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
             }
 
-            if !state_lock.peers.contains(&address) {
+            if !state_lock.peers.contains_key(&address) {
                 info!("Registered new peer.");
-                state_lock.peers.push(address);
+                state_lock.peers.insert(address, 0);
             }
         }
     }
