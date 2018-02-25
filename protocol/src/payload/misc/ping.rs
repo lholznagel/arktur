@@ -1,7 +1,7 @@
 use payload::Payload;
 
 /// Model for the event `Ping`
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct PingPayload;
 
 impl Payload for PingPayload {

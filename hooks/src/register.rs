@@ -4,6 +4,7 @@ use notification::HookNotification;
 use std::sync::{Arc, Mutex};
 
 /// Registers all events
+#[derive(Debug)]
 pub struct HookRegister<T> where T: Send {
     hook: Hooks<T>,
     state: Arc<Mutex<T>>
@@ -29,6 +30,7 @@ impl<T: 'static> HookRegister<T> where T: Send {
         self
     }
 
+    /// Gets a new instance of hook notifications
     pub fn get_notification(self) -> HookNotification<T> {
         HookNotification::new(self.hook, self.state)
     }

@@ -1,6 +1,7 @@
 /// Converts an vector of string to a vector of u8
 ///
 /// Used for parsing the payloads to bytes
+#[derive(Debug)]
 pub struct PayloadBuilder {
     byte_vec: Vec<u8>
 }

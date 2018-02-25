@@ -2,6 +2,7 @@ use std::mem::transmute;
 use std::str;
 
 /// Contains functions for parsing
+#[derive(Copy, Clone, Debug)]
 pub struct Parser;
 
 impl Parser {

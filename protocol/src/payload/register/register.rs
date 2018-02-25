@@ -1,7 +1,7 @@
 use payload::{Payload, PayloadBuilder};
 
 /// Model for the event `Register`
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct RegisterPayload;
 
 impl Payload for RegisterPayload {

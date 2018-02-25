@@ -53,12 +53,12 @@ mod tests {
     fn test_building_and_parsing() {
         let address = String::from("172.0.0.1");
 
-        let hole_puncher_Ack = HolePuncherConn {
+        let hole_puncher_ack = HolePuncherConn {
             address: address.clone()
         };
 
-        let hole_puncher_Ack = hole_puncher_Ack.to_bytes();
-        let complete = Parser::parse_payload(&hole_puncher_Ack);
+        let hole_puncher_ack = hole_puncher_ack.to_bytes();
+        let complete = Parser::parse_payload(&hole_puncher_ack);
         let parsed = HolePuncherConn::parse(complete);
 
         assert_eq!(address, parsed.address);

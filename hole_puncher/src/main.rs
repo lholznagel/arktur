@@ -1,4 +1,17 @@
-#![deny(missing_docs)]
+#![deny(
+    missing_docs,
+    missing_debug_implementations,
+    missing_copy_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unstable_features,
+    unused_import_braces,
+    unused_qualifications
+)]
+#![cfg_attr(feature = "dev", allow(unstable_features))]
+#![cfg_attr(feature = "dev", feature(plugin))]
+#![cfg_attr(feature = "dev", plugin(clippy))]
 
 //! Hole puncher service
 //!
@@ -106,6 +119,7 @@ fn connect() {
                     // if we pinged him 6 times he is considered dead
                     if counter == 6 {
                         state_lock.peers.remove(&peer);
+                        info!("Peer did not answer. Removing. He´s dead Jimmy :(");
                     } else {
                         state_lock.peers.insert(peer.clone(), counter + 1);
 

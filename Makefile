@@ -2,7 +2,7 @@
 
 # just build the project
 default:
-	cargo build
+	cargo build --features dev
 
 # run the benchmarks
 bench:

@@ -9,3 +9,9 @@ blockchain_logging = { path = "../logging" }
 blockchain_protocol = { path = "../protocol" }
 clap = "2.29.2"
 rand = "0.4.2"
+
+clippy = { version = "0.0.186", optional = true }
+
+[features]
+default = []
+dev = ["clippy"]

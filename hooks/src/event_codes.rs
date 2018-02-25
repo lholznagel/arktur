@@ -4,7 +4,7 @@
 //! and for converting a enum to an integer value
 
 /// See the fields for documentation
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum EventCodes {
     /// This event should be fired to check if another peer
     /// is active.
