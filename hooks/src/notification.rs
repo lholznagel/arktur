@@ -7,6 +7,9 @@ use futures_cpupool::{CpuFuture, CpuPool};
 use std::sync::{Arc, Mutex};
 use std::net::UdpSocket;
 
+/// Contains all registered hooks
+/// Notifies the hooks on incoming messages and gives them a global state
+#[derive(Debug)]
 pub struct HookNotification<T> {
     hook: Hooks<T>,
     state: Arc<Mutex<T>>,
@@ -15,6 +18,7 @@ pub struct HookNotification<T> {
 }
 
 impl<T: 'static> HookNotification<T> where T: Send {
+    /// Creates a new HookNotification instance
     pub fn new(hook: Hooks<T>, state: Arc<Mutex<T>>) -> Self {
         Self {
             hook,

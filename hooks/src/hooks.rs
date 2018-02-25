@@ -1,6 +1,7 @@
 use state::ApplicationState;
 
 /// Struct for registering all available hooks
+#[derive(Debug)]
 pub struct Hooks<T> {
     /// Executed on a `PING` event
     /// Code: 0
@@ -116,6 +117,7 @@ pub struct Hooks<T> {
 }
 
 impl<T> Hooks<T> {
+    /// Creates a new hok register
     pub fn new() -> Self {
         Self {
             on_ping: None,
@@ -136,76 +138,91 @@ impl<T> Hooks<T> {
         }
     }
 
+    /// Registers a ping hook
     pub fn set_ping(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_ping = Some(function);
         self
     }
 
+    /// Registers a pong hook
     pub fn set_pong(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_pong = Some(function);
         self
     }
 
+    /// Registers a register_hole_puncher hook
     pub fn set_register_hole_puncher(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_register_hole_puncher = Some(function);
         self
     }
 
+    /// Registers a register_hole_puncher_ack hook
     pub fn set_register_hole_puncher_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_register_hole_puncher_ack = Some(function);
         self
     }
 
+    /// Registers a register_peer hook
     pub fn set_register_peer(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_register_peer = Some(function);
         self
     }
 
+    /// Registers a register_peer_ack hook
     pub fn set_register_peer_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_register_peer_ack = Some(function);
         self
     }
 
+    /// Registers a data_for_block hook
     pub fn set_data_for_block(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_data_for_block = Some(function);
         self
     }
 
+    /// Registers a new_block hook
     pub fn set_new_block(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_new_block = Some(function);
         self
     }
 
+    /// Registers a possible_block hook
     pub fn set_possible_block(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_possible_block = Some(function);
         self
     }
 
+    /// Registers a validate_hash hook
     pub fn set_validate_hash(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_validate_hash = Some(function);
         self
     }
 
+    /// Registers a validated_hash hook
     pub fn set_validated_hash(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_validated_hash = Some(function);
         self
     }
 
+    /// Registers a found_block hook
     pub fn set_found_block(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_found_block = Some(function);
         self
     }
 
+    /// Registers a hole_puncher_conn hook
     pub fn set_hole_puncher_conn(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_hole_puncher_conn = Some(function);
         self
     }
 
+    /// Registers a sync_peers hook
     pub fn set_sync_peers(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_sync_peers = Some(function);
         self
     }
 
+    /// Registers a explore_network hook
     pub fn set_explore_network(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_explore_network = Some(function);
         self

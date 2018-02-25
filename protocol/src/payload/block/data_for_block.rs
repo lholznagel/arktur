@@ -76,6 +76,7 @@ mod tests {
     }
 
     quickcheck! {
+        #[allow(trivial_casts)]
         fn test_quickcheck(unique_key: String, content: String) -> bool {
             let unique_key = unique_key;
             let content = content;

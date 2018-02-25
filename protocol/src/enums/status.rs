@@ -4,7 +4,7 @@
 //! and for converting a enum to an integer value
 
 /// See the fields for documentation
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum StatusCodes {
     /// Default status that everything is ok
     ///

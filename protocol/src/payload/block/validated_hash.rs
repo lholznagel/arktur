@@ -71,6 +71,7 @@ mod tests {
     }
 
     quickcheck! {
+        #[allow(trivial_casts)]
         fn test_quickcheck(index: u64, hash: String) -> bool {
             let index = index;
             let hash = hash;

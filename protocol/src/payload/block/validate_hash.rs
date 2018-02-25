@@ -173,6 +173,7 @@ mod tests {
     }
 
     quickcheck! {
+        #[allow(trivial_casts)]
         fn test_quickcheck(index: u64, timestamp: i64, nonce: u64, prev: String, content: String) -> bool {
             let index = index;
             let nonce = nonce;

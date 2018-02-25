@@ -6,7 +6,7 @@ use std::{slice, mem};
 use crc::crc32;
 
 /// Parser error messages
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum ParseErrors {
     ChecksumDoNotMatch
 }
