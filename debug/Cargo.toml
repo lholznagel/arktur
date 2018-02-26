@@ -8,6 +8,7 @@ blockchain_hooks = { path = "../hooks" }
 blockchain_logging = { path = "../logging" }
 blockchain_protocol = { path = "../protocol" }
 clap = "2.29.2"
+futures-cpupool = "0.1.8"
 rand = "0.4.2"
 
 clippy = { version = "0.0.186", optional = true }

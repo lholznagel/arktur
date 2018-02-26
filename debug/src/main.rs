@@ -19,6 +19,7 @@ extern crate blockchain_hooks;
 extern crate blockchain_logging;
 extern crate blockchain_protocol;
 extern crate clap;
+extern crate futures_cpupool;
 extern crate rand;
 
 use clap::{App, Arg, SubCommand};
