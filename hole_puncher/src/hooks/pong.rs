@@ -7,6 +7,4 @@ pub fn on_pong(state: ApplicationState<State>) {
     if state_lock.peers.contains_key(&state.source) {
         state_lock.peers.insert(state.source, 0);
     }
-
-    info!("Received PONG");
 }

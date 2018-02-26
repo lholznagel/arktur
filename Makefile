@@ -44,7 +44,7 @@ peer:
 # start a peer in a docker container
 peer_docker_run:
 	make peer_docker_build
-	docker run -it --net="host" blockchain_peer:latest
+	docker run -it --net="host" --label peer blockchain_peer:latest
 
 # run multiple peers in docker container
 # number is determind by the script docker/start.sh
