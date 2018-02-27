@@ -12,7 +12,6 @@ use std::path::Path;
 pub fn on_found_block(state: ApplicationState<State>) {
     let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
-    info!("Saving new block to disk.");
     create_folder();
     save_file(message.payload);
 }
@@ -30,19 +29,27 @@ fn save_file(block: FoundBlockPayload) {
         filename = filename + &block.hash.chars().nth(48 + i).unwrap().to_string();
     }
 
-    let mut file = File::create(format!("{}/{}", "./block_data", filename))
-        .expect("Could not create block file.");
+    if !Path::new(&filename).exists() {
+        info!("Saving new block to disk.");
+        let mut file = File::create(format!("{}/{}", "./block_data", filename))
+            .expect("Could not create block file.");
+        let mut file_last = File::create(format!("{}/last", "./block_data"))
+            .expect("Could not create block file.");
 
-    file.write_all(
-        format!(
-            "{}\n{}\n{}\n{}\n{}\n{}", 
-            block.index,
-            block.content, 
-            block.timestamp,
-            block.nonce,
-            block.prev,
-            block.hash
-        )
-        .as_bytes())
-        .expect("Error writing block information into file.");
+        let content = String::from(
+            format!(
+                "{}\n{}\n{}\n{}\n{}\n{}", 
+                block.index,
+                block.content, 
+                block.timestamp,
+                block.nonce,
+                block.prev,
+                block.hash
+            ));
+
+        file.write_all(content.clone().as_bytes())
+            .expect("Error writing block information into file.");
+        file_last.write_all(content.clone().as_bytes())
+            .expect("Error writing block information into file.");
+    }
 }
