@@ -35,7 +35,9 @@ use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
 use std::collections::HashMap;
-use std::fs::read_dir;
+use std::fs::{File, read_dir};
+use std::io::Read;
+use std::path::Path;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -210,7 +212,15 @@ fn connect(hole_puncher: String) {
                             }
                             state_lock.next_block = HashMap::new();
 
-                            payload = NewBlockPayload::block(blocks_saved as u64, state_lock.current_block.hash.clone(), next_block);
+                            if Path::new("./block_data/last").exists() {
+                                let mut file = File::open("./block_data/last").expect("Should be able to read the last block");
+                                let mut content = String::new();
+
+                                file.read_to_string(&mut content).expect("Should be able to rad last block");
+
+                                let result: Vec<&str> = content.split('\n').collect();
+                                payload = NewBlockPayload::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);
+                            }
                         }
 
                         let message = BlockchainProtocol::new()
