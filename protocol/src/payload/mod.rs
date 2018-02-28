@@ -31,4 +31,8 @@ pub use self::payload_builder::PayloadBuilder;
 pub use self::register::register::RegisterPayload;
 pub use self::register::register_ack::RegisterAckPayload;
 
+pub use self::sync::blocks::SyncBlocks;
+pub use self::sync::blocks_ack::SyncBlocksAck;
+pub use self::sync::blocks_req::SyncBlocksReq;
+pub use self::sync::blocks_req_ack::SyncBlocksReqAck;
 pub use self::sync::peers::SyncPeersPayload;

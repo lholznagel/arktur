@@ -79,6 +79,22 @@ pub enum EventCodes {
     ///
     /// Code: 96
     SyncPeers,
+    /// Fired when a peer wants to sync blocks
+    ///
+    /// Code: 97
+    SyncBlocks,
+    /// Contains 1000 block hashes
+    ///
+    /// Code: 98
+    SyncBlocksAck,
+    /// Requests an block
+    ///
+    /// Code: 99
+    SyncBlocksReq,
+    /// Sends back the requestsed block
+    ///
+    /// Code: 100
+    SyncBlocksReqAck,
 
     /// Fired when the debugger explores the network
     ///
@@ -126,6 +142,10 @@ pub fn as_enum(value: u8) -> EventCodes {
         37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
         96 => EventCodes::SyncPeers,
+        97 => EventCodes::SyncBlocks,
+        98 => EventCodes::SyncBlocksAck,
+        99 => EventCodes::SyncBlocksReq,
+        100 => EventCodes::SyncBlocksReqAck,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
@@ -163,6 +183,10 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
         EventCodes::SyncPeers => 96,
+        EventCodes::SyncBlocks => 97,
+        EventCodes::SyncBlocksAck => 98,
+        EventCodes::SyncBlocksReq => 99,
+        EventCodes::SyncBlocksReqAck => 100,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }

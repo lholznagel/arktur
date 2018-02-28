@@ -61,6 +61,10 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::FoundBlock => self.hook.on_found_block,
             EventCodes::HolePuncherConn => self.hook.on_hole_puncher_conn,
             EventCodes::SyncPeers => self.hook.on_sync_peers,
+            EventCodes::SyncBlocks => self.hook.on_sync_blocks,
+            EventCodes::SyncBlocksAck => self.hook.on_sync_blocks_ack,
+            EventCodes::SyncBlocksReq => self.hook.on_sync_blocks_req,
+            EventCodes::SyncBlocksReqAck => self.hook.on_sync_blocks_req_ack,
             EventCodes::ExploreNetwork => self.hook.on_explore_network,
             EventCodes::NotAValidEvent => None,
         };
