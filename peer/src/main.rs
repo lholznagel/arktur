@@ -90,6 +90,10 @@ fn connect(hole_puncher: String) {
         .set_validate_hash(hooks::on_validate_hash)
         .set_found_block(hooks::on_found_block)
         .set_sync_peers(hooks::on_sync_peers)
+        .set_sync_blocks(hooks::on_sync_blocks)
+        .set_sync_blocks_ack(hooks::on_sync_blocks_ack)
+        .set_sync_blocks_req(hooks::on_sync_blocks_req)
+        .set_sync_blocks_req_ack(hooks::on_sync_blocks_req_ack)
         .set_explore_network(hooks::on_explore_network)
         .set_possible_block(hooks::on_possible_block)
         .set_validated_hash(hooks::on_validated_hash)
@@ -117,8 +121,8 @@ fn connect(hole_puncher: String) {
     #[allow(unreachable_code)]
     let peer_sync = pool.spawn_fn(move || {
         loop {
-            // sync every 2 minutes
-            thread::sleep(std_time::Duration::from_secs(120));
+            // sync every 5 minutes
+            thread::sleep(std_time::Duration::from_secs(300));
 
             {
                 let state_lock = state_clone_peer.lock().unwrap();
@@ -143,7 +147,6 @@ fn connect(hole_puncher: String) {
         let res: Result<bool, ()> = Ok(true);
         res
     });
-
     threads.push(peer_sync);
 
     let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
