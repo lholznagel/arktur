@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, PossibleBlockPayload};
 
@@ -62,7 +62,7 @@ pub fn on_new_block(state: ApplicationState<State>) {
 
     info!("Found hash! {:?}", hash);
     let message = BlockchainProtocol::<PossibleBlockPayload>::new()
-        .set_event_code(EventCodes::PossibleBlock)
+        .set_event_code(as_number(EventCodes::PossibleBlock))
         .set_payload(PossibleBlockPayload {
             content: message.payload.content,
             timestamp: message.payload.timestamp,

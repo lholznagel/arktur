@@ -1,10 +1,8 @@
 #![feature(test)]
 
-extern crate blockchain_hooks;
 extern crate blockchain_protocol;
 extern crate test;
 
-use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::*;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -20,7 +18,7 @@ fn bench_data_for_block(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
-            .set_event_code(EventCodes::FoundBlock)
+            .set_event_code(37)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -42,7 +40,7 @@ fn bench_found_block(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<FoundBlockPayload>::new()
-            .set_event_code(EventCodes::FoundBlock)
+            .set_event_code(37)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -63,7 +61,7 @@ fn bench_new_block(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<NewBlockPayload>::new()
-            .set_event_code(EventCodes::NewBlock)
+            .set_event_code(33)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -85,7 +83,7 @@ fn bench_possible_block(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<PossibleBlockPayload>::new()
-            .set_event_code(EventCodes::PossibleBlock)
+            .set_event_code(34)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -106,7 +104,7 @@ fn bench_validate_hash(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<ValidateHashPayload>::new()
-            .set_event_code(EventCodes::ValidateHash)
+            .set_event_code(35)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -124,7 +122,7 @@ fn bench_validated_hash(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<ValidatedHashPayload>::new()
-            .set_event_code(EventCodes::ValidatedHash)
+            .set_event_code(36)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -137,7 +135,7 @@ fn bench_validated_hash(b: &mut Bencher) {
 fn bench_ping(b: &mut Bencher) {
     b.iter(|| {
         let blockchain_protocol = BlockchainProtocol::<PingPayload>::new()
-            .set_event_code(EventCodes::Ping)
+            .set_event_code(0)
             .set_status_code(StatusCodes::Ok)
             .build();
 
@@ -149,7 +147,7 @@ fn bench_ping(b: &mut Bencher) {
 fn bench_pong(b: &mut Bencher) {
     b.iter(|| {
         let blockchain_protocol = BlockchainProtocol::<PongPayload>::new()
-            .set_event_code(EventCodes::Ping)
+            .set_event_code(0)
             .set_status_code(StatusCodes::Ok)
             .build();
 
@@ -165,7 +163,7 @@ fn bench_register_ack(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
-            .set_event_code(EventCodes::RegisterHolePuncherAck)
+            .set_event_code(17)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -178,7 +176,7 @@ fn bench_register_ack(b: &mut Bencher) {
 fn bench_register(b: &mut Bencher) {
     b.iter(|| {
         let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
-            .set_event_code(EventCodes::RegisterHolePuncher)
+            .set_event_code(16)
             .set_status_code(StatusCodes::Ok)
             .set_payload(RegisterPayload::new())
             .build();
@@ -195,7 +193,7 @@ fn bench_sync_peers(b: &mut Bencher) {
         };
 
         let blockchain_protocol = BlockchainProtocol::<SyncPeersPayload>::new()
-            .set_event_code(EventCodes::SyncPeers)
+            .set_event_code(96)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();

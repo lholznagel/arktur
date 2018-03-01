@@ -1,9 +1,7 @@
 #[macro_use]
 extern crate quickcheck;
-extern crate blockchain_hooks;
 extern crate blockchain_protocol;
 
-use blockchain_hooks::EventCodes;
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::*;
@@ -18,7 +16,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
-            .set_event_code(EventCodes::FoundBlock)
+            .set_event_code(37)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -49,7 +47,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<FoundBlockPayload>::new()
-            .set_event_code(EventCodes::FoundBlock)
+            .set_event_code(37)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -82,7 +80,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<NewBlockPayload>::new()
-            .set_event_code(EventCodes::NewBlock)
+            .set_event_code(33)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -116,7 +114,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<PossibleBlockPayload>::new()
-            .set_event_code(EventCodes::PossibleBlock)
+            .set_event_code(34)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -149,7 +147,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<ValidateHashPayload>::new()
-            .set_event_code(EventCodes::ValidateHash)
+            .set_event_code(35)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
@@ -175,7 +173,7 @@ quickcheck! {
         };
 
         let blockchain_protocol = BlockchainProtocol::<ValidatedHashPayload>::new()
-            .set_event_code(EventCodes::ValidatedHash)
+            .set_event_code(36)
             .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();

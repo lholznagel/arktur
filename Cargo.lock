@@ -85,7 +85,6 @@ dependencies = [
 name = "blockchain_protocol"
 version = "0.1.0"
 dependencies = [
- "blockchain_hooks 0.1.0",
  "clippy 0.0.186 (registry+https://github.com/rust-lang/crates.io-index)",
  "crc 1.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "quickcheck 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",

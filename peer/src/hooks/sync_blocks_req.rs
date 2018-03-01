@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::{SyncBlocksReq, SyncBlocksReqAck};
 
@@ -31,7 +31,7 @@ pub fn on_sync_blocks_req(state: ApplicationState<State>) {
         };
 
         let message = BlockchainProtocol::new()
-            .set_event_code(EventCodes::SyncBlocksReqAck)
+            .set_event_code(as_number(EventCodes::SyncBlocksReqAck))
             .set_payload(payload)
             .build();
 

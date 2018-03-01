@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::payload::{Payload, RegisterAckPayload};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -11,7 +11,7 @@ pub fn on_register_hole_puncher(state: ApplicationState<State>) {
     if state_lock.peers.is_empty() {
         info!("No peer.");
         let answer = BlockchainProtocol::new()
-            .set_event_code(EventCodes::RegisterHolePuncherAck)
+            .set_event_code(as_number(EventCodes::RegisterHolePuncherAck))
             .set_status_code(StatusCodes::NoPeer)
             .set_payload(RegisterAckPayload::new())
             .build();
@@ -25,7 +25,7 @@ pub fn on_register_hole_puncher(state: ApplicationState<State>) {
         }
 
         let answer = BlockchainProtocol::new()
-            .set_event_code(EventCodes::RegisterHolePuncherAck)
+            .set_event_code(as_number(EventCodes::RegisterHolePuncherAck))
             .set_status_code(StatusCodes::Ok)
             .set_payload(RegisterAckPayload::new().set_peers(peers))
             .build();

@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::payload::{Payload, ExploreNetworkPayload};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
@@ -15,7 +15,7 @@ pub fn on_explore_network(state: ApplicationState<State>) {
     }
 
     let answer = BlockchainProtocol::new()
-        .set_event_code(EventCodes::ExploreNetwork)
+        .set_event_code(as_number(EventCodes::ExploreNetwork))
         .set_status_code(StatusCodes::Ok)
         .set_payload(ExploreNetworkPayload::new().set_peers(peers))
         .build();

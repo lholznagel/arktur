@@ -17,7 +17,6 @@
 #[macro_use]
 extern crate quickcheck;
 
-extern crate blockchain_hooks;
 extern crate crc;
 extern crate time;
 

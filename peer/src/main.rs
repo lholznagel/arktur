@@ -26,7 +26,7 @@ extern crate crypto;
 extern crate futures_cpupool;
 extern crate time;
 
-use blockchain_hooks::{as_enum, EventCodes, Hooks, HookRegister};
+use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::{NewBlockPayload, RegisterPayload, SyncPeersPayload, PingPayload, Payload};
 use blockchain_protocol::enums::status::StatusCodes;
@@ -110,7 +110,7 @@ fn connect(hole_puncher: String) {
         .get_notification();
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
-        .set_event_code(EventCodes::RegisterHolePuncher)
+        .set_event_code(as_number(EventCodes::RegisterHolePuncher))
         .set_status_code(StatusCodes::Ok)
         .build();
 
@@ -134,7 +134,7 @@ fn connect(hole_puncher: String) {
 
                 for (peer, _) in state_lock.peers.clone() {
                     let message = BlockchainProtocol::new()
-                        .set_event_code(EventCodes::SyncPeers)
+                        .set_event_code(as_number(EventCodes::SyncPeers))
                         .set_status_code(StatusCodes::Ok)
                         .set_payload(SyncPeersPayload::new().set_peers(peers.clone()))
                         .build();
@@ -168,7 +168,7 @@ fn connect(hole_puncher: String) {
                         state_lock.peers.insert(peer.clone(), counter + 1);
 
                         let message = BlockchainProtocol::new()
-                            .set_event_code(EventCodes::Ping)
+                            .set_event_code(as_number(EventCodes::Ping))
                             .set_status_code(StatusCodes::Ok)
                             .set_payload(PingPayload::new())
                             .build();
@@ -227,7 +227,7 @@ fn connect(hole_puncher: String) {
                         }
 
                         let message = BlockchainProtocol::new()
-                            .set_event_code(EventCodes::NewBlock)
+                            .set_event_code(as_number(EventCodes::NewBlock))
                             .set_payload(payload)
                             .build();
 

@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
+use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::ExploreNetworkPayload;
@@ -25,7 +25,7 @@ pub fn execute(hole_puncher: String, _: &ArgMatches) {
         .get_notification();
 
     let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-        .set_event_code(EventCodes::ExploreNetwork)
+        .set_event_code(as_number(EventCodes::ExploreNetwork))
         .set_status_code(StatusCodes::Ok)
         .build();
 
@@ -101,7 +101,7 @@ pub fn on_explore_network(state: ApplicationState<ExploreState>) {
 
         for address in message.payload.addresses {
             let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-                .set_event_code(EventCodes::ExploreNetwork)
+                .set_event_code(as_number(EventCodes::ExploreNetwork))
                 .set_status_code(StatusCodes::Ok)
                 .build();
 

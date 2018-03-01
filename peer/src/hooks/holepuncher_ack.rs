@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{HolePuncherConn, RegisterPayload, RegisterAckPayload};
@@ -20,13 +20,13 @@ pub fn on_register_hole_puncher_ack(state: ApplicationState<State>) {
             };
 
             // notify hole puncher
-            let result = BlockchainProtocol::<HolePuncherConn>::new().set_payload(payload).set_event_code(EventCodes::HolePuncherConn).build();
+            let result = BlockchainProtocol::<HolePuncherConn>::new().set_payload(payload).set_event_code(as_number(EventCodes::HolePuncherConn)).build();
             state.udp.send_to(&result, "0.0.0.0:50000").expect("Sending a message should be successful");
 
             info!("Trying to register at peer.");
             // try to register 4 times with a sleep of 4 ms
             for _ in 0..4 {
-                let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(EventCodes::RegisterPeer).build();
+                let result = BlockchainProtocol::<RegisterPayload>::new().set_event_code(as_number(EventCodes::RegisterPeer)).build();
                 state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
             }
 

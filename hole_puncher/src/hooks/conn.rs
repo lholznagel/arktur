@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::HolePuncherConn;
 
@@ -14,7 +14,7 @@ pub fn on_hole_puncher_conn(state: ApplicationState<State>) {
 
     let result = BlockchainProtocol::<HolePuncherConn>::new()
         .set_payload(payload)
-        .set_event_code(EventCodes::HolePuncherConn)
+        .set_event_code(as_number(EventCodes::HolePuncherConn))
         .build();
 
     state.udp.send_to(&result, message.payload.address)

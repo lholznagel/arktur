@@ -6,7 +6,6 @@ version = "0.1.0"
 [dependencies]
 crc = "1.7.0"
 time = "0.1.38"
-blockchain_hooks = { path = "../hooks" }
 clippy = { version = "0.0.186", optional = true }
 
 [dev-dependencies]

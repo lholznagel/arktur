@@ -1,4 +1,4 @@
-use blockchain_hooks::{ApplicationState, EventCodes};
+use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::{Payload, ValidatedHashPayload, FoundBlockPayload};
 
@@ -46,7 +46,7 @@ pub fn on_validated_hash(state: ApplicationState<State>) {
         payload.hash = state_lock.current_block.hash.clone();
 
         let message = BlockchainProtocol::new()
-            .set_event_code(EventCodes::FoundBlock)
+            .set_event_code(as_number(EventCodes::FoundBlock))
             .set_payload(payload)
             .build();
 
