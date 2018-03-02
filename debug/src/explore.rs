@@ -12,9 +12,11 @@ use std::sync::{Arc, Mutex};
 use std::process::exit;
 use std::{thread, time};
 
-pub fn execute(hole_puncher: String, _: &ArgMatches) {
+pub fn execute(hole_puncher: String, args: &ArgMatches) {
     let pool = CpuPool::new_num_cpus();
     let mut threads = Vec::new();
+
+    let wait = args.value_of("WAIT").unwrap().parse::<u64>().expect("Should be able to convert a string to number");
 
     let state = Arc::new(Mutex::new(ExploreState::new()));
 
@@ -56,8 +58,7 @@ pub fn execute(hole_puncher: String, _: &ArgMatches) {
     });
 
     threads.push(peer_sync);
-
-    thread::sleep(time::Duration::from_secs(30));
+    thread::sleep(time::Duration::from_secs(wait));
     threads.pop().unwrap().forget();
 
     let mut success = 0;
@@ -75,7 +76,6 @@ pub fn execute(hole_puncher: String, _: &ArgMatches) {
     }
 
     info!("Success: {}, Fail: {}", success, fail);
-
     exit(0);
 }
 
