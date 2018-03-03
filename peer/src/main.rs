@@ -28,23 +28,18 @@ extern crate time;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{NewBlockPayload, RegisterPayload, SyncPeersPayload, PingPayload, Payload};
+use blockchain_protocol::payload::RegisterPayload;
 use blockchain_protocol::enums::status::StatusCodes;
 
 use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
-use std::collections::HashMap;
-use std::fs::{File, read_dir};
-use std::io::Read;
-use std::path::Path;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time as std_time;
 
 /// Contains all hook implementations
 mod hooks;
+mod threads;
 
 fn main() {
     let matches = App::new("Blockchain network cli")
@@ -74,40 +69,33 @@ fn main() {
     connect(hole_puncher);
 }
 
-/// Builds up a UDP connection with the connection manager
+/// Builds up a UDP connection with the hole_puncher
 fn connect(hole_puncher: String) {
+    info!("Hole puncher: {:?}", hole_puncher.clone());
     let pool = CpuPool::new_num_cpus();
-    let mut threads = Vec::new();
+    let mut thread_storage = Vec::new();
 
     let hooks = Hooks::new()
+        .set_data_for_block(hooks::on_data_for_block)
+        .set_explore_network(hooks::on_explore_network)
+        .set_found_block(hooks::on_found_block)
+        .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
+        .set_new_block(hooks::on_new_block)
         .set_ping(hooks::on_ping)
         .set_pong(hooks::on_pong)
+        .set_possible_block(hooks::on_possible_block)
         .set_register_hole_puncher_ack(hooks::on_register_hole_puncher_ack)
         .set_register_peer(hooks::on_register_peer)
         .set_register_peer_ack(hooks::on_register_peer_ack)
-        .set_data_for_block(hooks::on_data_for_block)
-        .set_new_block(hooks::on_new_block)
-        .set_validate_hash(hooks::on_validate_hash)
-        .set_found_block(hooks::on_found_block)
-        .set_sync_peers(hooks::on_sync_peers)
         .set_sync_blocks(hooks::on_sync_blocks)
         .set_sync_blocks_ack(hooks::on_sync_blocks_ack)
         .set_sync_blocks_req(hooks::on_sync_blocks_req)
         .set_sync_blocks_req_ack(hooks::on_sync_blocks_req_ack)
-        .set_explore_network(hooks::on_explore_network)
-        .set_possible_block(hooks::on_possible_block)
-        .set_validated_hash(hooks::on_validated_hash)
-        .set_hole_puncher_conn(hooks::on_hole_puncher_conn);
+        .set_sync_peers(hooks::on_sync_peers)
+        .set_validate_hash(hooks::on_validate_hash)
+        .set_validated_hash(hooks::on_validated_hash);
 
-    let state_handler = hooks::State::new();
-    let state = Arc::new(Mutex::new(state_handler));
-    let state_clone_peer = Arc::clone(&state);
-    let state_clone_peer_ping = Arc::clone(&state);
-    let state_clone_block = Arc::clone(&state);
-
-    info!("Hole puncher: {:?}", hole_puncher);
-    let mut hook_notification = HookRegister::new(hooks, state)
-        .get_notification();
+    let state = Arc::new(Mutex::new(hooks::State::new()));
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
         .set_event_code(as_number(EventCodes::RegisterHolePuncher))
@@ -115,140 +103,19 @@ fn connect(hole_puncher: String) {
         .build();
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
-    socket.send_to(request.as_slice(), hole_puncher).expect("Sending a request should be successful.");
+    socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");
 
     let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
-    #[allow(unreachable_code)]
-    let peer_sync = pool.spawn_fn(move || {
-        loop {
-            // sync every 5 minutes
-            thread::sleep(std_time::Duration::from_secs(300));
-
-            {
-                let state_lock = state_clone_peer.lock().unwrap();
-
-                let mut peers = Vec::new();
-                for (peer, _) in state_lock.peers.clone() {
-                    peers.push(peer);
-                }
-
-                for (peer, _) in state_lock.peers.clone() {
-                    let message = BlockchainProtocol::new()
-                        .set_event_code(as_number(EventCodes::SyncPeers))
-                        .set_status_code(StatusCodes::Ok)
-                        .set_payload(SyncPeersPayload::new().set_peers(peers.clone()))
-                        .build();
-
-                    udp_clone_peer.send_to(&message, peer).expect("Sending a UDP message should be successful");
-                }
-            }
-        }
-
-        let res: Result<bool, ()> = Ok(true);
-        res
-    });
-    threads.push(peer_sync);
+    thread_storage.push(threads::peer_sync(&pool, Arc::clone(&state), udp_clone_peer));
 
     let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
-    #[allow(unreachable_code)]
-    let peer_ping = pool.spawn_fn(move || {
-        loop {
-            // ping every 30 seconds
-            thread::sleep(std_time::Duration::from_secs(30));
-
-            {
-                let mut state_lock = state_clone_peer_ping.lock().unwrap();
-
-                for (peer, counter) in state_lock.peers.clone() {
-                    // if we pinged him 6 times he is considered dead
-                    if counter == 6 {
-                        state_lock.peers.remove(&peer);
-                        info!("Peer did not answer. He´s dead Jimmy :(");
-                    } else {
-                        state_lock.peers.insert(peer.clone(), counter + 1);
-
-                        let message = BlockchainProtocol::new()
-                            .set_event_code(as_number(EventCodes::Ping))
-                            .set_status_code(StatusCodes::Ok)
-                            .set_payload(PingPayload::new())
-                            .build();
-
-                        udp_clone_peer_ping.send_to(&message, peer).expect("Sending a UDP message should be successful");
-                    }
-                }
-            }
-        }
-
-        let res: Result<bool, ()> = Ok(true);
-        res
-    });
-
-    threads.push(peer_ping);
+    thread_storage.push(threads::peer_ping(&pool, Arc::clone(&state), udp_clone_peer_ping));
 
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
-    #[allow(unreachable_code)]
-    let block = pool.spawn_fn(move || {
-        let mut block_send = false;
-        loop {
-            let current_time = time::now_utc();
-            println!("{} {}", current_time.tm_min, current_time.tm_sec);
+    thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));
 
-            let paths = read_dir("./block_data");
-            let blocks_saved = match paths {
-                Ok(path) => path.count(),
-                Err(_) => 0
-            };
-
-            if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
-                block_send = true;
-
-                {
-                    let mut state_lock = state_clone_block.lock().unwrap();
-                    // at least 3 peers are required
-                    if state_lock.peers.len() >= 2 {
-                        let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)), String::from(""));
-
-                        if blocks_saved > 0 {
-                            let mut next_block = String::from("");
-                            for (_, content) in &state_lock.next_block {
-                                next_block.push_str(&content);
-                            }
-                            state_lock.next_block = HashMap::new();
-
-                            if Path::new("./block_data/last").exists() {
-                                let mut file = File::open("./block_data/last").expect("Should be able to read the last block");
-                                let mut content = String::new();
-
-                                file.read_to_string(&mut content).expect("Should be able to rad last block");
-
-                                let result: Vec<&str> = content.split('\n').collect();
-                                payload = NewBlockPayload::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);
-                            }
-                        }
-
-                        let message = BlockchainProtocol::new()
-                            .set_event_code(as_number(EventCodes::NewBlock))
-                            .set_payload(payload)
-                            .build();
-
-                        for (peer, _) in state_lock.peers.clone() {
-                            udp_clone_block.send_to(message.as_slice(), peer).unwrap();
-                        }
-                    } else {
-                        error!("Not enough peers to create next block.");
-                    }
-                }
-            } else {
-                thread::sleep(std_time::Duration::from_secs((60 - current_time.tm_sec) as u64));
-                block_send = false;
-            }
-        }
-
-        let res: Result<bool, ()> = Ok(true);
-        res
-    });
-
-    threads.push(block);
+    let mut hook_notification = HookRegister::new(hooks, state)
+        .get_notification();
 
     loop {
         let mut buffer = [0; 65535];
