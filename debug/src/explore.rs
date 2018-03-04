@@ -4,7 +4,7 @@ use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::ExploreNetworkPayload;
 
 use clap::ArgMatches;
-use futures_cpupool::CpuPool;
+use futures_cpupool::{CpuFuture, CpuPool};
 
 use std::collections::HashMap;
 use std::net::{UdpSocket, SocketAddr};
@@ -20,12 +20,6 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
     let state = Arc::new(Mutex::new(ExploreState::new()));
 
-    let hooks = Hooks::new()
-        .set_explore_network(on_explore_network);
-
-    let mut hook_notification = HookRegister::new(hooks, Arc::clone(&state))
-        .get_notification();
-
     let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
         .set_event_code(as_number(EventCodes::ExploreNetwork))
         .set_status_code(StatusCodes::Ok)
@@ -34,30 +28,7 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
     socket.send_to(&request, hole_puncher).expect("Sending a request should be successful");
 
-    #[allow(unreachable_code)]
-    let peer_sync = pool.spawn_fn(move || {
-        loop {
-            let mut buffer = [0; 65535];
-
-            match socket.recv_from(&mut buffer) {
-                Ok((bytes, source)) => {
-                    let mut updated_buffer = Vec::new();
-                    for i in 0..bytes {
-                        updated_buffer.push(buffer[i])
-                    }
-
-                    let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
-                    hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
-                }
-                Err(e) => println!("Error: {:?}", e),
-            }
-        }
-
-        let res: Result<bool, ()> = Ok(true);
-        res
-    });
-
-    threads.push(peer_sync);
+    threads.push(peer(&pool, &state, socket.try_clone().unwrap()));
     thread::sleep(time::Duration::from_secs(wait));
     threads.pop().unwrap().forget();
 
@@ -77,6 +48,36 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
     info!("Success: {}, Fail: {}", success, fail);
     exit(0);
+}
+
+fn peer(cpu_pool: &CpuPool, state: &Arc<Mutex<ExploreState>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
+    let hooks = Hooks::new()
+        .set_explore_network(on_explore_network);
+    let mut hook_notification = HookRegister::new(hooks, Arc::clone(&state))
+        .get_notification();
+
+    #[allow(unreachable_code)]
+    cpu_pool.spawn_fn(move || {
+        loop {
+            let mut buffer = [0; 65535];
+
+            match udp.recv_from(&mut buffer) {
+                Ok((bytes, source)) => {
+                    let mut updated_buffer = Vec::new();
+                    for i in 0..bytes {
+                        updated_buffer.push(buffer[i])
+                    }
+
+                    let socket_clone = udp.try_clone().expect("Cloning the socket should be successful.");
+                    hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
+                }
+                Err(e) => println!("Error: {:?}", e),
+            }
+        }
+
+        let res: Result<bool, ()> = Ok(true);
+        res
+    })
 }
 
 pub struct ExploreState {
