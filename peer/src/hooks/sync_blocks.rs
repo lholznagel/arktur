@@ -7,11 +7,14 @@ use hooks::State;
 use std::fs::read_dir;
 
 pub fn on_sync_blocks(state: ApplicationState<State>) {
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
+
     info!("Syncing blocks.");
     let mut count = 0;
     let mut blocks = Vec::new();
 
-    for path in read_dir("./block_data").expect("Should be able to read path.") {
+    for path in read_dir(&state_lock.storage).expect("Should be able to read path.") {
         let path = String::from(path.unwrap().path().file_name().unwrap().to_str().unwrap());
         blocks.push(path);
 

@@ -11,9 +11,11 @@ use std::io::Read;
 pub fn on_sync_blocks_req(state: ApplicationState<State>) {
     let message = BlockchainProtocol::<SyncBlocksReq>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
 
-    if Path::new(&format!("./block_data/{}", message.payload.block)).exists() {
-        let mut file = File::open(format!("./block_data/{}", message.payload.block)).expect("Should be able to read the block");
+    if Path::new(&format!("{}/{}", state_lock.storage, message.payload.block)).exists() {
+        let mut file = File::open(format!("{}/{}", state_lock.storage, message.payload.block)).expect("Should be able to read the block");
         let mut content = String::new();
 
         file.read_to_string(&mut content).expect("Should be able to read block");

@@ -9,9 +9,11 @@ use std::path::Path;
 pub fn on_sync_blocks_ack(state: ApplicationState<State>) {
     let message = BlockchainProtocol::<SyncBlocksAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
 
     for block in message.payload.blocks {
-        if !Path::new(&format!("./block_data/{}", block)).exists() {
+        if !Path::new(&format!("{}/{}", state_lock.storage, block)).exists() {
             let payload = SyncBlocksReq {
                 block
             };

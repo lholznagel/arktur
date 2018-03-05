@@ -11,10 +11,12 @@ use std::io::Write;
 pub fn on_sync_blocks_req_ack(state: ApplicationState<State>) {
     let message = BlockchainProtocol::<SyncBlocksReqAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
 
     if !Path::new(&message.payload.filename).exists() {
         info!("Saving new block to disk.");
-        let mut file = File::create(format!("{}/{}", "./block_data", message.payload.filename))
+        let mut file = File::create(format!("{}/{}", state_lock.storage, message.payload.filename))
             .expect("Could not create block file.");
 
         let content = String::from(

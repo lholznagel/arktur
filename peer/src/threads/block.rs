@@ -22,17 +22,17 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
             let current_time = time::now_utc();
             println!("{} {}", current_time.tm_min, current_time.tm_sec);
 
-            let paths = read_dir("./block_data");
-            let blocks_saved = match paths {
-                Ok(path) => path.count(),
-                Err(_) => 0
-            };
-
             if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
                 block_send = true;
 
                 {
                     let mut state_lock = state.lock().unwrap();
+
+                    let blocks_saved = match read_dir(&state_lock.storage) {
+                        Ok(path) => path.count(),
+                        Err(_) => 0
+                    };
+
                     // at least 3 peers are required
                     if state_lock.peers.len() >= 2 {
                         let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)), String::from(""));
@@ -44,8 +44,8 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                             }
                             state_lock.next_block = HashMap::new();
 
-                            if Path::new("./block_data/last").exists() {
-                                let mut file = File::open("./block_data/last").expect("Should be able to read the last block");
+                            if Path::new(&format!("{}/last", state_lock.storage)).exists() {
+                                let mut file = File::open(format!("{}/last", state_lock.storage)).expect("Should be able to read the last block");
                                 let mut content = String::new();
 
                                 file.read_to_string(&mut content).expect("Should be able to rad last block");

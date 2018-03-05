@@ -59,6 +59,12 @@ fn main() {
             .takes_value(true)
             .long("puncher_port")
             .default_value("50000"))
+        .arg(Arg::with_name("STORAGE")
+            .value_name("storage")
+            .help("Sets the location for the blocks.")
+            .takes_value(true)
+            .long("storage")
+            .default_value("./block_data"))
         .get_matches();
 
     let mut hole_puncher = String::from("");
@@ -66,11 +72,11 @@ fn main() {
     hole_puncher.push_str(":");
     hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
 
-    connect(hole_puncher);
+    connect(hole_puncher, matches.value_of("STORAGE").unwrap().to_string());
 }
 
 /// Builds up a UDP connection with the hole_puncher
-fn connect(hole_puncher: String) {
+fn connect(hole_puncher: String, storage: String) {
     info!("Hole puncher: {:?}", hole_puncher.clone());
     let pool = CpuPool::new_num_cpus();
     let mut thread_storage = Vec::new();
@@ -95,7 +101,7 @@ fn connect(hole_puncher: String) {
         .set_validate_hash(hooks::on_validate_hash)
         .set_validated_hash(hooks::on_validated_hash);
 
-    let state = Arc::new(Mutex::new(hooks::State::new()));
+    let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
         .set_event_code(as_number(EventCodes::RegisterHolePuncher))

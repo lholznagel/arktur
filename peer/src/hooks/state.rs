@@ -12,17 +12,20 @@ pub struct State {
     /// contains the data for the next block
     pub next_block: HashMap<String, String>,
     /// all peers this peer is connected to
-    pub peers: HashMap<String, u8>
+    pub peers: HashMap<String, u8>,
+    /// location for all blocks
+    pub storage: String
 }
 
 impl State {
-    pub fn new() -> Self {
+    pub fn new(storage: String) -> Self {
         Self {
             current_block: FoundBlockPayload::new(),
             hashes: Vec::new(),
             is_calculating: false,
             next_block: HashMap::new(),
-            peers: HashMap::new()
+            peers: HashMap::new(),
+            storage
         }
     }
 }
