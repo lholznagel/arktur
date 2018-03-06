@@ -21,21 +21,13 @@ pub enum EventCodes {
     Pong,
     /// This event should be used to register at a hole puncher.
     ///
-    /// Code: 16
-    RegisterHolePuncher,
+    /// Code: 66
+    Register,
     /// This event is send by the hole puncher, when the registration
     /// is successful.
     ///
-    /// Code: 17
-    RegisterHolePuncherAck,
-    /// Used to register a peer at another peer
-    ///
-    /// Code: 18
-    RegisterPeer,
-    /// Send by the other peer when the registration was successful
-    ///
-    /// Code: 19
-    RegisterPeerAck,
+    /// Code: 67
+    RegisterAck,
     /// This event is to add data for the next block
     ///
     /// Code: 32
@@ -130,10 +122,8 @@ pub fn as_enum(value: u8) -> EventCodes {
     match value {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
-        16 => EventCodes::RegisterHolePuncher,
-        17 => EventCodes::RegisterHolePuncherAck,
-        18 => EventCodes::RegisterPeer,
-        19 => EventCodes::RegisterPeerAck,
+        64 => EventCodes::Register,
+        67 => EventCodes::RegisterAck,
         32 => EventCodes::DataForBlock,
         33 => EventCodes::NewBlock,
         34 => EventCodes::PossibleBlock,
@@ -171,10 +161,8 @@ pub fn as_number(value: EventCodes) -> u8 {
     match value {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
-        EventCodes::RegisterHolePuncher => 16,
-        EventCodes::RegisterHolePuncherAck => 17,
-        EventCodes::RegisterPeer => 18,
-        EventCodes::RegisterPeerAck => 19,
+        EventCodes::Register => 64,
+        EventCodes::RegisterAck => 67,
         EventCodes::DataForBlock => 32,
         EventCodes::NewBlock => 33,
         EventCodes::PossibleBlock => 34,

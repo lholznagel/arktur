@@ -90,9 +90,8 @@ fn connect(hole_puncher: String, storage: String) {
         .set_ping(hooks::on_ping)
         .set_pong(hooks::on_pong)
         .set_possible_block(hooks::on_possible_block)
-        .set_register_hole_puncher_ack(hooks::on_register_hole_puncher_ack)
-        .set_register_peer(hooks::on_register_peer)
-        .set_register_peer_ack(hooks::on_register_peer_ack)
+        .set_register(hooks::register)
+        .set_register_ack(hooks::register_ack)
         .set_sync_blocks(hooks::on_sync_blocks)
         .set_sync_blocks_ack(hooks::on_sync_blocks_ack)
         .set_sync_blocks_req(hooks::on_sync_blocks_req)
@@ -104,7 +103,7 @@ fn connect(hole_puncher: String, storage: String) {
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
     let request = BlockchainProtocol::<RegisterPayload>::new()
-        .set_event_code(as_number(EventCodes::RegisterHolePuncher))
+        .set_event_code(as_number(EventCodes::Register))
         .set_status_code(StatusCodes::Ok)
         .build();
 

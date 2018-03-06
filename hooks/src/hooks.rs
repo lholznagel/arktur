@@ -9,44 +9,29 @@ pub struct Hooks<T> {
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub on_ping: Option<fn(ApplicationState<T>)>,
+    pub ping: Option<fn(ApplicationState<T>)>,
     /// Executed on a `PONG` event
     /// Code: 1
     ///
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub on_pong: Option<fn(ApplicationState<T>)>,
+    pub pong: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `REGISTER_HOLE_PUNCHER` event
-    /// Code: 16
+    /// Code: 66
     ///
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub on_register_hole_puncher: Option<fn(ApplicationState<T>)>,
+    pub register: Option<fn(ApplicationState<T>)>,
     /// Executed on a `REGISTER_HOLE_PUNCHER_ACK` event
-    /// Code: 17
+    /// Code: 67
     ///
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub on_register_hole_puncher_ack: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `REGISTER_PEER` event
-    /// Code: 18
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_register_peer: Option<fn(ApplicationState<T>)>,
-        /// Executed on a `REGISTER_PEER_ACK` event
-    /// Code: 19
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_register_peer_ack: Option<fn(ApplicationState<T>)>,
-
+    pub register_ack: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `DATA_FOR_BLOCK` event
     /// Code: 32
@@ -148,12 +133,10 @@ impl<T> Hooks<T> {
     /// Creates a new hok register
     pub fn new() -> Self {
         Self {
-            on_ping: None,
-            on_pong: None,
-            on_register_hole_puncher: None,
-            on_register_hole_puncher_ack: None,
-            on_register_peer: None,
-            on_register_peer_ack: None,
+            ping: None,
+            pong: None,
+            register: None,
+            register_ack: None,
             on_data_for_block: None,
             on_new_block: None,
             on_possible_block: None,
@@ -172,37 +155,25 @@ impl<T> Hooks<T> {
 
     /// Registers a ping hook
     pub fn set_ping(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_ping = Some(function);
+        self.ping = Some(function);
         self
     }
 
     /// Registers a pong hook
     pub fn set_pong(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_pong = Some(function);
+        self.pong = Some(function);
         self
     }
 
     /// Registers a register_hole_puncher hook
-    pub fn set_register_hole_puncher(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_register_hole_puncher = Some(function);
+    pub fn set_register(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.register = Some(function);
         self
     }
 
     /// Registers a register_hole_puncher_ack hook
-    pub fn set_register_hole_puncher_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_register_hole_puncher_ack = Some(function);
-        self
-    }
-
-    /// Registers a register_peer hook
-    pub fn set_register_peer(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_register_peer = Some(function);
-        self
-    }
-
-    /// Registers a register_peer_ack hook
-    pub fn set_register_peer_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_register_peer_ack = Some(function);
+    pub fn set_register_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.register_ack = Some(function);
         self
     }
 

@@ -5,13 +5,13 @@ use blockchain_protocol::enums::status::StatusCodes;
 
 use hooks::State;
 
-pub fn on_register_hole_puncher(state: ApplicationState<State>) {
+pub fn register(state: ApplicationState<State>) {
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
     if state_lock.peers.is_empty() {
         info!("No peer.");
         let answer = BlockchainProtocol::new()
-            .set_event_code(as_number(EventCodes::RegisterHolePuncherAck))
+            .set_event_code(as_number(EventCodes::RegisterAck))
             .set_status_code(StatusCodes::NoPeer)
             .set_payload(RegisterAckPayload::new())
             .build();
@@ -25,7 +25,7 @@ pub fn on_register_hole_puncher(state: ApplicationState<State>) {
         }
 
         let answer = BlockchainProtocol::new()
-            .set_event_code(as_number(EventCodes::RegisterHolePuncherAck))
+            .set_event_code(as_number(EventCodes::RegisterAck))
             .set_status_code(StatusCodes::Ok)
             .set_payload(RegisterAckPayload::new().set_peers(peers))
             .build();

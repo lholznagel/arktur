@@ -95,7 +95,7 @@ fn connect() {
     let hooks = Hooks::new()
         .set_pong(hooks::on_pong)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
-        .set_register_hole_puncher(hooks::on_register_hole_puncher)
+        .set_register(hooks::register)
         .set_explore_network(hooks::on_explore_network);
 
     let state = Arc::new(Mutex::new(hooks::State::new()));

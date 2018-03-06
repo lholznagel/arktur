@@ -47,12 +47,10 @@ impl<T: 'static> HookNotification<T> where T: Send {
         };
 
         let event_match = match event {
-            EventCodes::Ping => self.hook.on_ping,
-            EventCodes::Pong => self.hook.on_pong,
-            EventCodes::RegisterHolePuncher => self.hook.on_register_hole_puncher,
-            EventCodes::RegisterHolePuncherAck => self.hook.on_register_hole_puncher_ack,
-            EventCodes::RegisterPeer => self.hook.on_register_peer,
-            EventCodes::RegisterPeerAck => self.hook.on_register_peer_ack,
+            EventCodes::Ping => self.hook.ping,
+            EventCodes::Pong => self.hook.pong,
+            EventCodes::Register => self.hook.register,
+            EventCodes::RegisterAck => self.hook.register_ack,
             EventCodes::DataForBlock => self.hook.on_data_for_block,
             EventCodes::NewBlock => self.hook.on_new_block,
             EventCodes::PossibleBlock => self.hook.on_possible_block,
