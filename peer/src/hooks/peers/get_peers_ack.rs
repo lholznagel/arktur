@@ -1,11 +1,11 @@
 use blockchain_hooks::ApplicationState;
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::SyncPeersPayload;
+use blockchain_protocol::payload::peers::GetPeersAckPayload;
 
 use hooks::State;
 
-pub fn on_sync_peers(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<SyncPeersPayload>::from_bytes(&state.payload_buffer)
+pub fn get_peers_ack(state: ApplicationState<State>) {
+    let message = BlockchainProtocol::<GetPeersAckPayload>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     info!("Syncing peers.");
 
@@ -14,15 +14,7 @@ pub fn on_sync_peers(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
 
         for new_peer in message.payload.peers {
-            let mut is_peer_known = false;
-
-            for (peer, _) in state_lock.peers.clone() {
-                if peer == new_peer {
-                    is_peer_known = true;
-                }
-            }
-
-            if !is_peer_known {
+            if !state_lock.peers.contains_key(&new_peer) {
                 state_lock.peers.insert(new_peer, 0);
             }
         }

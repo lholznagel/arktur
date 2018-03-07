@@ -4,7 +4,7 @@ use blockchain_protocol::payload::PongPayload;
 
 use hooks::State;
 
-pub fn on_ping(state: ApplicationState<State>) {
+pub fn ping(state: ApplicationState<State>) {
     info!("Received PING. Answering with PONG.");
     let answer = BlockchainProtocol::<PongPayload>::new()
         .set_event_code(as_number(EventCodes::Pong))

@@ -5,6 +5,7 @@ extern crate test;
 
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::*;
+use blockchain_protocol::payload::peers::*;
 use blockchain_protocol::enums::status::StatusCodes;
 
 use test::Bencher;
@@ -175,29 +176,12 @@ fn bench_register_ack(b: &mut Bencher) {
 #[bench]
 fn bench_register(b: &mut Bencher) {
     b.iter(|| {
-        let blockchain_protocol = BlockchainProtocol::<RegisterPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<EmptyPayload>::new()
             .set_event_code(16)
             .set_status_code(StatusCodes::Ok)
-            .set_payload(RegisterPayload::new())
+            .set_payload(EmptyPayload::new())
             .build();
 
-        BlockchainProtocol::<RegisterPayload>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
-fn bench_sync_peers(b: &mut Bencher) {
-    b.iter(|| {
-        let payload = SyncPeersPayload {
-            peers: vec![String::from("geggwegwegwegweg"), String::from("sad"), String::from("sfgtgrekiuzhrged")]
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<SyncPeersPayload>::new()
-            .set_event_code(96)
-            .set_status_code(StatusCodes::Ok)
-            .set_payload(payload)
-            .build();
-
-        BlockchainProtocol::<SyncPeersPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }

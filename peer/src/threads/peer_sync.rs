@@ -1,7 +1,7 @@
 use blockchain_hooks::{as_number, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{Payload, SyncPeersPayload};
+use blockchain_protocol::payload::{Payload, EmptyPayload};
 
 use hooks::State;
 use futures_cpupool::{CpuFuture, CpuPool};
@@ -20,16 +20,11 @@ pub fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
             {
                 let state_lock = state.lock().unwrap();
 
-                let mut peers = Vec::new();
-                for (peer, _) in state_lock.peers.clone() {
-                    peers.push(peer);
-                }
-
                 for (peer, _) in state_lock.peers.clone() {
                     let message = BlockchainProtocol::new()
-                        .set_event_code(as_number(EventCodes::SyncPeers))
+                        .set_event_code(as_number(EventCodes::GetPeers))
                         .set_status_code(StatusCodes::Ok)
-                        .set_payload(SyncPeersPayload::new().set_peers(peers.clone()))
+                        .set_payload(EmptyPayload::new())
                         .build();
 
                     udp.send_to(&message, peer).expect("Sending a UDP message should be successful");

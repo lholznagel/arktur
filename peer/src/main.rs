@@ -28,7 +28,7 @@ extern crate time;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::RegisterPayload;
+use blockchain_protocol::payload::EmptyPayload;
 use blockchain_protocol::enums::status::StatusCodes;
 
 use clap::{Arg, App};
@@ -85,24 +85,25 @@ fn connect(hole_puncher: String, storage: String) {
         .set_data_for_block(hooks::on_data_for_block)
         .set_explore_network(hooks::on_explore_network)
         .set_found_block(hooks::on_found_block)
+        .set_get_peers(hooks::peers::get_peers)
+        .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
         .set_new_block(hooks::on_new_block)
-        .set_ping(hooks::on_ping)
-        .set_pong(hooks::on_pong)
+        .set_ping(hooks::misc::ping)
+        .set_pong(hooks::misc::pong)
         .set_possible_block(hooks::on_possible_block)
-        .set_register(hooks::register)
-        .set_register_ack(hooks::register_ack)
+        .set_register(hooks::peers::register)
+        .set_register_ack(hooks::peers::register_ack)
         .set_sync_blocks(hooks::on_sync_blocks)
         .set_sync_blocks_ack(hooks::on_sync_blocks_ack)
         .set_sync_blocks_req(hooks::on_sync_blocks_req)
         .set_sync_blocks_req_ack(hooks::on_sync_blocks_req_ack)
-        .set_sync_peers(hooks::on_sync_peers)
         .set_validate_hash(hooks::on_validate_hash)
         .set_validated_hash(hooks::on_validated_hash);
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
-    let request = BlockchainProtocol::<RegisterPayload>::new()
+    let request = BlockchainProtocol::<EmptyPayload>::new()
         .set_event_code(as_number(EventCodes::Register))
         .set_status_code(StatusCodes::Ok)
         .build();

@@ -19,15 +19,24 @@ pub enum EventCodes {
     ///
     /// Code: 1
     Pong,
-    /// This event should be used to register at a hole puncher.
+    /// Requests a list of peers
+    ///
+    /// Code: 67
+    GetPeers,
+    /// Gets a list of peers
+    ///
+    /// Code: 67
+    GetPeersAck,
+    /// Register at a peer or a hole puncher
     ///
     /// Code: 66
     Register,
-    /// This event is send by the hole puncher, when the registration
-    /// is successful.
+    /// Acknowledges the registration by sending back a list of peers
     ///
     /// Code: 67
     RegisterAck,
+
+
     /// This event is to add data for the next block
     ///
     /// Code: 32
@@ -67,10 +76,6 @@ pub enum EventCodes {
     /// Code: 48
     HolePuncherConn,
 
-    /// Fired when a peer syncs his peers
-    ///
-    /// Code: 96
-    SyncPeers,
     /// Fired when a peer wants to sync blocks
     ///
     /// Code: 97
@@ -122,7 +127,9 @@ pub fn as_enum(value: u8) -> EventCodes {
     match value {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
-        64 => EventCodes::Register,
+        64 => EventCodes::GetPeers,
+        65 => EventCodes::GetPeersAck,
+        66 => EventCodes::Register,
         67 => EventCodes::RegisterAck,
         32 => EventCodes::DataForBlock,
         33 => EventCodes::NewBlock,
@@ -131,7 +138,6 @@ pub fn as_enum(value: u8) -> EventCodes {
         36 => EventCodes::ValidatedHash,
         37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
-        96 => EventCodes::SyncPeers,
         97 => EventCodes::SyncBlocks,
         98 => EventCodes::SyncBlocksAck,
         99 => EventCodes::SyncBlocksReq,
@@ -161,7 +167,9 @@ pub fn as_number(value: EventCodes) -> u8 {
     match value {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
-        EventCodes::Register => 64,
+        EventCodes::GetPeers => 64,
+        EventCodes::GetPeersAck => 65,
+        EventCodes::Register => 66,
         EventCodes::RegisterAck => 67,
         EventCodes::DataForBlock => 32,
         EventCodes::NewBlock => 33,
@@ -170,7 +178,6 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::ValidatedHash => 36,
         EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
-        EventCodes::SyncPeers => 96,
         EventCodes::SyncBlocks => 97,
         EventCodes::SyncBlocksAck => 98,
         EventCodes::SyncBlocksReq => 99,

@@ -1,7 +1,8 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::enums::status::StatusCodes;
-use blockchain_protocol::payload::{Payload, RegisterAckPayload};
+use blockchain_protocol::payload::Payload;
+use blockchain_protocol::payload::peers::RegisterAckPayload;
 
 use hooks::State;
 

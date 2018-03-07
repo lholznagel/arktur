@@ -18,14 +18,28 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub pong: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `REGISTER_HOLE_PUNCHER` event
+    /// Executed on a `GET_PEERS` event
+    /// Code: 64
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_peers: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `GET_PEERS_ACK` event
+    /// Code: 65
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_peers_ack: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `REGISTER` event
     /// Code: 66
     ///
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
     pub register: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `REGISTER_HOLE_PUNCHER_ACK` event
+    /// Executed on a `REGISTER_ACK` event
     /// Code: 67
     ///
     /// # Parameters
@@ -84,13 +98,6 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub on_hole_puncher_conn: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `SYNC_PEER` event
-    /// Code: 96
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_sync_peers: Option<fn(ApplicationState<T>)>,
     /// Executed on a `SYNC_BLOCKS` event
     /// Code: 97
     ///
@@ -135,6 +142,8 @@ impl<T> Hooks<T> {
         Self {
             ping: None,
             pong: None,
+            get_peers: None,
+            get_peers_ack: None,
             register: None,
             register_ack: None,
             on_data_for_block: None,
@@ -144,7 +153,6 @@ impl<T> Hooks<T> {
             on_validated_hash: None,
             on_found_block: None,
             on_hole_puncher_conn: None,
-            on_sync_peers: None,
             on_sync_blocks: None,
             on_sync_blocks_ack: None,
             on_sync_blocks_req: None,
@@ -165,13 +173,25 @@ impl<T> Hooks<T> {
         self
     }
 
-    /// Registers a register_hole_puncher hook
+    /// Registers a get_peers hook
+    pub fn set_get_peers(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_peers = Some(function);
+        self
+    }
+
+    /// Registers a get_peers_ack hook
+    pub fn set_get_peers_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_peers = Some(function);
+        self
+    }
+
+    /// Registers a register hook
     pub fn set_register(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.register = Some(function);
         self
     }
 
-    /// Registers a register_hole_puncher_ack hook
+    /// Registers a register_ack hook
     pub fn set_register_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.register_ack = Some(function);
         self
@@ -216,12 +236,6 @@ impl<T> Hooks<T> {
     /// Registers a hole_puncher_conn hook
     pub fn set_hole_puncher_conn(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_hole_puncher_conn = Some(function);
-        self
-    }
-
-    /// Registers a sync_peers hook
-    pub fn set_sync_peers(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_sync_peers = Some(function);
         self
     }
 
