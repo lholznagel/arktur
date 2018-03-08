@@ -1,6 +1,5 @@
 use blockchain_hooks::{as_number, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{DataForBlockPayload, Payload};
 
 use clap::ArgMatches;
@@ -26,7 +25,6 @@ pub fn execute(args: &ArgMatches) {
 
     let request = BlockchainProtocol::<DataForBlockPayload>::new()
             .set_event_code(as_number(EventCodes::DataForBlock))
-            .set_status_code(StatusCodes::Ok)
             .set_payload(payload)
             .build();
 

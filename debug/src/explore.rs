@@ -1,6 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::ExploreNetworkPayload;
 
 use clap::ArgMatches;
@@ -22,7 +21,6 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
     let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
         .set_event_code(as_number(EventCodes::ExploreNetwork))
-        .set_status_code(StatusCodes::Ok)
         .build();
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
@@ -103,7 +101,6 @@ pub fn on_explore_network(state: ApplicationState<ExploreState>) {
         for address in message.payload.addresses {
             let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
                 .set_event_code(as_number(EventCodes::ExploreNetwork))
-                .set_status_code(StatusCodes::Ok)
                 .build();
 
             if !address.is_empty() && !state_lock.peers.contains_key(&address) {

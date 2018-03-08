@@ -1,6 +1,5 @@
 use blockchain_hooks::{as_number, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{Payload, PingPayload};
 
 use hooks::State;
@@ -30,7 +29,6 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
 
                         let message = BlockchainProtocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
-                            .set_status_code(StatusCodes::Ok)
                             .set_payload(PingPayload::new())
                             .build();
 

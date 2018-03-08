@@ -1,5 +1,4 @@
 //! Contains the protocol model and a builder for the protocol
-use enums::status::{as_enum as as_enum_status, as_number as as_number_status, StatusCodes};
 use payload::{Parser, Payload};
 use std::{slice, mem};
 use crc::crc32;
@@ -15,7 +14,7 @@ pub enum ParseErrors {
 /// ```
 /// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // | Event code            | Status                |                 ID                            |
+/// // | Event code            |                       |                 ID                            |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // |               Data length                     |                 Reserved                      |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -32,8 +31,6 @@ pub enum ParseErrors {
 pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: u8,
-    /// Status of this message, defined by a number between 0 and 255
-    pub status_code: StatusCodes,
     /// Identification of this message
     pub id: u16,
     /// Identification of this message
@@ -51,7 +48,6 @@ impl<T: Payload> BlockchainProtocol<T> {
     pub fn new() -> Self {
         BlockchainProtocol {
             event_code: 255,
-            status_code: StatusCodes::Undefined,
             id: 0,
             payload_length: 0,
             reserved: 0,
@@ -75,22 +71,20 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// extern crate blockchain_protocol;
     ///
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::enums::status::StatusCodes;
     /// use blockchain_protocol::payload::{Payload, PingPayload};
     ///
     /// # fn main() {
     ///     let payload = PingPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
-    ///         status_code: StatusCodes::Undefined,
     ///         id: 65535,
-    ///         payload_length: 0,
+    ///         payload_length: 1,
     ///         reserved: 0,
-    ///         checksum: 354351495,
+    ///         checksum: 1066718418,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
+    ///     let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
@@ -110,24 +104,6 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// Updated instance of the struct
     pub fn set_event_code(mut self, event_code: u8) -> Self {
         self.event_code = event_code;
-        self
-    }
-
-    /// Sets the status code
-    ///
-    /// # Default
-    ///
-    /// StatusCodes::Undefined
-    ///
-    /// # Parameters
-    ///
-    /// - `status_code` - status code of the message
-    ///
-    /// # Return
-    ///
-    /// Updated instance of the struct
-    pub fn set_status_code(mut self, status_code: StatusCodes) -> Self {
-        self.status_code = status_code;
         self
     }
 
@@ -174,22 +150,20 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// extern crate blockchain_protocol;
     ///
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::enums::status::StatusCodes;
     /// use blockchain_protocol::payload::{Payload, PingPayload};
     ///
     /// # fn main() {
     ///     let payload = PingPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
-    ///         status_code: StatusCodes::Undefined,
     ///         id: 65535,
-    ///         payload_length: 0,
-    ///         checksum: 354351495,
+    ///         payload_length: 1,
+    ///         checksum: 1066718418,
     ///         reserved: 0,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
+    ///     let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
@@ -197,7 +171,6 @@ impl<T: Payload> BlockchainProtocol<T> {
     fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
         let protocol = BlockchainProtocol {
             event_code: bytes[0],
-            status_code: as_enum_status(bytes[1]),
             id: Parser::u8_to_u16(&bytes[2..4]),
             payload_length: Parser::u8_to_u16(&bytes[4..6]),
             reserved: 0,
@@ -219,7 +192,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///
     /// - `Vec<u8>` - Vector containing the header values as u8
     fn header_to_bytes(&self) -> Vec<u8> {
-        let mut result = vec![self.event_code.clone(), as_number_status(self.status_code.clone())];
+        let mut result = vec![self.event_code.clone(), 0];
         let slice_u16: &[u16] = &*vec![self.id, self.payload_length, self.reserved];
         let converted_slice: &[u8] = unsafe {
             slice::from_raw_parts(
@@ -253,42 +226,39 @@ impl<T: Payload> BlockchainProtocol<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use enums::status::StatusCodes;
-    use payload::{Payload, PingPayload};
+    use payload::{Payload, EmptyPayload};
 
     #[test]
     fn test_u8() {
-        let payload = PingPayload::new();
-        let expected = BlockchainProtocol::<PingPayload> {
+        let payload = EmptyPayload::new();
+        let expected = BlockchainProtocol::<EmptyPayload> {
             event_code: 1,
-            status_code: StatusCodes::Undefined,
             id: 65535,
-            payload_length: 0,
+            payload_length: 1,
             reserved: 0,
-            checksum: 354351495,
+            checksum: 1066718418,
             payload: payload,
         };
 
-        let payload = &[1, 255, 255, 255, 0, 0, 0, 0, 135, 249, 30, 21, 0];
-        let result = BlockchainProtocol::<PingPayload>::from_bytes(payload);
+        let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
+        let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
     fn test_hex() {
-        let payload = PingPayload::new();
-        let expected = BlockchainProtocol::<PingPayload> {
+        let payload = EmptyPayload::new();
+        let expected = BlockchainProtocol::<EmptyPayload> {
             event_code: 1,
-            status_code: StatusCodes::Undefined,
             id: 65535,
-            payload_length: 0,
+            payload_length: 1,
             reserved: 0,
-            checksum: 354351495,
+            checksum: 1066718418,
             payload: payload,
         };
 
-        let payload = &[0x01, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x87, 0xF9, 0x1E, 0x15, 0x00];
-        let result = BlockchainProtocol::<PingPayload>::from_bytes(payload);
+        let payload = &[0x01, 0x00, 0xFF, 0xFF, 0x01, 0x00, 0x00, 0x00, 0xD2, 0xD4, 0x94, 0x3F, 0x00];
+        let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
 }

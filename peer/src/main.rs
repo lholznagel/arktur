@@ -29,7 +29,6 @@ extern crate time;
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::EmptyPayload;
-use blockchain_protocol::enums::status::StatusCodes;
 
 use clap::{Arg, App};
 use futures_cpupool::CpuPool;
@@ -105,7 +104,6 @@ fn connect(hole_puncher: String, storage: String) {
 
     let request = BlockchainProtocol::<EmptyPayload>::new()
         .set_event_code(as_number(EventCodes::Register))
-        .set_status_code(StatusCodes::Ok)
         .build();
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");

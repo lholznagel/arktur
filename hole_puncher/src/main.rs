@@ -74,7 +74,6 @@ mod hooks;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::enums::status::StatusCodes;
 use blockchain_protocol::payload::{Payload, PingPayload};
 
 use futures_cpupool::CpuPool;
@@ -125,7 +124,6 @@ fn connect() {
 
                         let message = BlockchainProtocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
-                            .set_status_code(StatusCodes::Ok)
                             .set_payload(PingPayload::new())
                             .build();
 

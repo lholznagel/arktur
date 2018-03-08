@@ -20,7 +20,6 @@ extern crate quickcheck;
 extern crate crc;
 extern crate time;
 
-pub mod enums;
 pub mod payload;
 
 mod protocol;
