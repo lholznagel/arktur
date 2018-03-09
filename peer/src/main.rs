@@ -84,6 +84,10 @@ fn connect(hole_puncher: String, storage: String) {
         .set_data_for_block(hooks::on_data_for_block)
         .set_explore_network(hooks::on_explore_network)
         .set_found_block(hooks::on_found_block)
+        .set_get_block(hooks::blocks::get_block)
+        .set_get_block_ack(hooks::blocks::get_block_ack)
+        .set_get_blocks(hooks::blocks::get_blocks)
+        .set_get_blocks_ack(hooks::blocks::get_blocks_ack)
         .set_get_peers(hooks::peers::get_peers)
         .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
@@ -93,10 +97,6 @@ fn connect(hole_puncher: String, storage: String) {
         .set_possible_block(hooks::on_possible_block)
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack)
-        .set_sync_blocks(hooks::on_sync_blocks)
-        .set_sync_blocks_ack(hooks::on_sync_blocks_ack)
-        .set_sync_blocks_req(hooks::on_sync_blocks_req)
-        .set_sync_blocks_req_ack(hooks::on_sync_blocks_req_ack)
         .set_validate_hash(hooks::on_validate_hash)
         .set_validated_hash(hooks::on_validated_hash);
 

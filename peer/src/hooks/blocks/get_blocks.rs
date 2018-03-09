@@ -1,12 +1,12 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::SyncBlocksAck;
+use blockchain_protocol::payload::blocks::GetBlocksAck;
 
 use hooks::State;
 
 use std::fs::read_dir;
 
-pub fn on_sync_blocks(state: ApplicationState<State>) {
+pub fn get_blocks(state: ApplicationState<State>) {
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
@@ -19,11 +19,11 @@ pub fn on_sync_blocks(state: ApplicationState<State>) {
         blocks.push(path);
 
         if count == 999 {
-            let payload = SyncBlocksAck {
+            let payload = GetBlocksAck {
                 blocks
             };
             let message = BlockchainProtocol::new()
-                .set_event_code(as_number(EventCodes::SyncBlocksAck))
+                .set_event_code(as_number(EventCodes::GetBlocksAck))
                 .set_payload(payload)
                 .build();
 
@@ -38,11 +38,11 @@ pub fn on_sync_blocks(state: ApplicationState<State>) {
     }
 
     if blocks.len() > 0 {
-        let payload = SyncBlocksAck {
+        let payload = GetBlocksAck {
             blocks
         };
         let message = BlockchainProtocol::new()
-            .set_event_code(as_number(EventCodes::SyncBlocksAck))
+            .set_event_code(as_number(EventCodes::GetBlocksAck))
             .set_payload(payload)
             .build();
 

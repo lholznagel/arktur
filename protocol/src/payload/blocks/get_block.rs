@@ -9,12 +9,12 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct SyncBlocksReq {
+pub struct GetBlock {
     /// requested block
     pub block: String,
 }
 
-impl Payload for SyncBlocksReq {
+impl Payload for GetBlock {
     fn new() -> Self {
         Self { block: String::new() }
     }
@@ -45,13 +45,13 @@ mod tests {
     fn test_building_and_parsing() {
         let block = String::from("ABCDEFGHIJKLMNOP");
 
-        let block_ack = SyncBlocksReq {
+        let block_ack = GetBlock {
             block: block.clone()
         };
 
         let block_ack = block_ack.to_bytes();
         let complete = Parser::parse_payload(&block_ack);
-        let parsed = SyncBlocksReq::parse(complete);
+        let parsed = GetBlock::parse(complete);
 
         assert_eq!(block, parsed.block);
     }

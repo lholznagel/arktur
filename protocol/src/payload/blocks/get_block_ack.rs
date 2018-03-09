@@ -30,7 +30,7 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct SyncBlocksReqAck {
+pub struct GetBlockAck {
     /// filename
     pub filename: String,
     /// Index of the block
@@ -47,7 +47,7 @@ pub struct SyncBlocksReqAck {
     pub content: String
 }
 
-impl Payload for SyncBlocksReqAck {
+impl Payload for GetBlockAck {
     fn new() -> Self {
         Self {
             filename: String::new(),
@@ -108,7 +108,7 @@ mod tests {
         let hash = String::from("6j56j65j65jrtjrgqwfdsav");
         let content = String::from("Some string");
 
-        let payload = SyncBlocksReqAck {
+        let payload = GetBlockAck {
             filename: filename.clone(),
             index: index.clone(),
             timestamp: timestamp.clone(),
@@ -120,7 +120,7 @@ mod tests {
 
         let payload = payload.to_bytes();
         let complete = Parser::parse_payload(&payload);
-        let parsed = SyncBlocksReqAck::parse(complete);
+        let parsed = GetBlockAck::parse(complete);
 
         assert_eq!(filename, parsed.filename);
         assert_eq!(index, parsed.index);
@@ -141,7 +141,7 @@ mod tests {
         let hash = String::from("nrtnrbwefvrmukjgfbdvshbjnrtnrh");
         let content = "a".repeat(500);
 
-        let payload = SyncBlocksReqAck {
+        let payload = GetBlockAck {
             filename: filename.clone(),
             index: index.clone(),
             timestamp: timestamp.clone(),
@@ -155,7 +155,7 @@ mod tests {
         assert_eq!(payload[1], 2);
 
         let complete = Parser::parse_payload(&payload);
-        let parsed = SyncBlocksReqAck::parse(complete);
+        let parsed = GetBlockAck::parse(complete);
 
         assert_eq!(filename, parsed.filename);
         assert_eq!(index, parsed.index);
@@ -176,7 +176,7 @@ mod tests {
         let hash = String::from("sgehnefindsivnhsfsdfiudnusdgn");
         let content = "b".repeat(1000);
 
-        let payload = SyncBlocksReqAck {
+        let payload = GetBlockAck {
             filename: filename.clone(),
             index: index.clone(),
             timestamp: timestamp.clone(),
@@ -190,7 +190,7 @@ mod tests {
         assert_eq!(payload[1], 4);
 
         let complete = Parser::parse_payload(&payload);
-        let parsed = SyncBlocksReqAck::parse(complete);
+        let parsed = GetBlockAck::parse(complete);
 
         assert_eq!(filename, parsed.filename);
         assert_eq!(index, parsed.index);
@@ -212,7 +212,7 @@ mod tests {
             let hash = hash;
             let content = content;
 
-            let payload = SyncBlocksReqAck {
+            let payload = GetBlockAck {
                 filename: filename.clone(),
                 index: index.clone(),
                 timestamp: timestamp.clone(),
@@ -225,7 +225,7 @@ mod tests {
             let payload = payload.to_bytes();
 
             let complete = Parser::parse_payload(&payload);
-            let parsed = SyncBlocksReqAck::parse(complete);
+            let parsed = GetBlockAck::parse(complete);
 
             assert_eq!(filename, parsed.filename);
             assert_eq!(index, parsed.index);

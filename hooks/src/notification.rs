@@ -53,6 +53,11 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::GetPeersAck => self.hook.get_peers_ack,
             EventCodes::Register => self.hook.register,
             EventCodes::RegisterAck => self.hook.register_ack,
+            EventCodes::GetBlocks => self.hook.get_blocks,
+            EventCodes::GetBlocksAck => self.hook.get_blocks_ack,
+            EventCodes::GetBlock => self.hook.get_block,
+            EventCodes::GetBlockAck => self.hook.get_block_ack,
+
             EventCodes::DataForBlock => self.hook.on_data_for_block,
             EventCodes::NewBlock => self.hook.on_new_block,
             EventCodes::PossibleBlock => self.hook.on_possible_block,
@@ -60,10 +65,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::ValidatedHash => self.hook.on_validated_hash,
             EventCodes::FoundBlock => self.hook.on_found_block,
             EventCodes::HolePuncherConn => self.hook.on_hole_puncher_conn,
-            EventCodes::SyncBlocks => self.hook.on_sync_blocks,
-            EventCodes::SyncBlocksAck => self.hook.on_sync_blocks_ack,
-            EventCodes::SyncBlocksReq => self.hook.on_sync_blocks_req,
-            EventCodes::SyncBlocksReqAck => self.hook.on_sync_blocks_req_ack,
             EventCodes::ExploreNetwork => self.hook.on_explore_network,
             EventCodes::NotAValidEvent => None,
         };

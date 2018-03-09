@@ -35,6 +35,22 @@ pub enum EventCodes {
     ///
     /// Code: 67
     RegisterAck,
+    /// Requests a list of blocks
+    ///
+    /// Code: 128
+    GetBlocks,
+    /// Gets a response with blocks containing per default 1000 blocks
+    ///
+    /// Code: 129
+    GetBlocksAck,
+    /// Requests a specific block
+    ///
+    /// Code: 130
+    GetBlock,
+    /// Gets the requested block
+    ///
+    /// Code: 129
+    GetBlockAck,
 
 
     /// This event is to add data for the next block
@@ -76,23 +92,6 @@ pub enum EventCodes {
     /// Code: 48
     HolePuncherConn,
 
-    /// Fired when a peer wants to sync blocks
-    ///
-    /// Code: 97
-    SyncBlocks,
-    /// Contains 1000 block hashes
-    ///
-    /// Code: 98
-    SyncBlocksAck,
-    /// Requests an block
-    ///
-    /// Code: 99
-    SyncBlocksReq,
-    /// Sends back the requestsed block
-    ///
-    /// Code: 100
-    SyncBlocksReqAck,
-
     /// Fired when the debugger explores the network
     ///
     /// Code: 240
@@ -131,6 +130,11 @@ pub fn as_enum(value: u8) -> EventCodes {
         65 => EventCodes::GetPeersAck,
         66 => EventCodes::Register,
         67 => EventCodes::RegisterAck,
+        128 => EventCodes::GetBlocks,
+        129 => EventCodes::GetBlocksAck,
+        130 => EventCodes::GetBlock,
+        131 => EventCodes::GetBlockAck,
+
         32 => EventCodes::DataForBlock,
         33 => EventCodes::NewBlock,
         34 => EventCodes::PossibleBlock,
@@ -138,10 +142,6 @@ pub fn as_enum(value: u8) -> EventCodes {
         36 => EventCodes::ValidatedHash,
         37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
-        97 => EventCodes::SyncBlocks,
-        98 => EventCodes::SyncBlocksAck,
-        99 => EventCodes::SyncBlocksReq,
-        100 => EventCodes::SyncBlocksReqAck,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
@@ -171,6 +171,11 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::GetPeersAck => 65,
         EventCodes::Register => 66,
         EventCodes::RegisterAck => 67,
+        EventCodes::GetBlocks => 128,
+        EventCodes::GetBlocksAck => 129,
+        EventCodes::GetBlock => 130,
+        EventCodes::GetBlockAck => 131,
+
         EventCodes::DataForBlock => 32,
         EventCodes::NewBlock => 33,
         EventCodes::PossibleBlock => 34,
@@ -178,10 +183,6 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::ValidatedHash => 36,
         EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
-        EventCodes::SyncBlocks => 97,
-        EventCodes::SyncBlocksAck => 98,
-        EventCodes::SyncBlocksReq => 99,
-        EventCodes::SyncBlocksReqAck => 100,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }

@@ -11,12 +11,12 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct SyncBlocksAck {
+pub struct GetBlocksAck {
     /// blocks of all blocks
     pub blocks: Vec<String>,
 }
 
-impl Payload for SyncBlocksAck {
+impl Payload for GetBlocksAck {
     fn new() -> Self {
         Self { blocks: Vec::new() }
     }
@@ -55,13 +55,13 @@ mod tests {
     fn test_building_and_parsing() {
         let blocks = vec![String::from("172.0.0.1"), String::from("172.0.0.2")];
 
-        let block_ack = SyncBlocksAck {
+        let block_ack = GetBlocksAck {
             blocks: blocks.clone()
         };
 
         let block_ack = block_ack.to_bytes();
         let complete = Parser::parse_payload(&block_ack);
-        let parsed = SyncBlocksAck::parse(complete);
+        let parsed = GetBlocksAck::parse(complete);
 
         assert_eq!(blocks, parsed.blocks);
     }

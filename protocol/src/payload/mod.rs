@@ -5,7 +5,7 @@ mod empty;
 mod hole_puncher;
 mod misc;
 pub mod peers;
-mod sync;
+pub mod blocks;
 
 mod parser;
 mod payload;
@@ -30,8 +30,3 @@ pub use self::misc::pong::PongPayload;
 pub use self::parser::Parser;
 pub use self::payload::Payload;
 pub use self::payload_builder::PayloadBuilder;
-
-pub use self::sync::blocks::SyncBlocks;
-pub use self::sync::blocks_ack::SyncBlocksAck;
-pub use self::sync::blocks_req::SyncBlocksReq;
-pub use self::sync::blocks_req_ack::SyncBlocksReqAck;

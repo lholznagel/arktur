@@ -46,6 +46,34 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub register_ack: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `GET_BLOCKS` event
+    /// Code: 128
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_blocks: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `GET_BLOCKS_ACK` event
+    /// Code: 129
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_blocks_ack: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `GET_BLOCK` event
+    /// Code: 130
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_block: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `GET_BLOCK_ACK` event
+    /// Code: 131
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub get_block_ack: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `DATA_FOR_BLOCK` event
     /// Code: 32
@@ -98,35 +126,6 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub on_hole_puncher_conn: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `SYNC_BLOCKS` event
-    /// Code: 97
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_sync_blocks: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `SYNC_BLOCKS_ACK` event
-    /// Code: 98
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_sync_blocks_ack: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `SYNC_BLOCKS_REQ` event
-    /// Code: 99
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_sync_blocks_req: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `SYNC_BLOCKS_REQ_ACK` event
-    /// Code: 100
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_sync_blocks_req_ack: Option<fn(ApplicationState<T>)>,
-
     /// Executed on a `EXPLORE_NETWORK` event
     /// Code: 240
     ///
@@ -146,6 +145,11 @@ impl<T> Hooks<T> {
             get_peers_ack: None,
             register: None,
             register_ack: None,
+            get_blocks: None,
+            get_blocks_ack: None,
+            get_block: None,
+            get_block_ack: None,
+
             on_data_for_block: None,
             on_new_block: None,
             on_possible_block: None,
@@ -153,10 +157,6 @@ impl<T> Hooks<T> {
             on_validated_hash: None,
             on_found_block: None,
             on_hole_puncher_conn: None,
-            on_sync_blocks: None,
-            on_sync_blocks_ack: None,
-            on_sync_blocks_req: None,
-            on_sync_blocks_req_ack: None,
             on_explore_network: None,
         }
     }
@@ -194,6 +194,30 @@ impl<T> Hooks<T> {
     /// Registers a register_ack hook
     pub fn set_register_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.register_ack = Some(function);
+        self
+    }
+
+    /// Registers a get_blocks hook
+    pub fn set_get_blocks(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_blocks = Some(function);
+        self
+    }
+
+    /// Registers a get_blocks_ack hook
+    pub fn set_get_blocks_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_blocks_ack = Some(function);
+        self
+    }
+
+    /// Registers a get_block hook
+    pub fn set_get_block(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_block = Some(function);
+        self
+    }
+
+    /// Registers a get_block_ack hook
+    pub fn set_get_block_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.get_block_ack = Some(function);
         self
     }
 
@@ -236,30 +260,6 @@ impl<T> Hooks<T> {
     /// Registers a hole_puncher_conn hook
     pub fn set_hole_puncher_conn(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.on_hole_puncher_conn = Some(function);
-        self
-    }
-
-    /// Registers a sync_blocks hook
-    pub fn set_sync_blocks(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_sync_blocks = Some(function);
-        self
-    }
-
-    /// Registers a sync_blocks_ack hook
-    pub fn set_sync_blocks_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_sync_blocks_ack = Some(function);
-        self
-    }
-
-    /// Registers a sync_blocks hook
-    pub fn set_sync_blocks_req(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_sync_blocks_req = Some(function);
-        self
-    }
-
-    /// Registers a sync_blocks_req_ack hook
-    pub fn set_sync_blocks_req_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_sync_blocks_req_ack = Some(function);
         self
     }
 
