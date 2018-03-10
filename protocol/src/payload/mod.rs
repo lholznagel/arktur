@@ -13,7 +13,6 @@ mod payload_builder;
 
 pub use self::empty::EmptyPayload;
 
-pub use self::block::data_for_block::DataForBlockPayload;
 pub use self::block::found_block::FoundBlockPayload;
 pub use self::block::new_block::NewBlockPayload;
 pub use self::block::possible_block::PossibleBlockPayload;

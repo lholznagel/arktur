@@ -57,8 +57,8 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::GetBlocksAck => self.hook.get_blocks_ack,
             EventCodes::GetBlock => self.hook.get_block,
             EventCodes::GetBlockAck => self.hook.get_block_ack,
+            EventCodes::BlockData => self.hook.block_data,
 
-            EventCodes::DataForBlock => self.hook.on_data_for_block,
             EventCodes::NewBlock => self.hook.on_new_block,
             EventCodes::PossibleBlock => self.hook.on_possible_block,
             EventCodes::ValidateHash => self.hook.on_validate_hash,

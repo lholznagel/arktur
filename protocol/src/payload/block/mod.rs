@@ -1,5 +1,4 @@
 //! Contains all payload parsers for block events
-pub mod data_for_block;
 pub mod found_block;
 pub mod new_block;
 pub mod possible_block;

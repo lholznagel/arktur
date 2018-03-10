@@ -4,22 +4,23 @@ extern crate blockchain_protocol;
 
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::*;
+use blockchain_protocol::payload::blocks::*;
 
 quickcheck! {
     fn test_data_for_block(unique_key: String, content: String) -> bool {
         let content = content;
 
-        let payload = DataForBlockPayload {
+        let payload = BlockData {
             unique_key: unique_key.clone(),
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockData>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<DataForBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = BlockchainProtocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(unique_key, blockchain_parsed.payload.unique_key);
         assert_eq!(content, blockchain_parsed.payload.content);
         true

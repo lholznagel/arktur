@@ -49,14 +49,13 @@ pub enum EventCodes {
     GetBlock,
     /// Gets the requested block
     ///
-    /// Code: 129
+    /// Code: 131
     GetBlockAck,
-
-
-    /// This event is to add data for the next block
+    /// Adds new data ro the next block
     ///
-    /// Code: 32
-    DataForBlock,
+    /// Code: 132
+    BlockData,
+
     /// This event is send by the connection manager, when a new block
     /// should be mined
     /// Content of the message contains the index of the block,
@@ -134,8 +133,8 @@ pub fn as_enum(value: u8) -> EventCodes {
         129 => EventCodes::GetBlocksAck,
         130 => EventCodes::GetBlock,
         131 => EventCodes::GetBlockAck,
+        132 => EventCodes::BlockData,
 
-        32 => EventCodes::DataForBlock,
         33 => EventCodes::NewBlock,
         34 => EventCodes::PossibleBlock,
         35 => EventCodes::ValidateHash,
@@ -175,8 +174,8 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::GetBlocksAck => 129,
         EventCodes::GetBlock => 130,
         EventCodes::GetBlockAck => 131,
+        EventCodes::BlockData => 132,
 
-        EventCodes::DataForBlock => 32,
         EventCodes::NewBlock => 33,
         EventCodes::PossibleBlock => 34,
         EventCodes::ValidateHash => 35,

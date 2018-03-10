@@ -1,6 +1,7 @@
 use blockchain_hooks::{as_number, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{DataForBlockPayload, Payload};
+use blockchain_protocol::payload::Payload;
+use blockchain_protocol::payload::blocks::BlockData;
 
 use clap::ArgMatches;
 use std::net::UdpSocket;
@@ -14,7 +15,7 @@ pub fn execute(args: &ArgMatches) {
         peer_address.push_str(args.value_of("PEER_PORT").unwrap());
     }
 
-    let mut payload = DataForBlockPayload::new();
+    let mut payload = BlockData::new();
     payload.unique_key = (0..8).map(|_| (0x20u8 + (random::<f32>() * 96.0) as u8) as char).collect();
     
     if args.is_present("MESSAGE") {
@@ -23,8 +24,8 @@ pub fn execute(args: &ArgMatches) {
         payload.content = "Super awesome message".to_string();
     }
 
-    let request = BlockchainProtocol::<DataForBlockPayload>::new()
-            .set_event_code(as_number(EventCodes::DataForBlock))
+    let request = BlockchainProtocol::<BlockData>::new()
+            .set_event_code(as_number(EventCodes::BlockData))
             .set_payload(payload)
             .build();
 

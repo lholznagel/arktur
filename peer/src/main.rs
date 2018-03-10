@@ -81,7 +81,7 @@ fn connect(hole_puncher: String, storage: String) {
     let mut thread_storage = Vec::new();
 
     let hooks = Hooks::new()
-        .set_data_for_block(hooks::on_data_for_block)
+        .set_block_data(hooks::blocks::block_data)
         .set_explore_network(hooks::on_explore_network)
         .set_found_block(hooks::on_found_block)
         .set_get_block(hooks::blocks::get_block)

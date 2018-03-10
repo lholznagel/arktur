@@ -1,4 +1,3 @@
-mod data_for_block;
 mod explore_network;
 mod found_block;
 mod holepuncher_conn;
@@ -11,7 +10,6 @@ pub mod blocks;
 pub mod misc;
 pub mod peers;
 
-pub use self::data_for_block::on_data_for_block;
 pub use self::explore_network::on_explore_network;
 pub use self::found_block::on_found_block;
 pub use self::holepuncher_conn::on_hole_puncher_conn;

@@ -5,6 +5,7 @@ extern crate test;
 
 use blockchain_protocol::BlockchainProtocol;
 use blockchain_protocol::payload::*;
+use blockchain_protocol::payload::blocks::*;
 use blockchain_protocol::payload::peers::*;
 
 use test::Bencher;
@@ -12,17 +13,17 @@ use test::Bencher;
 #[bench]
 fn bench_data_for_block(b: &mut Bencher) {
     b.iter(|| {
-        let payload = DataForBlockPayload {
+        let payload = BlockData {
             unique_key: String::from("asdafhgr"),
             content: String::from("asdasdasfagewg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<DataForBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockData>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<DataForBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 

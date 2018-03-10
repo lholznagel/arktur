@@ -74,14 +74,14 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub get_block_ack: Option<fn(ApplicationState<T>)>,
-
-    /// Executed on a `DATA_FOR_BLOCK` event
-    /// Code: 32
+    /// Executed on a `BLOCK_DATA` event
+    /// Code: 132
     ///
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub on_data_for_block: Option<fn(ApplicationState<T>)>,
+    pub block_data: Option<fn(ApplicationState<T>)>,
+
     /// Executed on a `NEW_BLOCK` event
     /// Code: 33
     ///
@@ -149,8 +149,8 @@ impl<T> Hooks<T> {
             get_blocks_ack: None,
             get_block: None,
             get_block_ack: None,
+            block_data: None,
 
-            on_data_for_block: None,
             on_new_block: None,
             on_possible_block: None,
             on_validate_hash: None,
@@ -221,9 +221,9 @@ impl<T> Hooks<T> {
         self
     }
 
-    /// Registers a data_for_block hook
-    pub fn set_data_for_block(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_data_for_block = Some(function);
+    /// Registers a block_data hook
+    pub fn set_block_data(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.block_data = Some(function);
         self
     }
 

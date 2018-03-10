@@ -16,7 +16,7 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct DataForBlockPayload {
+pub struct BlockData {
     /// contains a unique key so that the peers
     /// can check if they already know the content
     pub unique_key: String,
@@ -24,7 +24,7 @@ pub struct DataForBlockPayload {
     pub content: String
 }
 
-impl Payload for DataForBlockPayload {
+impl Payload for BlockData {
     fn new() -> Self {
         Self {
             unique_key: String::from(""),
@@ -63,13 +63,13 @@ mod tests {
         let unique_key = String::from("asfdkgrf");
         let content = String::from("ngiurengoiurehgbiuergneoigjoierhg");
 
-        let data = DataForBlockPayload {
+        let data = BlockData {
             unique_key: unique_key.clone(),
             content: content.clone()
         };
 
         let complete = Parser::parse_payload(&data.to_bytes());
-        let parsed = DataForBlockPayload::parse(complete);
+        let parsed = BlockData::parse(complete);
 
         assert_eq!(unique_key, parsed.unique_key);
         assert_eq!(content, parsed.content);
@@ -81,13 +81,13 @@ mod tests {
             let unique_key = unique_key;
             let content = content;
 
-            let data = DataForBlockPayload {
+            let data = BlockData {
                 unique_key: unique_key.clone(),
                 content: content.clone()
             };
 
             let complete = Parser::parse_payload(&data.to_bytes());
-            let parsed = DataForBlockPayload::parse(complete);
+            let parsed = BlockData::parse(complete);
 
             assert_eq!(unique_key, parsed.unique_key);
             assert_eq!(content, parsed.content);
