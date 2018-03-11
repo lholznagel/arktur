@@ -28,7 +28,7 @@ use time::get_time;
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct NewBlockPayload {
+pub struct BlockGen {
     /// Index of the block
     pub index: u64,
     /// Timestamp the block was created
@@ -41,7 +41,7 @@ pub struct NewBlockPayload {
     pub content: String
 }
 
-impl NewBlockPayload {
+impl BlockGen {
     /// Creates a new block
     pub fn block(index: u64, prev: String, content: String) -> Self {
         Self {
@@ -54,7 +54,7 @@ impl NewBlockPayload {
     }
 }
 
-impl Payload for NewBlockPayload {
+impl Payload for BlockGen {
     fn new() -> Self {
         Self {
             index: 0,
@@ -109,7 +109,7 @@ mod tests {
         let sign_key = String::from("0000");
         let content = String::from("Some string");
 
-        let new_block = NewBlockPayload {
+        let new_block = BlockGen {
             index: index.clone(),
             timestamp: timestamp.clone(),
             sign_key: sign_key.clone(),
@@ -119,7 +119,7 @@ mod tests {
 
         let new_block = new_block.to_bytes();
         let complete = Parser::parse_payload(&new_block);
-        let parsed = NewBlockPayload::parse(complete);
+        let parsed = BlockGen::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -136,7 +136,7 @@ mod tests {
         let sign_key = String::from("0000");
         let content = "a".repeat(500);
 
-        let new_block = NewBlockPayload {
+        let new_block = BlockGen {
             index: index.clone(),
             timestamp: timestamp.clone(),
             sign_key: sign_key.clone(),
@@ -148,7 +148,7 @@ mod tests {
         assert_eq!(new_block[1], 2);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = NewBlockPayload::parse(complete);
+        let parsed = BlockGen::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -165,7 +165,7 @@ mod tests {
         let sign_key = String::from("0000");
         let content = "b".repeat(1000);
 
-        let new_block = NewBlockPayload {
+        let new_block = BlockGen {
             index: index.clone(),
             timestamp: timestamp.clone(),
             sign_key: sign_key.clone(),
@@ -177,7 +177,7 @@ mod tests {
         assert_eq!(new_block[1], 4);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = NewBlockPayload::parse(complete);
+        let parsed = BlockGen::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -195,7 +195,7 @@ mod tests {
             let prev = prev;
             let content = content;
 
-            let new_block = NewBlockPayload {
+            let new_block = BlockGen {
                 index: index.clone(),
                 timestamp: timestamp.clone(),
                 sign_key: sign_key.clone(),
@@ -206,7 +206,7 @@ mod tests {
             let new_block = new_block.to_bytes();
 
             let complete = Parser::parse_payload(&new_block);
-            let parsed = NewBlockPayload::parse(complete);
+            let parsed = BlockGen::parse(complete);
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);

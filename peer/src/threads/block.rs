@@ -1,6 +1,6 @@
 use blockchain_hooks::{as_number, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::NewBlockPayload;
+use blockchain_protocol::payload::blocks::BlockGen;
 
 use hooks::State;
 use futures_cpupool::{CpuFuture, CpuPool};
@@ -35,7 +35,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
 
                     // at least 3 peers are required
                     if state_lock.peers.len() >= 2 {
-                        let mut payload = NewBlockPayload::block(0, String::from("0".repeat(64)), String::from(""));
+                        let mut payload = BlockGen::block(0, String::from("0".repeat(64)), String::from(""));
 
                         if blocks_saved > 0 {
                             let mut next_block = String::from("");
@@ -51,12 +51,12 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                                 file.read_to_string(&mut content).expect("Should be able to rad last block");
 
                                 let result: Vec<&str> = content.split('\n').collect();
-                                payload = NewBlockPayload::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);
+                                payload = BlockGen::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);
                             }
                         }
 
                         let message = BlockchainProtocol::new()
-                            .set_event_code(as_number(EventCodes::NewBlock))
+                            .set_event_code(as_number(EventCodes::BlockGen))
                             .set_payload(payload)
                             .build();
 

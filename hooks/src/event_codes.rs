@@ -55,17 +55,11 @@ pub enum EventCodes {
     ///
     /// Code: 132
     BlockData,
-
-    /// This event is send by the connection manager, when a new block
-    /// should be mined
-    /// Content of the message contains the index of the block,
-    /// the content of the block, the timestamp of the block,
-    /// and the hash of the last block.
-    /// The expected result is hash and a nonce that was used to generate
-    /// this block
+    /// Generates a new block
     ///
-    /// Code: 33
-    NewBlock,
+    /// Code: 133
+    BlockGen,
+
     /// This event is fired by a peer that found a possible block
     /// Content of this message should be the nonce and the hash
     ///
@@ -134,8 +128,8 @@ pub fn as_enum(value: u8) -> EventCodes {
         130 => EventCodes::GetBlock,
         131 => EventCodes::GetBlockAck,
         132 => EventCodes::BlockData,
+        133 => EventCodes::BlockGen,
 
-        33 => EventCodes::NewBlock,
         34 => EventCodes::PossibleBlock,
         35 => EventCodes::ValidateHash,
         36 => EventCodes::ValidatedHash,
@@ -175,8 +169,8 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::GetBlock => 130,
         EventCodes::GetBlockAck => 131,
         EventCodes::BlockData => 132,
+        EventCodes::BlockGen => 133,
 
-        EventCodes::NewBlock => 33,
         EventCodes::PossibleBlock => 34,
         EventCodes::ValidateHash => 35,
         EventCodes::ValidatedHash => 36,

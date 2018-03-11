@@ -82,6 +82,7 @@ fn connect(hole_puncher: String, storage: String) {
 
     let hooks = Hooks::new()
         .set_block_data(hooks::blocks::block_data)
+        .set_block_gen(hooks::blocks::block_gen)
         .set_explore_network(hooks::on_explore_network)
         .set_found_block(hooks::on_found_block)
         .set_get_block(hooks::blocks::get_block)
@@ -91,7 +92,6 @@ fn connect(hole_puncher: String, storage: String) {
         .set_get_peers(hooks::peers::get_peers)
         .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
-        .set_new_block(hooks::on_new_block)
         .set_ping(hooks::misc::ping)
         .set_pong(hooks::misc::pong)
         .set_possible_block(hooks::on_possible_block)

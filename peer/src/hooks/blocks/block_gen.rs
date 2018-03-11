@@ -1,14 +1,15 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{FoundBlockPayload, NewBlockPayload, PossibleBlockPayload};
+use blockchain_protocol::payload::{FoundBlockPayload, PossibleBlockPayload};
+use blockchain_protocol::payload::blocks::BlockGen;
 
 use hooks::State;
 
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
-pub fn on_new_block(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<NewBlockPayload>::from_bytes(&state.payload_buffer)
+pub fn block_gen(state: ApplicationState<State>) {
+    let message = BlockchainProtocol::<BlockGen>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     {
