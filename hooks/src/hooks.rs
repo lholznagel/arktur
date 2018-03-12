@@ -88,6 +88,20 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub block_gen: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `HASH_VAL` event
+    /// Code: 135
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub hash_val: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `HASH_VAL_ACK` event
+    /// Code: 136
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub hash_val_ack: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `POSSIBLE_BLOCK` event
     /// Code: 34
@@ -96,20 +110,6 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub on_possible_block: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `VALIDATE_HASH` event
-    /// Code: 35
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_validate_hash: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `VALIDATED_HASH` event
-    /// Code: 36
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_validated_hash: Option<fn(ApplicationState<T>)>,
     /// Executed on a `FOUND_BLOCK` event
     /// Code: 37
     ///
@@ -151,10 +151,10 @@ impl<T> Hooks<T> {
             get_block_ack: None,
             block_data: None,
             block_gen: None,
+            hash_val: None,
+            hash_val_ack: None,
 
             on_possible_block: None,
-            on_validate_hash: None,
-            on_validated_hash: None,
             on_found_block: None,
             on_hole_puncher_conn: None,
             on_explore_network: None,
@@ -239,15 +239,15 @@ impl<T> Hooks<T> {
         self
     }
 
-    /// Registers a validate_hash hook
-    pub fn set_validate_hash(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_validate_hash = Some(function);
+    /// Registers a hash_val hook
+    pub fn set_hash_val(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.hash_val = Some(function);
         self
     }
 
-    /// Registers a validated_hash hook
-    pub fn set_validated_hash(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_validated_hash = Some(function);
+    /// Registers a hash_val_ack hook
+    pub fn set_hash_val_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.hash_val_ack = Some(function);
         self
     }
 

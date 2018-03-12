@@ -1,6 +1,7 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{PossibleBlockPayload, ValidateHashPayload};
+use blockchain_protocol::payload::PossibleBlockPayload;
+use blockchain_protocol::payload::blocks::HashVal;
 
 use hooks::State;
 
@@ -9,7 +10,7 @@ pub fn on_possible_block(state: ApplicationState<State>) {
         .expect("Parsing the protocol should be successful.");
     info!("New possible block.");
 
-    let payload = ValidateHashPayload {
+    let payload = HashVal {
         content: message.payload.content,
         index: message.payload.index,
         nonce: message.payload.nonce,
@@ -18,7 +19,7 @@ pub fn on_possible_block(state: ApplicationState<State>) {
     };
 
     let message = BlockchainProtocol::new()
-        .set_event_code(as_number(EventCodes::ValidateHash))
+        .set_event_code(as_number(EventCodes::HashVal))
         .set_payload(payload)
         .build();
 

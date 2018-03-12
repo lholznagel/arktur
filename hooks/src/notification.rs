@@ -59,10 +59,10 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::GetBlockAck => self.hook.get_block_ack,
             EventCodes::BlockData => self.hook.block_data,
             EventCodes::BlockGen => self.hook.block_gen,
+            EventCodes::HashVal => self.hook.hash_val,
+            EventCodes::HashValAck => self.hook.hash_val_ack,
 
             EventCodes::PossibleBlock => self.hook.on_possible_block,
-            EventCodes::ValidateHash => self.hook.on_validate_hash,
-            EventCodes::ValidatedHash => self.hook.on_validated_hash,
             EventCodes::FoundBlock => self.hook.on_found_block,
             EventCodes::HolePuncherConn => self.hook.on_hole_puncher_conn,
             EventCodes::ExploreNetwork => self.hook.on_explore_network,

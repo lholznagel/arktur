@@ -20,7 +20,6 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
         let mut block_send = false;
         loop {
             let current_time = time::now_utc();
-            println!("{} {}", current_time.tm_min, current_time.tm_sec);
 
             if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
                 block_send = true;

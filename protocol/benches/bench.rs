@@ -51,7 +51,7 @@ fn bench_found_block(b: &mut Bencher) {
 #[bench]
 fn bench_new_block(b: &mut Bencher) {
     b.iter(|| {
-        let payload = NewBlockPayload {
+        let payload = BlockGen {
             index: 458648,
             timestamp: 321,
             sign_key: String::from("0000"),
@@ -59,12 +59,12 @@ fn bench_new_block(b: &mut Bencher) {
             content: String::from("gg4g43g43gg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<NewBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockGen>::new()
             .set_event_code(33)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<NewBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -92,7 +92,7 @@ fn bench_possible_block(b: &mut Bencher) {
 #[bench]
 fn bench_validate_hash(b: &mut Bencher) {
     b.iter(|| {
-        let payload = ValidateHashPayload {
+        let payload = HashVal {
             index: 6456948,
             nonce: 64645,
             timestamp: 645645,
@@ -100,29 +100,29 @@ fn bench_validate_hash(b: &mut Bencher) {
             content: String::from("wg3hhrthrhtrh")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<ValidateHashPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<HashVal>::new()
             .set_event_code(35)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<ValidateHashPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
 #[bench]
 fn bench_validated_hash(b: &mut Bencher) {
     b.iter(|| {
-        let payload = ValidatedHashPayload {
+        let payload = HashValAck {
             index: 245458,
             hash: String::from("safergrethgergregerg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<ValidatedHashPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<HashValAck>::new()
             .set_event_code(36)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 

@@ -97,8 +97,8 @@ fn connect(hole_puncher: String, storage: String) {
         .set_possible_block(hooks::on_possible_block)
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack)
-        .set_validate_hash(hooks::on_validate_hash)
-        .set_validated_hash(hooks::on_validated_hash);
+        .set_hash_val(hooks::blocks::hash_val)
+        .set_hash_val_ack(hooks::blocks::hash_val_ack);
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 

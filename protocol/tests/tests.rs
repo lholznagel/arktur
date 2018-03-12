@@ -69,7 +69,7 @@ quickcheck! {
         let prev = prev;
         let content = content;
 
-        let payload = NewBlockPayload {
+        let payload = BlockGen {
             index: index.clone(),
             timestamp: timestamp.clone(),
             sign_key: sign_key.clone(),
@@ -77,12 +77,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<NewBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockGen>::new()
             .set_event_code(33)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<NewBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = BlockchainProtocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -134,7 +134,7 @@ quickcheck! {
         let prev = prev;
         let content = content;
 
-        let payload = ValidateHashPayload {
+        let payload = HashVal {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -142,12 +142,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<ValidateHashPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<HashVal>::new()
             .set_event_code(35)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<ValidateHashPayload>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = BlockchainProtocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -162,17 +162,17 @@ quickcheck! {
         let index = index;
         let hash = hash;
 
-        let payload = ValidatedHashPayload {
+        let payload = HashValAck {
             index: index.clone(),
             hash: hash.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<ValidatedHashPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<HashValAck>::new()
             .set_event_code(36)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = BlockchainProtocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(hash, blockchain_parsed.payload.hash);
         true

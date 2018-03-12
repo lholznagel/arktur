@@ -15,8 +15,6 @@ pub use self::empty::EmptyPayload;
 
 pub use self::block::found_block::FoundBlockPayload;
 pub use self::block::possible_block::PossibleBlockPayload;
-pub use self::block::validate_hash::ValidateHashPayload;
-pub use self::block::validated_hash::ValidatedHashPayload;
 
 pub use self::debug::explore_network::ExploreNetworkPayload;
 

@@ -1,13 +1,14 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{Payload, ValidatedHashPayload, FoundBlockPayload};
+use blockchain_protocol::payload::{Payload, FoundBlockPayload};
+use blockchain_protocol::payload::blocks::HashValAck;
 
 use hooks::State;
 
 use std::collections::HashMap;
 
-pub fn on_validated_hash(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<ValidatedHashPayload>::from_bytes(&state.payload_buffer)
+pub fn hash_val_ack(state: ApplicationState<State>) {
+    let message = BlockchainProtocol::<HashValAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");

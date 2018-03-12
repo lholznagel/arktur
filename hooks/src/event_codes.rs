@@ -59,20 +59,20 @@ pub enum EventCodes {
     ///
     /// Code: 133
     BlockGen,
+    /// When a possible block is found all peers need to validate it
+    ///
+    /// Code: 135
+    HashVal,
+    /// Validated hash by the peers
+    ///
+    /// Code: 136
+    HashValAck,
 
     /// This event is fired by a peer that found a possible block
     /// Content of this message should be the nonce and the hash
     ///
     /// Code: 34
     PossibleBlock,
-    /// When a possible block is found all peers need to validate it
-    ///
-    /// Code: 35
-    ValidateHash,
-    /// Validated hash by the peers
-    ///
-    /// Code: 36
-    ValidatedHash,
     /// Fired by the connection manager, when a block was found
     /// Contains the all information about a block
     /// All peers should stop mining when this message comes
@@ -129,10 +129,10 @@ pub fn as_enum(value: u8) -> EventCodes {
         131 => EventCodes::GetBlockAck,
         132 => EventCodes::BlockData,
         133 => EventCodes::BlockGen,
+        135 => EventCodes::HashVal,
+        136 => EventCodes::HashValAck,
 
         34 => EventCodes::PossibleBlock,
-        35 => EventCodes::ValidateHash,
-        36 => EventCodes::ValidatedHash,
         37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
         240 => EventCodes::ExploreNetwork,
@@ -170,10 +170,10 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::GetBlockAck => 131,
         EventCodes::BlockData => 132,
         EventCodes::BlockGen => 133,
+        EventCodes::HashVal => 135,
+        EventCodes::HashValAck => 136,
 
         EventCodes::PossibleBlock => 34,
-        EventCodes::ValidateHash => 35,
-        EventCodes::ValidatedHash => 36,
         EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
         EventCodes::ExploreNetwork => 240,

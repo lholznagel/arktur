@@ -27,7 +27,7 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct ValidateHashPayload {
+pub struct HashVal {
     /// Index of the block
     pub index: u64,
     /// Timestamp the block was created
@@ -40,7 +40,7 @@ pub struct ValidateHashPayload {
     pub content: String,
 }
 
-impl Payload for ValidateHashPayload {
+impl Payload for HashVal {
     fn new() -> Self {
         Self {
             index: 0,
@@ -95,7 +95,7 @@ mod tests {
         let prev = String::from("ngiurengoiurehgbiuergneoigjoierhg");
         let content = String::from("Some string");
 
-        let validate_hash = ValidateHashPayload {
+        let validate_hash = HashVal {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -105,7 +105,7 @@ mod tests {
 
         let validate_hash = validate_hash.to_bytes();
         let complete = Parser::parse_payload(&validate_hash);
-        let parsed = ValidateHashPayload::parse(complete);
+        let parsed = HashVal::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -122,7 +122,7 @@ mod tests {
         let prev = String::from("sdfsdgehherheherhefwt4wtttertertg");
         let content = "a".repeat(500);
 
-        let validate_hash = ValidateHashPayload {
+        let validate_hash = HashVal {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -134,7 +134,7 @@ mod tests {
         assert_eq!(validate_hash[1], 2);
 
         let complete = Parser::parse_payload(&validate_hash);
-        let parsed = ValidateHashPayload::parse(complete);
+        let parsed = HashVal::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -151,7 +151,7 @@ mod tests {
         let prev = String::from("gwegerhgerhgef2h6h4zh5j654mztkjh5");
         let content = "b".repeat(1000);
 
-        let validate_hash = ValidateHashPayload {
+        let validate_hash = HashVal {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -163,7 +163,7 @@ mod tests {
         assert_eq!(validate_hash[1], 4);
 
         let complete = Parser::parse_payload(&validate_hash);
-        let parsed = ValidateHashPayload::parse(complete);
+        let parsed = HashVal::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -181,7 +181,7 @@ mod tests {
             let prev = prev;
             let content = content;
 
-            let validate_hash = ValidateHashPayload {
+            let hash_val = HashVal {
                 index: index.clone(),
                 timestamp: timestamp.clone(),
                 nonce: nonce.clone(),
@@ -189,10 +189,10 @@ mod tests {
                 content: content.clone()
             };
 
-            let validate_hash = validate_hash.to_bytes();
+            let hash_val = hash_val.to_bytes();
 
-            let complete = Parser::parse_payload(&validate_hash);
-            let parsed = ValidateHashPayload::parse(complete);
+            let complete = Parser::parse_payload(&hash_val);
+            let parsed = HashVal::parse(complete);
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);
