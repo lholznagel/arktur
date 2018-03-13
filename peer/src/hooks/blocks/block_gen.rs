@@ -1,7 +1,6 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::FoundBlockPayload;
-use blockchain_protocol::payload::blocks::{BlockGen, HashVal};
+use blockchain_protocol::payload::blocks::{BlockGen, BlockFound, HashVal};
 
 use hooks::State;
 
@@ -51,7 +50,7 @@ pub fn block_gen(state: ApplicationState<State>) {
         let mut state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
         state_lock.is_calculating = false;
-        state_lock.current_block = FoundBlockPayload {
+        state_lock.current_block = BlockFound {
             content: message.payload.content.clone(),
             timestamp: message.payload.timestamp.clone(),
             index: message.payload.index.clone(),

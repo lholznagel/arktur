@@ -1,10 +1,11 @@
-use blockchain_protocol::payload::{FoundBlockPayload, Payload};
+use blockchain_protocol::payload::Payload;
+use blockchain_protocol::payload::blocks::BlockFound;
 
 use std::collections::HashMap;
 
 pub struct State {
     /// Current generated block
-    pub current_block: FoundBlockPayload,
+    pub current_block: BlockFound,
     /// Contains the hashes from other peers
     pub hashes: Vec<String>,
     /// is currently a block calculating
@@ -20,7 +21,7 @@ pub struct State {
 impl State {
     pub fn new(storage: String) -> Self {
         Self {
-            current_block: FoundBlockPayload::new(),
+            current_block: BlockFound::new(),
             hashes: Vec::new(),
             is_calculating: false,
             next_block: HashMap::new(),

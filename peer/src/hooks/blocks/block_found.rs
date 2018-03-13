@@ -1,6 +1,6 @@
 use blockchain_hooks::ApplicationState;
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::FoundBlockPayload;
+use blockchain_protocol::payload::blocks::BlockFound;
 
 use hooks::State;
 
@@ -9,8 +9,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub fn on_found_block(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&state.payload_buffer)
+pub fn block_found(state: ApplicationState<State>) {
+    let message = BlockchainProtocol::<BlockFound>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     {
         let state_lock = state.state.lock()
@@ -24,7 +24,7 @@ pub fn on_found_block(state: ApplicationState<State>) {
     save_file(message.payload, state);
 }
 
-fn save_file(block: FoundBlockPayload, state: ApplicationState<State>) {
+fn save_file(block: BlockFound, state: ApplicationState<State>) {
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 

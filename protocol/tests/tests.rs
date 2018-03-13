@@ -3,7 +3,6 @@ extern crate quickcheck;
 extern crate blockchain_protocol;
 
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::*;
 use blockchain_protocol::payload::blocks::*;
 
 quickcheck! {
@@ -36,7 +35,7 @@ quickcheck! {
         let hash = hash;
         let content = content;
 
-        let payload = FoundBlockPayload {
+        let payload = BlockFound {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -45,12 +44,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<FoundBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockFound>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<FoundBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = BlockchainProtocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
         assert_eq!(nonce, blockchain_parsed.payload.nonce);

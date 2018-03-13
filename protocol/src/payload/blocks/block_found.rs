@@ -30,7 +30,7 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct FoundBlockPayload {
+pub struct BlockFound {
     /// Index of the block
     pub index: u64,
     /// Timestamp the block was created
@@ -45,7 +45,7 @@ pub struct FoundBlockPayload {
     pub content: String
 }
 
-impl Payload for FoundBlockPayload {
+impl Payload for BlockFound {
     fn new() -> Self {
         Self {
             index: 0,
@@ -104,7 +104,7 @@ mod tests {
         let hash = String::from("asdmhgoirmhoiremh54651greher4h545");
         let content = String::from("Some string");
 
-        let found_block = FoundBlockPayload {
+        let found_block = BlockFound {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -115,7 +115,7 @@ mod tests {
 
         let found_block = found_block.to_bytes();
         let complete = Parser::parse_payload(&found_block);
-        let parsed = FoundBlockPayload::parse(complete);
+        let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -134,7 +134,7 @@ mod tests {
         let hash = String::from("tjhtjrjfjhngpfiwshgwtw98tu345z48h4");
         let content = "a".repeat(500);
 
-        let found_block = FoundBlockPayload {
+        let found_block = BlockFound {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(found_block[1], 2);
 
         let complete = Parser::parse_payload(&found_block);
-        let parsed = FoundBlockPayload::parse(complete);
+        let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -166,7 +166,7 @@ mod tests {
         let hash = String::from("fwgn2ogh238hg29gpfj9wpjppw0efklfh");
         let content = "b".repeat(1000);
 
-        let found_block = FoundBlockPayload {
+        let found_block = BlockFound {
             index: index.clone(),
             timestamp: timestamp.clone(),
             nonce: nonce.clone(),
@@ -179,7 +179,7 @@ mod tests {
         assert_eq!(found_block[1], 4);
 
         let complete = Parser::parse_payload(&found_block);
-        let parsed = FoundBlockPayload::parse(complete);
+        let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -199,7 +199,7 @@ mod tests {
             let hash = hash;
             let content = content;
 
-            let found_block = FoundBlockPayload {
+            let found_block = BlockFound {
                 index: index.clone(),
                 timestamp: timestamp.clone(),
                 nonce: nonce.clone(),
@@ -211,7 +211,7 @@ mod tests {
             let found_block = found_block.to_bytes();
 
             let complete = Parser::parse_payload(&found_block);
-            let parsed = FoundBlockPayload::parse(complete);
+            let parsed = BlockFound::parse(complete);
 
             assert_eq!(index, parsed.index);
             assert_eq!(timestamp, parsed.timestamp);

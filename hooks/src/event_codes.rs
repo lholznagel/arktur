@@ -59,6 +59,12 @@ pub enum EventCodes {
     ///
     /// Code: 133
     BlockGen,
+    /// Fired by the connection manager, when a block was found
+    /// Contains the all information about a block
+    /// All peers should stop mining when this message comes
+    ///
+    /// Code: 134
+    BlockFound,
     /// When a possible block is found all peers need to validate it
     ///
     /// Code: 135
@@ -67,13 +73,6 @@ pub enum EventCodes {
     ///
     /// Code: 136
     HashValAck,
-
-    /// Fired by the connection manager, when a block was found
-    /// Contains the all information about a block
-    /// All peers should stop mining when this message comes
-    ///
-    /// Code: 37
-    FoundBlock,
 
     /// Notifies a given peer that a connection should be established to another peer
     ///
@@ -124,10 +123,10 @@ pub fn as_enum(value: u8) -> EventCodes {
         131 => EventCodes::GetBlockAck,
         132 => EventCodes::BlockData,
         133 => EventCodes::BlockGen,
+        134 => EventCodes::BlockFound,
         135 => EventCodes::HashVal,
         136 => EventCodes::HashValAck,
 
-        37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
@@ -164,10 +163,10 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::GetBlockAck => 131,
         EventCodes::BlockData => 132,
         EventCodes::BlockGen => 133,
+        EventCodes::BlockFound => 134,
         EventCodes::HashVal => 135,
         EventCodes::HashValAck => 136,
 
-        EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,

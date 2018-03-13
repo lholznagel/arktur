@@ -1,5 +1,6 @@
 mod block_data;
 mod block_gen;
+mod block_found;
 mod get_block;
 mod get_block_ack;
 mod get_blocks;
@@ -9,6 +10,7 @@ mod hash_val_ack;
 
 pub use self::block_data::block_data;
 pub use self::block_gen::block_gen;
+pub use self::block_found::block_found;
 pub use self::get_block::get_block;
 pub use self::get_block_ack::get_block_ack;
 pub use self::get_blocks::get_blocks;

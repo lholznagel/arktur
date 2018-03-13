@@ -88,6 +88,13 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub block_gen: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `BLOCK_FOUND` event
+    /// Code: 134
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub block_found: Option<fn(ApplicationState<T>)>,
     /// Executed on a `HASH_VAL` event
     /// Code: 135
     ///
@@ -102,14 +109,6 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub hash_val_ack: Option<fn(ApplicationState<T>)>,
-
-    /// Executed on a `FOUND_BLOCK` event
-    /// Code: 37
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_found_block: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `HOLE_PUNCHER_CONN` event
     /// Code: 48
@@ -144,10 +143,10 @@ impl<T> Hooks<T> {
             get_block_ack: None,
             block_data: None,
             block_gen: None,
+            block_found: None,
             hash_val: None,
             hash_val_ack: None,
 
-            on_found_block: None,
             on_hole_puncher_conn: None,
             on_explore_network: None,
         }
@@ -225,6 +224,12 @@ impl<T> Hooks<T> {
         self
     }
 
+    /// Registers a block_found hook
+    pub fn set_block_found(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.block_found = Some(function);
+        self
+    }
+
     /// Registers a hash_val hook
     pub fn set_hash_val(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.hash_val = Some(function);
@@ -234,12 +239,6 @@ impl<T> Hooks<T> {
     /// Registers a hash_val_ack hook
     pub fn set_hash_val_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.hash_val_ack = Some(function);
-        self
-    }
-
-    /// Registers a found_block hook
-    pub fn set_found_block(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_found_block = Some(function);
         self
     }
 

@@ -7,7 +7,8 @@
     unsafe_code,
     unstable_features,
     unused_import_braces,
-    unused_qualifications
+    unused_qualifications,
+    warnings
 )]
 #![cfg_attr(feature = "dev", allow(unstable_features))]
 #![cfg_attr(feature = "dev", feature(plugin))]
@@ -82,22 +83,22 @@ fn connect(hole_puncher: String, storage: String) {
 
     let hooks = Hooks::new()
         .set_block_data(hooks::blocks::block_data)
+        .set_block_found(hooks::blocks::block_found)
         .set_block_gen(hooks::blocks::block_gen)
         .set_explore_network(hooks::on_explore_network)
-        .set_found_block(hooks::on_found_block)
         .set_get_block(hooks::blocks::get_block)
         .set_get_block_ack(hooks::blocks::get_block_ack)
         .set_get_blocks(hooks::blocks::get_blocks)
         .set_get_blocks_ack(hooks::blocks::get_blocks_ack)
         .set_get_peers(hooks::peers::get_peers)
         .set_get_peers_ack(hooks::peers::get_peers_ack)
+        .set_hash_val(hooks::blocks::hash_val)
+        .set_hash_val_ack(hooks::blocks::hash_val_ack)
         .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
         .set_ping(hooks::misc::ping)
         .set_pong(hooks::misc::pong)
         .set_register(hooks::peers::register)
-        .set_register_ack(hooks::peers::register_ack)
-        .set_hash_val(hooks::blocks::hash_val)
-        .set_hash_val_ack(hooks::blocks::hash_val_ack);
+        .set_register_ack(hooks::peers::register_ack);
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 

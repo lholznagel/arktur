@@ -1,7 +1,7 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{Payload, FoundBlockPayload};
-use blockchain_protocol::payload::blocks::HashValAck;
+use blockchain_protocol::payload::Payload;
+use blockchain_protocol::payload::blocks::{BlockFound, HashValAck};
 
 use hooks::State;
 
@@ -38,7 +38,7 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         state_lock.hashes = Vec::new();
         state_lock.current_block.hash = result.0;
 
-        let mut payload = FoundBlockPayload::new();
+        let mut payload = BlockFound::new();
         payload.content = state_lock.current_block.content.clone();
         payload.index = state_lock.current_block.index;
         payload.nonce = state_lock.current_block.nonce;
@@ -47,7 +47,7 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         payload.hash = state_lock.current_block.hash.clone();
 
         let message = BlockchainProtocol::new()
-            .set_event_code(as_number(EventCodes::FoundBlock))
+            .set_event_code(as_number(EventCodes::BlockFound))
             .set_payload(payload)
             .build();
 

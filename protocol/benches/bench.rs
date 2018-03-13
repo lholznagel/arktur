@@ -30,7 +30,7 @@ fn bench_data_for_block(b: &mut Bencher) {
 #[bench]
 fn bench_found_block(b: &mut Bencher) {
     b.iter(|| {
-        let payload = FoundBlockPayload {
+        let payload = BlockFound {
             index: 6565,
             timestamp: 4516514521,
             nonce: 645246452,
@@ -39,12 +39,12 @@ fn bench_found_block(b: &mut Bencher) {
             content: String::from("asdasdasfagewg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<FoundBlockPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<BlockFound>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<FoundBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
