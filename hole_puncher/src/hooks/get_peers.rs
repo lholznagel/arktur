@@ -1,10 +1,11 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::payload::{Payload, ExploreNetworkPayload};
 use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::payload::Payload;
+use blockchain_protocol::payload::peers::GetPeersAckPayload;
 
 use hooks::State;
 
-pub fn on_explore_network(state: ApplicationState<State>) {
+pub fn get_peers(state: ApplicationState<State>) {
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
@@ -14,8 +15,8 @@ pub fn on_explore_network(state: ApplicationState<State>) {
     }
 
     let answer = BlockchainProtocol::new()
-        .set_event_code(as_number(EventCodes::ExploreNetwork))
-        .set_payload(ExploreNetworkPayload::new().set_peers(peers))
+        .set_event_code(as_number(EventCodes::GetPeersAck))
+        .set_payload(GetPeersAckPayload::new().set_peers(peers))
         .build();
 
     info!("Sending Debugger all peers.");

@@ -78,11 +78,6 @@ pub enum EventCodes {
     /// Code: 136
     HashValAck,
 
-    /// Fired when the debugger explores the network
-    ///
-    /// Code: 240
-    ExploreNetwork,
-
     /// Fired when the umber does not match any events
     ///
     /// Code: 255
@@ -126,8 +121,6 @@ pub fn as_enum(value: u8) -> EventCodes {
         134 => EventCodes::BlockFound,
         135 => EventCodes::HashVal,
         136 => EventCodes::HashValAck,
-
-        240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
 }
@@ -166,8 +159,6 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::BlockFound => 134,
         EventCodes::HashVal => 135,
         EventCodes::HashValAck => 136,
-
-        EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }
 }

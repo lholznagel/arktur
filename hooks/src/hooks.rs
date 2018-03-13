@@ -115,15 +115,7 @@ pub struct Hooks<T> {
     /// # Parameters
     ///
     /// - `ApplicationState` - state of the application
-    pub hash_val_ack: Option<fn(ApplicationState<T>)>,
-
-    /// Executed on a `EXPLORE_NETWORK` event
-    /// Code: 240
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_explore_network: Option<fn(ApplicationState<T>)>,
+    pub hash_val_ack: Option<fn(ApplicationState<T>)>
 }
 
 impl<T> Hooks<T> {
@@ -145,9 +137,7 @@ impl<T> Hooks<T> {
             block_gen: None,
             block_found: None,
             hash_val: None,
-            hash_val_ack: None,
-
-            on_explore_network: None,
+            hash_val_ack: None
         }
     }
 
@@ -244,12 +234,6 @@ impl<T> Hooks<T> {
     /// Registers a hash_val_ack hook
     pub fn set_hash_val_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.hash_val_ack = Some(function);
-        self
-    }
-
-    /// Registers a explore_network hook
-    pub fn set_explore_network(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_explore_network = Some(function);
         self
     }
 }

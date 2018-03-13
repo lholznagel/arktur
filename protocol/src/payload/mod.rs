@@ -1,5 +1,4 @@
 //! Module for all payload models
-mod debug;
 mod empty;
 mod hole_puncher;
 mod misc;
@@ -11,8 +10,6 @@ mod payload;
 mod payload_builder;
 
 pub use self::empty::EmptyPayload;
-
-pub use self::debug::explore_network::ExploreNetworkPayload;
 
 pub use self::hole_puncher::punsh::Punsh;
 

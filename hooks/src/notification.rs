@@ -63,8 +63,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::BlockFound => self.hook.block_found,
             EventCodes::HashVal => self.hook.hash_val,
             EventCodes::HashValAck => self.hook.hash_val_ack,
-
-            EventCodes::ExploreNetwork => self.hook.on_explore_network,
             EventCodes::NotAValidEvent => None,
         };
 

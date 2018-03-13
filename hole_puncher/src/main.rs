@@ -96,7 +96,7 @@ fn connect() {
         .set_pong(hooks::on_pong)
         .set_punsh(hooks::punsh)
         .set_register(hooks::register)
-        .set_explore_network(hooks::on_explore_network);
+        .set_get_peers(hooks::get_peers);
 
     let state = Arc::new(Mutex::new(hooks::State::new()));
     let state_clone_peer_ping = Arc::clone(&state);

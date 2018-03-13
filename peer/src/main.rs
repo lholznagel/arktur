@@ -85,7 +85,6 @@ fn connect(hole_puncher: String, storage: String) {
         .set_block_data(hooks::blocks::block_data)
         .set_block_found(hooks::blocks::block_found)
         .set_block_gen(hooks::blocks::block_gen)
-        .set_explore_network(hooks::on_explore_network)
         .set_get_block(hooks::blocks::get_block)
         .set_get_block_ack(hooks::blocks::get_block_ack)
         .set_get_blocks(hooks::blocks::get_blocks)

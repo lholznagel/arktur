@@ -1,6 +1,7 @@
 use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::ExploreNetworkPayload;
+use blockchain_protocol::payload::peers::GetPeersAckPayload;
+use blockchain_protocol::payload::EmptyPayload;
 
 use clap::ArgMatches;
 use futures_cpupool::{CpuFuture, CpuPool};
@@ -19,8 +20,8 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
     let state = Arc::new(Mutex::new(ExploreState::new()));
 
-    let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-        .set_event_code(as_number(EventCodes::ExploreNetwork))
+    let request = BlockchainProtocol::<EmptyPayload>::new()
+        .set_event_code(as_number(EventCodes::GetPeers))
         .build();
 
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
@@ -50,7 +51,7 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
 fn peer(cpu_pool: &CpuPool, state: &Arc<Mutex<ExploreState>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
     let hooks = Hooks::new()
-        .set_explore_network(on_explore_network);
+        .set_get_peers_ack(get_peers_ack);
     let mut hook_notification = HookRegister::new(hooks, Arc::clone(&state))
         .get_notification();
 
@@ -91,16 +92,16 @@ impl ExploreState {
     }
 }
 
-pub fn on_explore_network(state: ApplicationState<ExploreState>) {
-    let message = BlockchainProtocol::<ExploreNetworkPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
+pub fn get_peers_ack(state: ApplicationState<ExploreState>) {
+    let message = BlockchainProtocol::<GetPeersAckPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
     let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
 
     if !state_lock.peers.contains_key(&state.source) {
-        state_lock.peers.insert(state.source, message.payload.addresses.clone());
+        state_lock.peers.insert(state.source, message.payload.peers.clone());
 
-        for address in message.payload.addresses {
-            let request = BlockchainProtocol::<ExploreNetworkPayload>::new()
-                .set_event_code(as_number(EventCodes::ExploreNetwork))
+        for address in message.payload.peers {
+            let request = BlockchainProtocol::<EmptyPayload>::new()
+                .set_event_code(as_number(EventCodes::GetPeers))
                 .build();
 
             if !address.is_empty() && !state_lock.peers.contains_key(&address) {
