@@ -93,40 +93,6 @@ quickcheck! {
 }
 
 quickcheck! {
-    fn test_possible_block(index: u64, timestamp: i64, nonce: u64, hash: String, prev: String, content: String) -> bool {
-        let index = index;
-        let timestamp = timestamp;
-        let nonce = nonce;
-        let prev = prev;
-        let hash = hash;
-        let content = content;
-
-        let payload = PossibleBlockPayload {
-            index: index.clone(),
-            timestamp: timestamp.clone(),
-            nonce: nonce.clone(),
-            hash: hash.clone(),
-            prev: prev.clone(),
-            content: content.clone()
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<PossibleBlockPayload>::new()
-            .set_event_code(34)
-            .set_payload(payload)
-            .build();
-
-        let blockchain_parsed = BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
-        assert_eq!(index, blockchain_parsed.payload.index);
-        assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
-        assert_eq!(nonce, blockchain_parsed.payload.nonce);
-        assert_eq!(hash, blockchain_parsed.payload.hash);
-        assert_eq!(prev, blockchain_parsed.payload.prev);
-        assert_eq!(content, blockchain_parsed.payload.content);
-        true
-    }
-}
-
-quickcheck! {
     fn test_validate_hash(index: u64, timestamp: i64, nonce: u64, prev: String, content: String) -> bool {
         let index = index;
         let nonce = nonce;

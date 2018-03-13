@@ -69,27 +69,6 @@ fn bench_new_block(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_possible_block(b: &mut Bencher) {
-    b.iter(|| {
-        let payload = PossibleBlockPayload {
-            index: 64551,
-            timestamp: 7852,
-            nonce: 387378,
-            prev: String::from("grethrethrth"),
-            hash: String::from("hrthrthrthrth"),
-            content: String::from("grg3ghreht4rjr")
-        };
-
-        let blockchain_protocol = BlockchainProtocol::<PossibleBlockPayload>::new()
-            .set_event_code(34)
-            .set_payload(payload)
-            .build();
-
-        BlockchainProtocol::<PossibleBlockPayload>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
 fn bench_validate_hash(b: &mut Bencher) {
     b.iter(|| {
         let payload = HashVal {

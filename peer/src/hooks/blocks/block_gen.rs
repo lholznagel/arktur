@@ -1,7 +1,7 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{FoundBlockPayload, PossibleBlockPayload};
-use blockchain_protocol::payload::blocks::BlockGen;
+use blockchain_protocol::payload::FoundBlockPayload;
+use blockchain_protocol::payload::blocks::{BlockGen, HashVal};
 
 use hooks::State;
 
@@ -62,15 +62,14 @@ pub fn block_gen(state: ApplicationState<State>) {
     }
 
     info!("Found hash! {:?}", hash);
-    let message = BlockchainProtocol::<PossibleBlockPayload>::new()
-        .set_event_code(as_number(EventCodes::PossibleBlock))
-        .set_payload(PossibleBlockPayload {
+    let message = BlockchainProtocol::<HashVal>::new()
+        .set_event_code(as_number(EventCodes::HashVal))
+        .set_payload(HashVal {
             content: message.payload.content,
             timestamp: message.payload.timestamp,
             index: message.payload.index,
             prev: message.payload.prev,
-            nonce: nonce,
-            hash: hash
+            nonce: nonce
         })
         .build();
 

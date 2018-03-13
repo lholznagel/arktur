@@ -68,11 +68,6 @@ pub enum EventCodes {
     /// Code: 136
     HashValAck,
 
-    /// This event is fired by a peer that found a possible block
-    /// Content of this message should be the nonce and the hash
-    ///
-    /// Code: 34
-    PossibleBlock,
     /// Fired by the connection manager, when a block was found
     /// Contains the all information about a block
     /// All peers should stop mining when this message comes
@@ -132,7 +127,6 @@ pub fn as_enum(value: u8) -> EventCodes {
         135 => EventCodes::HashVal,
         136 => EventCodes::HashValAck,
 
-        34 => EventCodes::PossibleBlock,
         37 => EventCodes::FoundBlock,
         48 => EventCodes::HolePuncherConn,
         240 => EventCodes::ExploreNetwork,
@@ -173,7 +167,6 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::HashVal => 135,
         EventCodes::HashValAck => 136,
 
-        EventCodes::PossibleBlock => 34,
         EventCodes::FoundBlock => 37,
         EventCodes::HolePuncherConn => 48,
         EventCodes::ExploreNetwork => 240,

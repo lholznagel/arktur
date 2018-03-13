@@ -103,13 +103,6 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub hash_val_ack: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `POSSIBLE_BLOCK` event
-    /// Code: 34
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_possible_block: Option<fn(ApplicationState<T>)>,
     /// Executed on a `FOUND_BLOCK` event
     /// Code: 37
     ///
@@ -154,7 +147,6 @@ impl<T> Hooks<T> {
             hash_val: None,
             hash_val_ack: None,
 
-            on_possible_block: None,
             on_found_block: None,
             on_hole_puncher_conn: None,
             on_explore_network: None,
@@ -230,12 +222,6 @@ impl<T> Hooks<T> {
     /// Registers a block_gen hook
     pub fn set_block_gen(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.block_gen = Some(function);
-        self
-    }
-
-    /// Registers a possible_block hook
-    pub fn set_possible_block(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_possible_block = Some(function);
         self
     }
 

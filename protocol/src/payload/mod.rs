@@ -14,7 +14,6 @@ mod payload_builder;
 pub use self::empty::EmptyPayload;
 
 pub use self::block::found_block::FoundBlockPayload;
-pub use self::block::possible_block::PossibleBlockPayload;
 
 pub use self::debug::explore_network::ExploreNetworkPayload;
 
