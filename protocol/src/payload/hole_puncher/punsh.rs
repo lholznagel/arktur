@@ -9,12 +9,12 @@ use payload::{Parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct HolePuncherConn {
+pub struct Punsh {
     /// Addresses of all peers
     pub address: String,
 }
 
-impl HolePuncherConn {
+impl Punsh {
     /// Sets the peer to register at
     pub fn set_peer(mut self, peer: String) -> Self {
         self.address = peer;
@@ -22,7 +22,7 @@ impl HolePuncherConn {
     }
 }
 
-impl Payload for HolePuncherConn {
+impl Payload for Punsh {
     fn new() -> Self {
         Self { address: String::from("") }
     }
@@ -53,13 +53,13 @@ mod tests {
     fn test_building_and_parsing() {
         let address = String::from("172.0.0.1");
 
-        let hole_puncher_ack = HolePuncherConn {
+        let hole_puncher_ack = Punsh {
             address: address.clone()
         };
 
         let hole_puncher_ack = hole_puncher_ack.to_bytes();
         let complete = Parser::parse_payload(&hole_puncher_ack);
-        let parsed = HolePuncherConn::parse(complete);
+        let parsed = Punsh::parse(complete);
 
         assert_eq!(address, parsed.address);
     }

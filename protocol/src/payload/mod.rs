@@ -14,7 +14,7 @@ pub use self::empty::EmptyPayload;
 
 pub use self::debug::explore_network::ExploreNetworkPayload;
 
-pub use self::hole_puncher::conn::HolePuncherConn;
+pub use self::hole_puncher::punsh::Punsh;
 
 pub use self::misc::ping::PingPayload;
 pub use self::misc::pong::PongPayload;

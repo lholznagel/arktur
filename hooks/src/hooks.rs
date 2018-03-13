@@ -17,6 +17,13 @@ pub struct Hooks<T> {
     ///
     /// - `ApplicationState` - state of the application
     pub pong: Option<fn(ApplicationState<T>)>,
+    /// Executed on a `PUNSH` event
+    /// Code: 2
+    ///
+    /// # Parameters
+    ///
+    /// - `ApplicationState` - state of the application
+    pub punsh: Option<fn(ApplicationState<T>)>,
 
     /// Executed on a `GET_PEERS` event
     /// Code: 64
@@ -110,14 +117,6 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub hash_val_ack: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `HOLE_PUNCHER_CONN` event
-    /// Code: 48
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub on_hole_puncher_conn: Option<fn(ApplicationState<T>)>,
-
     /// Executed on a `EXPLORE_NETWORK` event
     /// Code: 240
     ///
@@ -133,6 +132,7 @@ impl<T> Hooks<T> {
         Self {
             ping: None,
             pong: None,
+            punsh: None,
             get_peers: None,
             get_peers_ack: None,
             register: None,
@@ -147,7 +147,6 @@ impl<T> Hooks<T> {
             hash_val: None,
             hash_val_ack: None,
 
-            on_hole_puncher_conn: None,
             on_explore_network: None,
         }
     }
@@ -161,6 +160,12 @@ impl<T> Hooks<T> {
     /// Registers a pong hook
     pub fn set_pong(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.pong = Some(function);
+        self
+    }
+
+    /// Registers a punsh hook
+    pub fn set_punsh(mut self, function: fn(ApplicationState<T>)) -> Self {
+        self.punsh = Some(function);
         self
     }
 
@@ -239,12 +244,6 @@ impl<T> Hooks<T> {
     /// Registers a hash_val_ack hook
     pub fn set_hash_val_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.hash_val_ack = Some(function);
-        self
-    }
-
-    /// Registers a hole_puncher_conn hook
-    pub fn set_hole_puncher_conn(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.on_hole_puncher_conn = Some(function);
         self
     }
 

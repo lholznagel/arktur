@@ -49,6 +49,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
         let event_match = match event {
             EventCodes::Ping => self.hook.ping,
             EventCodes::Pong => self.hook.pong,
+            EventCodes::Punsh => self.hook.punsh,
             EventCodes::GetPeers => self.hook.get_peers,
             EventCodes::GetPeersAck => self.hook.get_peers_ack,
             EventCodes::Register => self.hook.register,
@@ -63,7 +64,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::HashVal => self.hook.hash_val,
             EventCodes::HashValAck => self.hook.hash_val_ack,
 
-            EventCodes::HolePuncherConn => self.hook.on_hole_puncher_conn,
             EventCodes::ExploreNetwork => self.hook.on_explore_network,
             EventCodes::NotAValidEvent => None,
         };

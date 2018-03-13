@@ -1,13 +1,13 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{HolePuncherConn, PingPayload};
+use blockchain_protocol::payload::{Punsh, PingPayload};
 
 use hooks::State;
 
 use std::{thread, time};
 
-pub fn on_hole_puncher_conn(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<HolePuncherConn>::from_bytes(&state.payload_buffer)
+pub fn punsh(state: ApplicationState<State>) {
+    let message = BlockchainProtocol::<Punsh>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     info!("Sending pings to new peer.");

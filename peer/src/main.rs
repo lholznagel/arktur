@@ -94,7 +94,7 @@ fn connect(hole_puncher: String, storage: String) {
         .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hash_val(hooks::blocks::hash_val)
         .set_hash_val_ack(hooks::blocks::hash_val_ack)
-        .set_hole_puncher_conn(hooks::on_hole_puncher_conn)
+        .set_punsh(hooks::misc::punsh)
         .set_ping(hooks::misc::ping)
         .set_pong(hooks::misc::pong)
         .set_register(hooks::peers::register)

@@ -19,6 +19,10 @@ pub enum EventCodes {
     ///
     /// Code: 1
     Pong,
+    /// Notifies a given peer that a connection should be established to another peer
+    ///
+    /// Code: 2
+    Punsh,
     /// Requests a list of peers
     ///
     /// Code: 67
@@ -74,11 +78,6 @@ pub enum EventCodes {
     /// Code: 136
     HashValAck,
 
-    /// Notifies a given peer that a connection should be established to another peer
-    ///
-    /// Code: 48
-    HolePuncherConn,
-
     /// Fired when the debugger explores the network
     ///
     /// Code: 240
@@ -113,6 +112,7 @@ pub fn as_enum(value: u8) -> EventCodes {
     match value {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
+        2 => EventCodes::Punsh,
         64 => EventCodes::GetPeers,
         65 => EventCodes::GetPeersAck,
         66 => EventCodes::Register,
@@ -127,7 +127,6 @@ pub fn as_enum(value: u8) -> EventCodes {
         135 => EventCodes::HashVal,
         136 => EventCodes::HashValAck,
 
-        48 => EventCodes::HolePuncherConn,
         240 => EventCodes::ExploreNetwork,
         _ => EventCodes::NotAValidEvent,
     }
@@ -153,6 +152,7 @@ pub fn as_number(value: EventCodes) -> u8 {
     match value {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
+        EventCodes::Punsh => 2,
         EventCodes::GetPeers => 64,
         EventCodes::GetPeersAck => 65,
         EventCodes::Register => 66,
@@ -167,7 +167,6 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::HashVal => 135,
         EventCodes::HashValAck => 136,
 
-        EventCodes::HolePuncherConn => 48,
         EventCodes::ExploreNetwork => 240,
         EventCodes::NotAValidEvent => 255,
     }

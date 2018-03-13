@@ -1,6 +1,6 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::HolePuncherConn;
+use blockchain_protocol::payload::Punsh;
 use blockchain_protocol::payload::EmptyPayload;
 use blockchain_protocol::payload::peers::RegisterAckPayload;
 
@@ -15,14 +15,14 @@ pub fn register_ack(state: ApplicationState<State>) {
     if !message.payload.addresses.is_empty() {
         for address in message.payload.addresses {
             if !state_lock.peers.contains_key(&address) {
-                let payload = HolePuncherConn {
+                let payload = Punsh {
                     address: address.clone()
                 };
                 
                 // notify hole puncher
-                let result = BlockchainProtocol::<HolePuncherConn>::new()
+                let result = BlockchainProtocol::<Punsh>::new()
                     .set_payload(payload)
-                    .set_event_code(as_number(EventCodes::HolePuncherConn))
+                    .set_event_code(as_number(EventCodes::Punsh))
                     .build();
                 state.udp.send_to(&result, "0.0.0.0:50000").expect("Sending a message should be successful");
 
