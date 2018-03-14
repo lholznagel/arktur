@@ -75,7 +75,7 @@ mod hooks;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::BlockchainProtocol;
-use blockchain_protocol::payload::{Payload, PingPayload};
+use blockchain_protocol::payload::{EmptyPayload, Payload};
 
 use futures_cpupool::CpuPool;
 
@@ -125,7 +125,7 @@ fn connect() {
 
                         let message = BlockchainProtocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
-                            .set_payload(PingPayload::new())
+                            .set_payload(EmptyPayload::new())
                             .build();
 
                         udp_clone_peer_ping.send_to(&message, peer).expect("Sending a UDP message should be successful");

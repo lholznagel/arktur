@@ -108,22 +108,11 @@ fn bench_validated_hash(b: &mut Bencher) {
 #[bench]
 fn bench_ping(b: &mut Bencher) {
     b.iter(|| {
-        let blockchain_protocol = BlockchainProtocol::<PingPayload>::new()
+        let blockchain_protocol = BlockchainProtocol::<EmptyPayload>::new()
             .set_event_code(0)
             .build();
 
-        BlockchainProtocol::<PingPayload>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
-fn bench_pong(b: &mut Bencher) {
-    b.iter(|| {
-        let blockchain_protocol = BlockchainProtocol::<PongPayload>::new()
-            .set_event_code(0)
-            .build();
-
-        BlockchainProtocol::<PongPayload>::from_bytes(&blockchain_protocol).unwrap();
+        BlockchainProtocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 

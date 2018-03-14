@@ -71,10 +71,10 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// extern crate blockchain_protocol;
     ///
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::payload::{Payload, PingPayload};
+    /// use blockchain_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
-    ///     let payload = PingPayload::new();
+    ///     let payload = EmptyPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
     ///         id: 65535,
@@ -150,10 +150,10 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// extern crate blockchain_protocol;
     ///
     /// use blockchain_protocol::BlockchainProtocol;
-    /// use blockchain_protocol::payload::{Payload, PingPayload};
+    /// use blockchain_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
-    ///     let payload = PingPayload::new();
+    ///     let payload = EmptyPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
     ///         id: 65535,
