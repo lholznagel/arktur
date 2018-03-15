@@ -1,6 +1,5 @@
 //! Contains the protocol model and a builder for the protocol
 use payload::{Parser, Payload};
-use std::{slice, mem};
 use crc::crc32;
 
 /// Parser error messages
@@ -14,9 +13,7 @@ pub enum ParseErrors {
 /// ```
 /// //  00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // | Event code            |                       |                 ID                            |
-/// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-/// // |               Data length                     |                 Reserved                      |
+/// // | Event code            | Version               | Reserved                                      |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// // | Checksum                                                                                      |
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -32,9 +29,7 @@ pub struct BlockchainProtocol<T> {
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: u8,
     /// Identification of this message
-    pub id: u16,
-    /// Identification of this message
-    pub payload_length: u16,
+    pub version: u8,
     /// Reserved for future use
     pub reserved: u16,
     /// Checksum of this message
@@ -48,8 +43,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     pub fn new() -> Self {
         BlockchainProtocol {
             event_code: 255,
-            id: 0,
-            payload_length: 0,
+            version: 1,
             reserved: 0,
             checksum: 0,
             payload: T::new(),
@@ -77,14 +71,13 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///     let payload = EmptyPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
-    ///         id: 65535,
-    ///         payload_length: 1,
+    ///         version: 1,
     ///         reserved: 0,
-    ///         checksum: 1066718418,
+    ///         checksum: 2553991758,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
+    ///     let payload = &[1, 1, 0, 0, 78, 210, 58, 152, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
@@ -126,8 +119,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     }
 
     /// Combines the struct to a vector of bytes
-    pub fn build(mut self) -> Vec<u8> {
-        self.payload_length = self.payload.clone().to_bytes().len() as u16;
+    pub fn build(self) -> Vec<u8> {
         let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
         result.append(&mut checksum);
@@ -156,14 +148,13 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///     let payload = EmptyPayload::new();
     ///     let expected = BlockchainProtocol {
     ///         event_code: 1,
-    ///         id: 65535,
-    ///         payload_length: 1,
-    ///         checksum: 1066718418,
+    ///         version: 1,
     ///         reserved: 0,
+    ///         checksum: 2553991758,
     ///         payload: payload
     ///     };
     /// 
-    ///     let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
+    ///     let payload = &[1, 1, 0, 0, 78, 210, 58, 152, 0];
     ///     let result = BlockchainProtocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
@@ -171,11 +162,10 @@ impl<T: Payload> BlockchainProtocol<T> {
     fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
         let protocol = BlockchainProtocol {
             event_code: bytes[0],
-            id: Parser::u8_to_u16(&bytes[2..4]),
-            payload_length: Parser::u8_to_u16(&bytes[4..6]),
-            reserved: 0,
-            checksum: Parser::u8_to_u32(&bytes[8..12]),
-            payload: T::parse(Parser::parse_payload(&bytes[12..]))
+            version: bytes[1],
+            reserved: 0, // bytes[2], bytes[3]
+            checksum: Parser::u8_to_u32(&bytes[4..8]),
+            payload: T::parse(Parser::parse_payload(&bytes[8..]))
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
@@ -192,16 +182,7 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///
     /// - `Vec<u8>` - Vector containing the header values as u8
     fn header_to_bytes(&self) -> Vec<u8> {
-        let mut result = vec![self.event_code.clone(), 0];
-        let slice_u16: &[u16] = &*vec![self.id, self.payload_length, self.reserved];
-        let converted_slice: &[u8] = unsafe {
-            slice::from_raw_parts(
-                slice_u16.as_ptr() as *const u8,
-                slice_u16.len() * mem::size_of::<u16>(),
-            )
-        };
-        result.append(&mut converted_slice.to_vec());
-        result
+        vec![self.event_code.clone(), self.version.clone(), 0, 0]
     }
 
     /// Turns the checksum bytes
@@ -233,14 +214,13 @@ mod tests {
         let payload = EmptyPayload::new();
         let expected = BlockchainProtocol::<EmptyPayload> {
             event_code: 1,
-            id: 65535,
-            payload_length: 1,
+            version: 1,
             reserved: 0,
-            checksum: 1066718418,
+            checksum: 2553991758,
             payload: payload,
         };
 
-        let payload = &[1, 0, 255, 255, 1, 0, 0, 0, 210, 212, 148, 63, 0];
+        let payload = &[1, 1, 0, 0, 78, 210, 58, 152, 0];
         let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
@@ -250,14 +230,13 @@ mod tests {
         let payload = EmptyPayload::new();
         let expected = BlockchainProtocol::<EmptyPayload> {
             event_code: 1,
-            id: 65535,
-            payload_length: 1,
+            version: 1,
             reserved: 0,
-            checksum: 1066718418,
+            checksum: 2553991758,
             payload: payload,
         };
 
-        let payload = &[0x01, 0x00, 0xFF, 0xFF, 0x01, 0x00, 0x00, 0x00, 0xD2, 0xD4, 0x94, 0x3F, 0x00];
+        let payload = &[0x01, 0x01, 0x00, 0x00, 0x4E, 0xD2, 0x3A, 0x98, 0x00];
         let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
