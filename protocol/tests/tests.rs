@@ -19,6 +19,8 @@ quickcheck! {
             .set_payload(payload)
             .build();
 
+        println!("NEW BLOCK {:?}", blockchain_protocol);
+
         let blockchain_parsed = BlockchainProtocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(unique_key, blockchain_parsed.payload.unique_key);
         assert_eq!(content, blockchain_parsed.payload.content);
