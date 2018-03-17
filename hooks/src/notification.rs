@@ -63,16 +63,11 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::BlockFound => self.hook.block_found,
             EventCodes::HashVal => self.hook.hash_val,
             EventCodes::HashValAck => self.hook.hash_val_ack,
-            EventCodes::NotAValidEvent => None,
+            EventCodes::NotAValidType => None,
         };
 
         let thread = self.pool.spawn_fn(move || {
-            match event_match {
-                Some(hook) => {
-                    (hook)(state);
-                },
-                None => ()
-            };
+            event_match.map(|hook| (hook)(state));
 
             let res: Result<bool, ()> = Ok(true);
             res

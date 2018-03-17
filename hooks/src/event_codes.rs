@@ -81,7 +81,7 @@ pub enum EventCodes {
     /// Fired when the umber does not match any events
     ///
     /// Code: 255
-    NotAValidEvent,
+    NotAValidType,
 }
 
 /// Converts an integer to the corresponding `EventCode` enum value
@@ -121,7 +121,7 @@ pub fn as_enum(value: u8) -> EventCodes {
         134 => EventCodes::BlockFound,
         135 => EventCodes::HashVal,
         136 => EventCodes::HashValAck,
-        _ => EventCodes::NotAValidEvent,
+        _ => EventCodes::NotAValidType,
     }
 }
 
@@ -159,7 +159,7 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::BlockFound => 134,
         EventCodes::HashVal => 135,
         EventCodes::HashValAck => 136,
-        EventCodes::NotAValidEvent => 255,
+        EventCodes::NotAValidType => 255,
     }
 }
 
