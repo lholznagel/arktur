@@ -24,4 +24,4 @@ extern crate time;
 pub mod payload;
 
 mod protocol;
-pub use protocol::BlockchainProtocol;
+pub use protocol::Protocol;

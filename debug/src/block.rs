@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::Payload;
 use blockchain_protocol::payload::blocks::BlockData;
 
@@ -24,7 +24,7 @@ pub fn execute(args: &ArgMatches) {
         payload.content = "Super awesome message".to_string();
     }
 
-    let request = BlockchainProtocol::<BlockData>::new()
+    let request = Protocol::<BlockData>::new()
             .set_event_code(as_number(EventCodes::BlockData))
             .set_payload(payload)
             .build();

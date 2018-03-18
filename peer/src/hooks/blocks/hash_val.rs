@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::{HashVal, HashValAck};
 
 use hooks::State;
@@ -8,7 +8,7 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn hash_val(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<HashVal>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<HashVal>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     info!("Validating hash.");
 
@@ -22,7 +22,7 @@ pub fn hash_val(state: ApplicationState<State>) {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(generated_block.as_str());
 
-    let mut message = BlockchainProtocol::<HashValAck>::new().set_event_code(as_number(EventCodes::HashValAck));
+    let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(EventCodes::HashValAck));
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
     let message = message.build();

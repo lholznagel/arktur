@@ -1,5 +1,5 @@
 use blockchain_hooks::ApplicationState;
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::BlockFound;
 
 use hooks::State;
@@ -10,7 +10,7 @@ use std::io::Write;
 use std::path::Path;
 
 pub fn block_found(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<BlockFound>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<BlockFound>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     {
         let state_lock = state.state.lock()

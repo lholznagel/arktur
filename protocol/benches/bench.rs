@@ -3,7 +3,7 @@
 extern crate blockchain_protocol;
 extern crate test;
 
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::*;
 use blockchain_protocol::payload::blocks::*;
 use blockchain_protocol::payload::peers::*;
@@ -18,12 +18,12 @@ fn bench_data_for_block(b: &mut Bencher) {
             content: String::from("asdasdasfagewg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockData>::new()
+        let blockchain_protocol = Protocol::<BlockData>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -39,12 +39,12 @@ fn bench_found_block(b: &mut Bencher) {
             content: String::from("asdasdasfagewg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockFound>::new()
+        let blockchain_protocol = Protocol::<BlockFound>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -59,12 +59,12 @@ fn bench_new_block(b: &mut Bencher) {
             content: String::from("gg4g43g43gg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockGen>::new()
+        let blockchain_protocol = Protocol::<BlockGen>::new()
             .set_event_code(33)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -79,12 +79,12 @@ fn bench_validate_hash(b: &mut Bencher) {
             content: String::from("wg3hhrthrhtrh")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<HashVal>::new()
+        let blockchain_protocol = Protocol::<HashVal>::new()
             .set_event_code(35)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -96,23 +96,23 @@ fn bench_validated_hash(b: &mut Bencher) {
             hash: String::from("safergrethgergregerg")
         };
 
-        let blockchain_protocol = BlockchainProtocol::<HashValAck>::new()
+        let blockchain_protocol = Protocol::<HashValAck>::new()
             .set_event_code(36)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
 #[bench]
 fn bench_ping(b: &mut Bencher) {
     b.iter(|| {
-        let blockchain_protocol = BlockchainProtocol::<EmptyPayload>::new()
+        let blockchain_protocol = Protocol::<EmptyPayload>::new()
             .set_event_code(0)
             .build();
 
-        BlockchainProtocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -123,23 +123,23 @@ fn bench_register_ack(b: &mut Bencher) {
             addresses: vec![String::from("geggwegwegwegweg")]
         };
 
-        let blockchain_protocol = BlockchainProtocol::<RegisterAckPayload>::new()
+        let blockchain_protocol = Protocol::<RegisterAckPayload>::new()
             .set_event_code(17)
             .set_payload(payload)
             .build();
 
-        BlockchainProtocol::<RegisterAckPayload>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<RegisterAckPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
 #[bench]
 fn bench_register(b: &mut Bencher) {
     b.iter(|| {
-        let blockchain_protocol = BlockchainProtocol::<EmptyPayload>::new()
+        let blockchain_protocol = Protocol::<EmptyPayload>::new()
             .set_event_code(16)
             .set_payload(EmptyPayload::new())
             .build();
 
-        BlockchainProtocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }

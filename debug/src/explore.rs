@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::peers::GetPeersAckPayload;
 use blockchain_protocol::payload::EmptyPayload;
 
@@ -20,7 +20,7 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
 
     let state = Arc::new(Mutex::new(ExploreState::new()));
 
-    let request = BlockchainProtocol::<EmptyPayload>::new()
+    let request = Protocol::<EmptyPayload>::new()
         .set_event_code(as_number(EventCodes::GetPeers))
         .build();
 
@@ -93,14 +93,14 @@ impl ExploreState {
 }
 
 pub fn get_peers_ack(state: ApplicationState<ExploreState>) {
-    let message = BlockchainProtocol::<GetPeersAckPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
+    let message = Protocol::<GetPeersAckPayload>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
     let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
 
     if !state_lock.peers.contains_key(&state.source) {
         state_lock.peers.insert(state.source, message.payload.peers.clone());
 
         for address in message.payload.peers {
-            let request = BlockchainProtocol::<EmptyPayload>::new()
+            let request = Protocol::<EmptyPayload>::new()
                 .set_event_code(as_number(EventCodes::GetPeers))
                 .build();
 

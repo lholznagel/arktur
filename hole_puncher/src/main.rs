@@ -74,7 +74,7 @@ extern crate futures_cpupool;
 mod hooks;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::{EmptyPayload, Payload};
 
 use futures_cpupool::CpuPool;
@@ -123,7 +123,7 @@ fn connect() {
                     } else {
                         state_lock.peers.insert(peer.clone(), counter + 1);
 
-                        let message = BlockchainProtocol::new()
+                        let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
                             .set_payload(EmptyPayload::new())
                             .build();

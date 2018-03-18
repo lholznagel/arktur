@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::Payload;
 use blockchain_protocol::payload::peers::RegisterAckPayload;
 
@@ -10,7 +10,7 @@ pub fn register(state: ApplicationState<State>) {
         .expect("Locking the mutex should be successful.");
 
     if state_lock.peers.is_empty() {
-        let answer = BlockchainProtocol::new()
+        let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(RegisterAckPayload::new())
             .build();
@@ -22,7 +22,7 @@ pub fn register(state: ApplicationState<State>) {
             peers.push(peer);
         }
 
-        let answer = BlockchainProtocol::new()
+        let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(RegisterAckPayload::new().set_peers(peers))
             .build();

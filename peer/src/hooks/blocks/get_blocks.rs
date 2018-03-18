@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::GetBlocksAck;
 
 use hooks::State;
@@ -22,7 +22,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
             let payload = GetBlocksAck {
                 blocks
             };
-            let message = BlockchainProtocol::new()
+            let message = Protocol::new()
                 .set_event_code(as_number(EventCodes::GetBlocksAck))
                 .set_payload(payload)
                 .build();
@@ -41,7 +41,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
         let payload = GetBlocksAck {
             blocks
         };
-        let message = BlockchainProtocol::new()
+        let message = Protocol::new()
             .set_event_code(as_number(EventCodes::GetBlocksAck))
             .set_payload(payload)
             .build();

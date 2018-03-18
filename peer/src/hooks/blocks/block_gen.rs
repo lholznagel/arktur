@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::{BlockGen, BlockFound, HashVal};
 
 use hooks::State;
@@ -8,7 +8,7 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn block_gen(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<BlockGen>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<BlockGen>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     {
@@ -61,7 +61,7 @@ pub fn block_gen(state: ApplicationState<State>) {
     }
 
     info!("Found hash! {:?}", hash);
-    let message = BlockchainProtocol::<HashVal>::new()
+    let message = Protocol::<HashVal>::new()
         .set_event_code(as_number(EventCodes::HashVal))
         .set_payload(HashVal {
             content: message.payload.content,

@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::Payload;
 use blockchain_protocol::payload::peers::GetPeersAckPayload;
 
@@ -15,7 +15,7 @@ pub fn get_peers(state: ApplicationState<State>) {
             peers.push(peer);
         }
 
-        let answer = BlockchainProtocol::new()
+        let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::GetPeersAck))
             .set_payload(GetPeersAckPayload::new().set_peers(peers))
             .build();

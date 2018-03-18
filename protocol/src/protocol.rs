@@ -26,7 +26,7 @@ pub enum ParseErrors {
 /// //+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct BlockchainProtocol<T> {
+pub struct Protocol<T> {
     /// Identification of this message
     pub version: u8,
     /// Event that is fired, defined by a number between 0 and 255
@@ -37,10 +37,10 @@ pub struct BlockchainProtocol<T> {
     pub payload: T,
 }
 
-impl<T: Payload> BlockchainProtocol<T> {
+impl<T: Payload> Protocol<T> {
     /// Creates a new instance of the protocol information
     pub fn new() -> Self {
-        BlockchainProtocol {
+        Self {
             version: 1,
             event_code: 255,
             checksum: 0,
@@ -48,7 +48,7 @@ impl<T: Payload> BlockchainProtocol<T> {
         }
     }
 
-    /// Parses a byte array to the BlockchainProtocol struct
+    /// Parses a byte array to the Protocol struct
     ///
     /// # Parameter
     ///
@@ -62,12 +62,12 @@ impl<T: Payload> BlockchainProtocol<T> {
     /// ```
     /// extern crate blockchain_protocol;
     ///
-    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::Protocol;
     /// use blockchain_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
     ///     let payload = EmptyPayload::new();
-    ///     let expected = BlockchainProtocol {
+    ///     let expected = Protocol {
     ///         version: 1,
     ///         event_code: 1,
     ///         checksum: 801444648,
@@ -75,12 +75,12 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///     };
     /// 
     ///     let payload = &[1, 1, 40, 19, 197, 47, 0];
-    ///     let result = BlockchainProtocol::from_bytes(payload);
+    ///     let result = Protocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
     /// ```
     pub fn from_bytes(payload: &[u8]) -> Result<Self, ParseErrors> {
-        BlockchainProtocol::parse(payload)
+        Protocol::parse(payload)
     }
 
     /// Sets the event code
@@ -132,18 +132,18 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///
     /// # Return
     ///
-    /// BlockchainProtocol struct. See struct for more information
+    /// Protocol struct. See struct for more information
     ///
     /// # Example
     /// ```
     /// extern crate blockchain_protocol;
     ///
-    /// use blockchain_protocol::BlockchainProtocol;
+    /// use blockchain_protocol::Protocol;
     /// use blockchain_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
     ///     let payload = EmptyPayload::new();
-    ///     let expected = BlockchainProtocol {
+    ///     let expected = Protocol {
     ///         version: 1,
     ///         event_code: 1,
     ///         checksum: 801444648,
@@ -151,12 +151,12 @@ impl<T: Payload> BlockchainProtocol<T> {
     ///     };
     /// 
     ///     let payload = &[1, 1, 40, 19, 197, 47, 0];
-    ///     let result = BlockchainProtocol::from_bytes(payload);
+    ///     let result = Protocol::from_bytes(payload);
     ///     assert_eq!(result.unwrap(), expected);
     /// # }
     /// ```
-    fn parse(bytes: &[u8]) -> Result<BlockchainProtocol<T>, ParseErrors> {
-        let protocol = BlockchainProtocol {
+    fn parse(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
+        let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
             checksum: Parser::u8_to_u32(&bytes[2..6]),
@@ -208,7 +208,7 @@ mod tests {
     #[test]
     fn test_u8() {
         let payload = EmptyPayload::new();
-        let expected = BlockchainProtocol::<EmptyPayload> {
+        let expected = Protocol::<EmptyPayload> {
             version: 1,
             event_code: 1,
             checksum: 801444648,
@@ -216,14 +216,14 @@ mod tests {
         };
 
         let payload = &[1, 1, 40, 19, 197, 47, 0];
-        let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
+        let result = Protocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
 
     #[test]
     fn test_hex() {
         let payload = EmptyPayload::new();
-        let expected = BlockchainProtocol::<EmptyPayload> {
+        let expected = Protocol::<EmptyPayload> {
             version: 1,
             event_code: 1,
             checksum: 801444648,
@@ -231,7 +231,7 @@ mod tests {
         };
 
         let payload = &[0x01, 0x01, 0x28, 0x13, 0xC5, 0x2F, 0x00];
-        let result = BlockchainProtocol::<EmptyPayload>::from_bytes(payload);
+        let result = Protocol::<EmptyPayload>::from_bytes(payload);
         assert_eq!(result.unwrap(), expected);
     }
 }

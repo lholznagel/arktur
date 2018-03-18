@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::BlockGen;
 
 use hooks::State;
@@ -54,7 +54,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                             }
                         }
 
-                        let message = BlockchainProtocol::new()
+                        let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::BlockGen))
                             .set_payload(payload)
                             .build();

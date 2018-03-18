@@ -28,7 +28,7 @@ extern crate futures_cpupool;
 extern crate time;
 
 use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::EmptyPayload;
 
 use clap::{Arg, App};
@@ -101,7 +101,7 @@ fn connect(hole_puncher: String, storage: String) {
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
-    let request = BlockchainProtocol::<EmptyPayload>::new()
+    let request = Protocol::<EmptyPayload>::new()
         .set_event_code(as_number(EventCodes::Register))
         .build();
 

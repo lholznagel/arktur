@@ -1,5 +1,5 @@
 use blockchain_hooks::ApplicationState;
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::GetBlockAck;
 
 use hooks::State;
@@ -9,7 +9,7 @@ use std::fs::File;
 use std::io::Write;
 
 pub fn get_block_ack(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<GetBlockAck>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<GetBlockAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");

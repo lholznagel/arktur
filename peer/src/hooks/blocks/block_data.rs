@@ -1,11 +1,11 @@
 use blockchain_hooks::ApplicationState;
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::BlockData;
 
 use hooks::State;
 
 pub fn block_data(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<BlockData>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<BlockData>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");

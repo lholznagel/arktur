@@ -2,7 +2,7 @@
 extern crate quickcheck;
 extern crate blockchain_protocol;
 
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::blocks::*;
 
 quickcheck! {
@@ -14,14 +14,14 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockData>::new()
+        let blockchain_protocol = Protocol::<BlockData>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
         println!("NEW BLOCK {:?}", blockchain_protocol);
 
-        let blockchain_parsed = BlockchainProtocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = Protocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(unique_key, blockchain_parsed.payload.unique_key);
         assert_eq!(content, blockchain_parsed.payload.content);
         true
@@ -46,12 +46,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockFound>::new()
+        let blockchain_protocol = Protocol::<BlockFound>::new()
             .set_event_code(37)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = Protocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
         assert_eq!(nonce, blockchain_parsed.payload.nonce);
@@ -78,12 +78,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<BlockGen>::new()
+        let blockchain_protocol = Protocol::<BlockGen>::new()
             .set_event_code(33)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -109,12 +109,12 @@ quickcheck! {
             content: content.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<HashVal>::new()
+        let blockchain_protocol = Protocol::<HashVal>::new()
             .set_event_code(35)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = Protocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -134,12 +134,12 @@ quickcheck! {
             hash: hash.clone()
         };
 
-        let blockchain_protocol = BlockchainProtocol::<HashValAck>::new()
+        let blockchain_protocol = Protocol::<HashValAck>::new()
             .set_event_code(36)
             .set_payload(payload)
             .build();
 
-        let blockchain_parsed = BlockchainProtocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
+        let blockchain_parsed = Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(hash, blockchain_parsed.payload.hash);
         true

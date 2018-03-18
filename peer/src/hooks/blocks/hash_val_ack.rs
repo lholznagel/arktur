@@ -1,5 +1,5 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::BlockchainProtocol;
+use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::Payload;
 use blockchain_protocol::payload::blocks::{BlockFound, HashValAck};
 
@@ -8,7 +8,7 @@ use hooks::State;
 use std::collections::HashMap;
 
 pub fn hash_val_ack(state: ApplicationState<State>) {
-    let message = BlockchainProtocol::<HashValAck>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<HashValAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
@@ -46,7 +46,7 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         payload.timestamp = state_lock.current_block.timestamp;
         payload.hash = state_lock.current_block.hash.clone();
 
-        let message = BlockchainProtocol::new()
+        let message = Protocol::new()
             .set_event_code(as_number(EventCodes::BlockFound))
             .set_payload(payload)
             .build();
