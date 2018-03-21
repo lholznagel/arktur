@@ -43,10 +43,58 @@ Contains all information about the requested block.
 
 ## BlockData
 
+Adds new data to the next block.
+After sending it to one peer, it is send to all other.
+
+### Payload
+
+- unique_key - For this message. Used to validate that a peer does not get the same message mutliple times
+- content - Content for the next block
+
 ## BlockGen
+
+Starts the generation of the next block.
+The hash of the block contains the index, timestamp, content and the nonce.
+
+### Payload
+
+- index - Index of the block
+- timestamp - Timestamp the generation started
+- prev - Hash of the previous block
+- sign_key - Sign key the new hash must match, for example: The first 4 chars must be `0000`
+- content - Content of the block
 
 ## BlockFound
 
+After every peer send back the new hash and most say that it is ok, they send back all infromation in order to save it.
+
+### Payload
+
+- index - Index of the block
+- timestamp - Timestamp the generation started
+- nonce - Nonce of the hash
+- prev - Hash of the previous block
+- hash - Hash of the block
+- content - Content of the block
+
 ## HashVal
 
+As soon as a new block is found, the peer sends a message to all other peers to validate the hash.
+Every peer should then use the data to generate the hash.
+
+### Payload
+
+- index - Index of the block
+- timestamp - Timestamp the generation started
+- prev - Hash of the previous block
+- nonce - Nonce of the hash
+- content - Content of the block
+
 ## HashValAck
+
+Sends back the validated hash. ot the peer that first found the hash.
+
+### Payload
+
+- index - Index of the block
+- hash - Hash of the generated block
