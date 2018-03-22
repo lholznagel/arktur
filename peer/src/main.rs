@@ -8,7 +8,7 @@
     unstable_features,
     unused_import_braces,
     unused_qualifications,
-    warnings
+    //warnings
 )]
 #![cfg_attr(feature = "dev", allow(unstable_features))]
 #![cfg_attr(feature = "dev", feature(plugin))]
@@ -64,7 +64,7 @@ fn main() {
             .help("Sets the location for the blocks.")
             .takes_value(true)
             .long("storage")
-            .default_value("./block_data"))
+            .default_value("block_data"))
         .get_matches();
 
     let mut hole_puncher = String::from("");
@@ -117,8 +117,7 @@ fn connect(hole_puncher: String, storage: String) {
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
     thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));
 
-    let mut hook_notification = HookRegister::new(hooks, state)
-        .get_notification();
+    let mut hook_notification = HookRegister::new(hooks, state).get_notification();
 
     loop {
         let mut buffer = [0; 65535];
@@ -131,7 +130,7 @@ fn connect(hole_puncher: String, storage: String) {
                 }
 
                 let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
-                hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
+                hook_notification.notify(socket_clone, as_enum(updated_buffer[1]), updated_buffer, source.to_string());
             }
             Err(e) => println!("Error: {:?}", e),
         }

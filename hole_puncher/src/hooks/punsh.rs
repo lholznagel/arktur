@@ -8,15 +8,17 @@ pub fn punsh(state: ApplicationState<State>) {
     let message = Protocol::<Punsh>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
-    let payload = Punsh {
-        address: state.source
-    };
+    if !message.payload.address.is_empty() {
+        let payload = Punsh {
+            address: state.source
+        };
 
-    let result = Protocol::<Punsh>::new()
-        .set_payload(payload)
-        .set_event_code(as_number(EventCodes::Punsh))
-        .build();
+        let result = Protocol::<Punsh>::new()
+            .set_payload(payload)
+            .set_event_code(as_number(EventCodes::Punsh))
+            .build();
 
-    state.udp.send_to(&result, message.payload.address)
-        .expect("Sending using UDP should be successful.");
+        state.udp.send_to(&result, message.payload.address)
+            .expect("Sending using UDP should be successful.");
+    }
 }

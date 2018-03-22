@@ -14,7 +14,7 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
 
         for new_peer in message.payload.peers {
-            if !state_lock.peers.contains_key(&new_peer) {
+            if !new_peer.is_empty() && !state_lock.peers.contains_key(&new_peer) {
                 state_lock.peers.insert(new_peer, 0);
             }
         }

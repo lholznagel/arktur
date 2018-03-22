@@ -163,7 +163,6 @@ impl<T: Payload> Protocol<T> {
             payload: T::parse(Parser::parse_payload(&bytes[6..]))
         };
 
-        println!("{:?}", crc32::checksum_ieee(&protocol.header_to_bytes()));
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
             Ok(protocol)
         } else {
@@ -172,7 +171,7 @@ impl<T: Payload> Protocol<T> {
     }
 
     /// Turns the header values to bytes
-    /// The checksum is excluded from this. For that use `checksum_to_bytes()`
+    /// The checksum is excluded yfrom this. For that use `checksum_to_bytes()`
     ///
     /// # Return
     ///

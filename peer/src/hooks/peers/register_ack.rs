@@ -14,7 +14,7 @@ pub fn register_ack(state: ApplicationState<State>) {
 
     if !message.payload.addresses.is_empty() {
         for address in message.payload.addresses {
-            if !state_lock.peers.contains_key(&address) {
+            if !address.is_empty() && !state_lock.peers.contains_key(&address) {
                 let payload = Punsh {
                     address: address.clone()
                 };

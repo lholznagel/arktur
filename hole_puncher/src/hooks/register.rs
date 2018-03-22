@@ -6,10 +6,10 @@ use blockchain_protocol::payload::peers::RegisterAckPayload;
 use hooks::State;
 
 pub fn register(state: ApplicationState<State>) {
+    info!("New peer registering.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
     if state_lock.peers.is_empty() {
-        info!("No peer.");
         let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(RegisterAckPayload::new())

@@ -150,7 +150,7 @@ fn connect() {
                 }
 
                 let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
-                hook_notification.notify(socket_clone, as_enum(updated_buffer[0]), updated_buffer, source.to_string());
+                hook_notification.notify(socket_clone, as_enum(updated_buffer[1]), updated_buffer, source.to_string());
             }
             Err(e) => println!("Error: {:?}", e),
         }

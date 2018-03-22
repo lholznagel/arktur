@@ -4,6 +4,7 @@ use blockchain_protocol::payload::blocks::BlockFound;
 
 use hooks::State;
 
+use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -16,8 +17,9 @@ pub fn block_found(state: ApplicationState<State>) {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
 
-        if !Path::new(&state_lock.storage).exists() {
-            fs::create_dir(&state_lock.storage).unwrap();
+        let path = format!("{}/{}", env::var("PWD").unwrap(), &state_lock.storage);
+        if !Path::new(&path).exists() {
+            fs::create_dir(&path).expect("PATH::new");
         }
     }
 
@@ -31,7 +33,7 @@ fn save_file(block: BlockFound, state: ApplicationState<State>) {
     let mut filename = String::from("");
 
     for i in 0..16 {
-        filename = filename + &block.hash.chars().nth(48 + i).unwrap().to_string();
+        filename = filename + &block.hash.chars().nth(48 + i).expect("Filename").to_string();
     }
 
     if !Path::new(&filename).exists() {
