@@ -1,4 +1,4 @@
-use payload::{Parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, PayloadBuilder};
 
 /// Model for the event `RegisterAck`
 ///
@@ -30,7 +30,7 @@ impl Payload for Punsh {
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
             Self {
-                address: String::from(Parser::u8_to_string(&bytes[0]))
+                address: String::from(parser::u8_to_string(&bytes[0]))
             }
         } else {
             Self::new()
@@ -47,7 +47,7 @@ impl Payload for Punsh {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use payload::Parser;
+    use payload::parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -58,7 +58,7 @@ mod tests {
         };
 
         let hole_puncher_ack = hole_puncher_ack.to_bytes();
-        let complete = Parser::parse_payload(&hole_puncher_ack);
+        let complete = parser::parse_payload(&hole_puncher_ack);
         let parsed = Punsh::parse(complete);
 
         assert_eq!(address, parsed.address);

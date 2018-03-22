@@ -1,4 +1,4 @@
-use payload::{Parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, PayloadBuilder};
 
 /// Model for the event `FoundBlock`
 ///
@@ -34,11 +34,11 @@ impl Payload for BlockData {
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
-            let content = Parser::string_overflow(&bytes[1..]);
+            let content = parser::string_overflow(&bytes[1..]);
 
             Self {
-                unique_key: Parser::u8_to_string(&bytes[0]),
-                content: Parser::u8_to_string(&content)
+                unique_key: parser::u8_to_string(&bytes[0]),
+                content: parser::u8_to_string(&content)
             }
         } else {
             Self::new()
@@ -56,7 +56,7 @@ impl Payload for BlockData {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use payload::Parser;
+    use payload::parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -68,7 +68,7 @@ mod tests {
             content: content.clone()
         };
 
-        let complete = Parser::parse_payload(&data.to_bytes());
+        let complete = parser::parse_payload(&data.to_bytes());
         let parsed = BlockData::parse(complete);
 
         assert_eq!(unique_key, parsed.unique_key);
@@ -86,7 +86,7 @@ mod tests {
                 content: content.clone()
             };
 
-            let complete = Parser::parse_payload(&data.to_bytes());
+            let complete = parser::parse_payload(&data.to_bytes());
             let parsed = BlockData::parse(complete);
 
             assert_eq!(unique_key, parsed.unique_key);

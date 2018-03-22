@@ -1,4 +1,4 @@
-use payload::{Parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, PayloadBuilder};
 
 /// Struct of the FoundBlock payload
 ///
@@ -59,15 +59,15 @@ impl Payload for BlockFound {
 
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
-            let content = Parser::string_overflow(&bytes[9..]);
+            let content = parser::string_overflow(&bytes[9..]);
 
             Self {
-                index: Parser::u8_to_u64(bytes[4].as_slice()),
-                timestamp: Parser::u8_to_u64(bytes[5].as_slice()) as i64,
-                nonce: Parser::u8_to_u64(bytes[6].as_slice()),
-                prev: Parser::u8_to_string(&bytes[7]),
-                hash: Parser::u8_to_string(&bytes[8]),
-                content: Parser::u8_to_string(&content),
+                index: parser::u8_to_u64(bytes[4].as_slice()),
+                timestamp: parser::u8_to_u64(bytes[5].as_slice()) as i64,
+                nonce: parser::u8_to_u64(bytes[6].as_slice()),
+                prev: parser::u8_to_string(&bytes[7]),
+                hash: parser::u8_to_string(&bytes[8]),
+                content: parser::u8_to_string(&content),
             }
         } else {
             Self::new()
@@ -93,7 +93,7 @@ impl Payload for BlockFound {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use payload::Parser;
+    use payload::parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -114,7 +114,7 @@ mod tests {
         };
 
         let found_block = found_block.to_bytes();
-        let complete = Parser::parse_payload(&found_block);
+        let complete = parser::parse_payload(&found_block);
         let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -146,7 +146,7 @@ mod tests {
         let found_block = found_block.to_bytes();
         assert_eq!(found_block[1], 2);
 
-        let complete = Parser::parse_payload(&found_block);
+        let complete = parser::parse_payload(&found_block);
         let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -178,7 +178,7 @@ mod tests {
         let found_block = found_block.to_bytes();
         assert_eq!(found_block[1], 4);
 
-        let complete = Parser::parse_payload(&found_block);
+        let complete = parser::parse_payload(&found_block);
         let parsed = BlockFound::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -210,7 +210,7 @@ mod tests {
 
             let found_block = found_block.to_bytes();
 
-            let complete = Parser::parse_payload(&found_block);
+            let complete = parser::parse_payload(&found_block);
             let parsed = BlockFound::parse(complete);
 
             assert_eq!(index, parsed.index);

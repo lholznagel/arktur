@@ -1,4 +1,4 @@
-use payload::{Parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, PayloadBuilder};
 
 /// Model for the event `RegisterAck`
 ///
@@ -22,7 +22,7 @@ impl Payload for GetBlock {
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
             Self {
-                block: Parser::u8_to_string(&bytes[0]),
+                block: parser::u8_to_string(&bytes[0]),
             }
         } else {
             Self::new()
@@ -39,7 +39,7 @@ impl Payload for GetBlock {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use payload::Parser;
+    use payload::parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -50,7 +50,7 @@ mod tests {
         };
 
         let block_ack = block_ack.to_bytes();
-        let complete = Parser::parse_payload(&block_ack);
+        let complete = parser::parse_payload(&block_ack);
         let parsed = GetBlock::parse(complete);
 
         assert_eq!(block, parsed.block);

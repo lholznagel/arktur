@@ -1,5 +1,5 @@
 //! Contains the protocol model and a builder for the protocol
-use payload::{Parser, Payload};
+use payload::{Payload, parser};
 use crc::crc32;
 
 /// Parser error messages
@@ -159,8 +159,8 @@ impl<T: Payload> Protocol<T> {
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
-            checksum: Parser::u8_to_u32(&bytes[2..6]),
-            payload: T::parse(Parser::parse_payload(&bytes[6..]))
+            checksum: parser::u8_to_u32(&bytes[2..6]),
+            payload: T::parse(parser::parse_payload(&bytes[6..]))
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {

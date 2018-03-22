@@ -1,4 +1,4 @@
-use payload::{Parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, PayloadBuilder};
 
 /// Model for the event `FoundBlock`
 ///
@@ -31,8 +31,8 @@ impl Payload for HashValAck {
     fn parse(bytes: Vec<Vec<u8>>) -> Self {
         if !bytes.is_empty() {
             Self {
-                index: Parser::u8_to_u64(bytes[0].as_slice()),
-                hash: Parser::u8_to_string(&bytes[1])
+                index: parser::u8_to_u64(bytes[0].as_slice()),
+                hash: parser::u8_to_string(&bytes[1])
             }
         } else {
             Self::new()
@@ -50,7 +50,7 @@ impl Payload for HashValAck {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use payload::Parser;
+    use payload::parser;
 
     #[test]
     fn test_building_and_parsing() {
@@ -63,7 +63,7 @@ mod tests {
         };
 
         let validated_hash = validated_hash.to_bytes();
-        let complete = Parser::parse_payload(&validated_hash);
+        let complete = parser::parse_payload(&validated_hash);
         let parsed = HashValAck::parse(complete);
 
         assert_eq!(index, parsed.index);
@@ -83,7 +83,7 @@ mod tests {
 
             let validated_hash = validated_hash.to_bytes();
 
-            let complete = Parser::parse_payload(&validated_hash);
+            let complete = parser::parse_payload(&validated_hash);
             let parsed = HashValAck::parse(complete);
 
             assert_eq!(index, parsed.index);
