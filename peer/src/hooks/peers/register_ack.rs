@@ -1,19 +1,18 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::Punsh;
-use blockchain_protocol::payload::EmptyPayload;
-use blockchain_protocol::payload::peers::RegisterAckPayload;
+use blockchain_protocol::payload::{Punsh, EmptyPayload};
+use blockchain_protocol::payload::peers::GetPeers;
 
 use hooks::State;
 
 pub fn register_ack(state: ApplicationState<State>) {
-    let message = Protocol::<RegisterAckPayload>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<GetPeers>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
-    if !message.payload.addresses.is_empty() {
-        for address in message.payload.addresses {
+    if !message.payload.peers.is_empty() {
+        for address in message.payload.peers {
             if !address.is_empty() && !state_lock.peers.contains_key(&address) {
                 let payload = Punsh {
                     address: address.clone()

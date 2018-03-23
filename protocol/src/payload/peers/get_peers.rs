@@ -11,12 +11,12 @@ use payload::{parser, Payload, PayloadBuilder};
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct GetPeersAckPayload {
+pub struct GetPeers {
     /// peers of all peers
     pub peers: Vec<String>,
 }
 
-impl GetPeersAckPayload {
+impl GetPeers {
     /// Sets the peers that should be send
     pub fn set_peers(mut self, peers: Vec<String>) -> Self {
         self.peers = peers;
@@ -24,7 +24,7 @@ impl GetPeersAckPayload {
     }
 }
 
-impl Payload for GetPeersAckPayload {
+impl Payload for GetPeers {
     fn new() -> Self {
         Self { peers: Vec::new() }
     }
@@ -63,13 +63,13 @@ mod tests {
     fn test_building_and_parsing() {
         let peers = vec![String::from("172.0.0.1"), String::from("172.0.0.2")];
 
-        let register_ack = GetPeersAckPayload {
+        let register_ack = GetPeers {
             peers: peers.clone()
         };
 
         let register_ack = register_ack.to_bytes();
         let complete = parser::parse_payload(&register_ack);
-        let parsed = GetPeersAckPayload::parse(complete);
+        let parsed = GetPeers::parse(complete);
 
         assert_eq!(peers, parsed.peers);
     }

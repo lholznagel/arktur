@@ -119,16 +119,16 @@ fn bench_ping(b: &mut Bencher) {
 #[bench]
 fn bench_register_ack(b: &mut Bencher) {
     b.iter(|| {
-        let payload = RegisterAckPayload {
-            addresses: vec![String::from("geggwegwegwegweg")]
+        let payload = GetPeers {
+            peers: vec![String::from("geggwegwegwegweg")]
         };
 
-        let blockchain_protocol = Protocol::<RegisterAckPayload>::new()
+        let blockchain_protocol = Protocol::<GetPeers>::new()
             .set_event_code(17)
             .set_payload(payload)
             .build();
 
-        Protocol::<RegisterAckPayload>::from_bytes(&blockchain_protocol).unwrap();
+        Protocol::<GetPeers>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
