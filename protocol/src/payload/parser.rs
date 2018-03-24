@@ -66,7 +66,7 @@ pub fn u8_to_u16(value: &[u8]) -> Result<u16, ParseErrors> {
     }
 
     unsafe {
-        Ok(transmute::<[u8; 2], u16>([value[1], value[1]]))
+        Ok(transmute::<[u8; 2], u16>([value[0], value[1]]))
     }
 }
 
@@ -122,7 +122,9 @@ pub fn u8_to_u64(value: &[u8]) -> Result<u64, ParseErrors> {
 ///
 /// Given u8 array as string
 pub fn u8_to_string(value: &[u8]) -> String {
-    str::from_utf8(value).unwrap_or("").to_string()
+    str::from_utf8(value)
+        .unwrap_or("")
+        .to_string()
 }
 
 /// Combines an string overflow back together
@@ -144,7 +146,6 @@ pub fn string_overflow(values: &[Vec<u8>]) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
-    // TODO: add negativ tests
     use super::*;
 
     #[test]
@@ -162,8 +163,86 @@ mod tests {
     }
 
     #[test]
+    fn test_u8_to_u16_success() {
+        let result = u8_to_u16(&[185u8, 5u8]);
+        assert_eq!(result.unwrap(), 1465);
+    }
+
+    #[test]
+    fn test_u8_to_u16_fail_low() {
+        match u8_to_u16(&[185u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
+    fn test_u8_to_u16_fail_high() {
+        match u8_to_u16(&[185u8, 5u8, 10u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
+    fn test_u8_to_u32() {
+        let result = u8_to_u32(&[185u8, 5u8, 0u8, 0u8]);
+        assert_eq!(result.unwrap(), 1465);
+    }
+
+    #[test]
+    fn test_u8_to_u32_fail_low() {
+        match u8_to_u32(&[185u8, 5u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
+    fn test_u8_to_u32_fail_high() {
+        match u8_to_u32(&[185u8, 5u8, 10u8, 0u8, 232u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
     fn test_u8_to_u64() {
         let result = u8_to_u64(&[185u8, 5u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8]);
         assert_eq!(result.unwrap(), 1465);
+    }
+
+    #[test]
+    fn test_u8_to_u64_fail_low() {
+        match u8_to_u64(&[185u8, 5u8, 0u8, 0u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
+    fn test_u8_to_u64_fail_high() {
+        match u8_to_u64(&[185u8, 5u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8]) {
+            Ok(_)  => assert!(false),
+            Err(_) => assert!(true)
+        }
+    }
+
+    #[test]
+    fn test_string_overflow_empty() {
+        let result = string_overflow(&[Vec::new()]);
+        assert_eq!(result, Vec::<u8>::new());
+    }
+
+    #[test]
+    fn test_string_overflow_single() {
+        let result = string_overflow(&[vec![65, 66, 67]]);
+        assert_eq!(result, vec![65, 66, 67]);
+    }
+
+    #[test]
+    fn test_string_overflow_multi() {
+        let result = string_overflow(&[vec![65, 66, 67], vec![68, 69, 70], vec![71, 72, 73]]);
+        assert_eq!(result, vec![65, 66, 67, 68, 69, 70, 71, 72, 73]);
     }
 }
