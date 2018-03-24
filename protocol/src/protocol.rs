@@ -5,7 +5,8 @@ use crc::crc32;
 /// Parser error messages
 #[derive(Copy, Clone, Debug)]
 pub enum ParseErrors {
-    ChecksumDoNotMatch
+    ChecksumDoNotMatch,
+    NotEnoughBytes
 }
 
 /// Struct of the protocol
@@ -156,11 +157,16 @@ impl<T: Payload> Protocol<T> {
     /// # }
     /// ```
     fn parse(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
+        let checksum = match parser::u8_to_u32(&bytes[2..6]) {
+            Ok(val) => val,
+            Err(_) => return Err(ParseErrors::NotEnoughBytes)
+        };
+
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
-            checksum: parser::u8_to_u32(&bytes[2..6]),
-            payload: T::parse(parser::parse_payload(&bytes[6..]))
+            checksum,
+            payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {

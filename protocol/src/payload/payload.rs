@@ -1,3 +1,4 @@
+use protocol::ParseErrors;
 
 /// Trait that is needed by every model that represents
 /// a payload of an event
@@ -15,7 +16,7 @@ pub trait Payload: Clone {
     /// # Returns
     ///
     /// Instance of the payload model
-    fn parse(bytes: Vec<Vec<u8>>) -> Self;
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors>;
 
     /// Should convert the current payload model to a
     /// vector of bytes

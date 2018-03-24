@@ -1,4 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
+use protocol::ParseErrors;
 
 /// Model for the event `RegisterAck`
 ///
@@ -21,7 +22,7 @@ impl Payload for GetBlocksAck {
         Self { blocks: Vec::new() }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[0..]);
             let blocks = String::from(parser::u8_to_string(&content));
@@ -31,11 +32,11 @@ impl Payload for GetBlocksAck {
                 result.push(String::from(peer));
             }
 
-            Self {
+            Ok(Self {
                 blocks: result
-            }
+            })
         } else {
-            Self::new()
+            Ok(Self::new())
         }
     }
 
@@ -61,7 +62,7 @@ mod tests {
 
         let block_ack = block_ack.to_bytes();
         let complete = parser::parse_payload(&block_ack);
-        let parsed = GetBlocksAck::parse(complete);
+        let parsed = GetBlocksAck::parse(complete).unwrap();
 
         assert_eq!(blocks, parsed.blocks);
     }

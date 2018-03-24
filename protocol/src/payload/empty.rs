@@ -1,4 +1,5 @@
 use payload::Payload;
+use protocol::ParseErrors;
 
 /// Model for the event `Ping`
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -9,8 +10,8 @@ impl Payload for EmptyPayload {
         EmptyPayload
     }
 
-    fn parse(_: Vec<Vec<u8>>) -> Self {
-        EmptyPayload
+    fn parse(_: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+        Ok(EmptyPayload)
     }
 
     fn to_bytes(self) -> Vec<u8> {

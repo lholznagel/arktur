@@ -1,4 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
+use protocol::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///
@@ -32,16 +33,16 @@ impl Payload for BlockData {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[1..]);
 
-            Self {
+            Ok(Self {
                 unique_key: parser::u8_to_string(&bytes[0]),
                 content: parser::u8_to_string(&content)
-            }
+            })
         } else {
-            Self::new()
+            Ok(Self::new())
         }
     }
 
@@ -69,7 +70,7 @@ mod tests {
         };
 
         let complete = parser::parse_payload(&data.to_bytes());
-        let parsed = BlockData::parse(complete);
+        let parsed = BlockData::parse(complete).unwrap();
 
         assert_eq!(unique_key, parsed.unique_key);
         assert_eq!(content, parsed.content);
@@ -87,7 +88,7 @@ mod tests {
             };
 
             let complete = parser::parse_payload(&data.to_bytes());
-            let parsed = BlockData::parse(complete);
+            let parsed = BlockData::parse(complete).unwrap();
 
             assert_eq!(unique_key, parsed.unique_key);
             assert_eq!(content, parsed.content);

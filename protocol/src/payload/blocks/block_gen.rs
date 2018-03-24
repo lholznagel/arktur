@@ -1,4 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
+use protocol::ParseErrors;
 
 use time::get_time;
 
@@ -65,19 +66,28 @@ impl Payload for BlockGen {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[8..]);
+            let index = match parser::u8_to_u64(bytes[4].as_slice()) {
+                Ok(val) => val,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
 
-            Self {
-                index: parser::u8_to_u64(bytes[4].as_slice()),
-                timestamp: parser::u8_to_u64(bytes[5].as_slice()) as i64,
+            let timestamp = match parser::u8_to_u64(bytes[5].as_slice()) {
+                Ok(val) => val as i64,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
+
+            Ok(Self {
+                index,
+                timestamp,
                 prev: parser::u8_to_string(&bytes[6]),
                 sign_key: parser::u8_to_string(&bytes[7]),
                 content: parser::u8_to_string(&content)
-            }
+            })
         } else {
-            Self::new()
+            Ok(Self::new())
         }
     }
 
@@ -119,7 +129,7 @@ mod tests {
 
         let new_block = new_block.to_bytes();
         let complete = parser::parse_payload(&new_block);
-        let parsed = BlockGen::parse(complete);
+        let parsed = BlockGen::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -148,7 +158,7 @@ mod tests {
         assert_eq!(new_block[1], 2);
 
         let complete = parser::parse_payload(&new_block);
-        let parsed = BlockGen::parse(complete);
+        let parsed = BlockGen::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -177,7 +187,7 @@ mod tests {
         assert_eq!(new_block[1], 4);
 
         let complete = parser::parse_payload(&new_block);
-        let parsed = BlockGen::parse(complete);
+        let parsed = BlockGen::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -206,7 +216,7 @@ mod tests {
             let new_block = new_block.to_bytes();
 
             let complete = parser::parse_payload(&new_block);
-            let parsed = BlockGen::parse(complete);
+            let parsed = BlockGen::parse(complete).unwrap();
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);

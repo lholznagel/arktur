@@ -8,7 +8,7 @@
     unstable_features,
     unused_import_braces,
     unused_qualifications,
-    //warnings
+    warnings
 )]
 #![cfg_attr(feature = "dev", allow(unstable_features))]
 #![cfg_attr(feature = "dev", feature(plugin))]

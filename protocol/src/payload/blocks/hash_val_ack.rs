@@ -1,4 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
+use protocol::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///
@@ -28,14 +29,19 @@ impl Payload for HashValAck {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
-            Self {
-                index: parser::u8_to_u64(bytes[0].as_slice()),
+            let index = match parser::u8_to_u64(bytes[0].as_slice()) {
+                Ok(val) => val,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
+
+            Ok(Self {
+                index,
                 hash: parser::u8_to_string(&bytes[1])
-            }
+            })
         } else {
-            Self::new()
+            Ok(Self::new())
         }
     }
 
@@ -64,7 +70,7 @@ mod tests {
 
         let validated_hash = validated_hash.to_bytes();
         let complete = parser::parse_payload(&validated_hash);
-        let parsed = HashValAck::parse(complete);
+        let parsed = HashValAck::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(hash, parsed.hash);
@@ -84,7 +90,7 @@ mod tests {
             let validated_hash = validated_hash.to_bytes();
 
             let complete = parser::parse_payload(&validated_hash);
-            let parsed = HashValAck::parse(complete);
+            let parsed = HashValAck::parse(complete).unwrap();
 
             assert_eq!(index, parsed.index);
             assert_eq!(hash, parsed.hash);

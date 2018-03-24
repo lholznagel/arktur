@@ -1,4 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
+use protocol::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///
@@ -51,19 +52,31 @@ impl Payload for HashVal {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Self {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[8..]);
+            let index = match parser::u8_to_u64(bytes[4].as_slice()) {
+                Ok(val) => val,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
+            let timestamp = match parser::u8_to_u64(bytes[5].as_slice()) {
+                Ok(val) => val as i64,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
+            let nonce = match parser::u8_to_u64(bytes[6].as_slice()) {
+                Ok(val) => val,
+                Err(_) => return Err(ParseErrors::NotEnoughBytes)
+            };
 
-            Self {
-                index: parser::u8_to_u64(bytes[4].as_slice()),
-                timestamp: parser::u8_to_u64(bytes[5].as_slice()) as i64,
-                nonce: parser::u8_to_u64(bytes[6].as_slice()),
+            Ok(Self {
+                index,
+                timestamp,
+                nonce,
                 prev: parser::u8_to_string(&bytes[7]),
                 content: parser::u8_to_string(&content)
-            }
+            })
         } else {
-            Self::new()
+            Ok(Self::new())
         }
     }
 
@@ -105,7 +118,7 @@ mod tests {
 
         let validate_hash = validate_hash.to_bytes();
         let complete = parser::parse_payload(&validate_hash);
-        let parsed = HashVal::parse(complete);
+        let parsed = HashVal::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -134,7 +147,7 @@ mod tests {
         assert_eq!(validate_hash[1], 2);
 
         let complete = parser::parse_payload(&validate_hash);
-        let parsed = HashVal::parse(complete);
+        let parsed = HashVal::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -163,7 +176,7 @@ mod tests {
         assert_eq!(validate_hash[1], 4);
 
         let complete = parser::parse_payload(&validate_hash);
-        let parsed = HashVal::parse(complete);
+        let parsed = HashVal::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -192,7 +205,7 @@ mod tests {
             let hash_val = hash_val.to_bytes();
 
             let complete = parser::parse_payload(&hash_val);
-            let parsed = HashVal::parse(complete);
+            let parsed = HashVal::parse(complete).unwrap();
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);
