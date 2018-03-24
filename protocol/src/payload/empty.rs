@@ -1,7 +1,7 @@
 use payload::Payload;
-use protocol::ParseErrors;
+use errors::ParseErrors;
 
-/// Model for the event `Ping`
+/// Empty payload
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct EmptyPayload;
 

@@ -1,5 +1,5 @@
 //! Useful functions for parsing an array of bytes
-use protocol::ParseErrors;
+use errors::ParseErrors;
 
 use std::mem::transmute;
 use std::str;

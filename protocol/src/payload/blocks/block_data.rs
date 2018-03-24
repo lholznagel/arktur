@@ -1,5 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
-use protocol::ParseErrors;
+use errors::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///

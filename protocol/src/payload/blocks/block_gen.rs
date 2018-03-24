@@ -1,5 +1,5 @@
 use payload::{parser, Payload, PayloadBuilder};
-use protocol::ParseErrors;
+use errors::ParseErrors;
 
 use time::get_time;
 
@@ -69,19 +69,10 @@ impl Payload for BlockGen {
     fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[8..]);
-            let index = match parser::u8_to_u64(bytes[4].as_slice()) {
-                Ok(val) => val,
-                Err(_) => return Err(ParseErrors::NotEnoughBytes)
-            };
-
-            let timestamp = match parser::u8_to_u64(bytes[5].as_slice()) {
-                Ok(val) => val as i64,
-                Err(_) => return Err(ParseErrors::NotEnoughBytes)
-            };
 
             Ok(Self {
-                index,
-                timestamp,
+                index: parser::u8_to_u64(bytes[4].as_slice())?,
+                timestamp: parser::u8_to_u64(bytes[5].as_slice())? as i64,
                 prev: parser::u8_to_string(&bytes[6]),
                 sign_key: parser::u8_to_string(&bytes[7]),
                 content: parser::u8_to_string(&content)

@@ -1,13 +1,8 @@
 //! Contains the protocol model and a builder for the protocol
+use errors::ParseErrors;
+
 use payload::{Payload, parser};
 use crc::crc32;
-
-/// Parser error messages
-#[derive(Copy, Clone, Debug)]
-pub enum ParseErrors {
-    ChecksumDoNotMatch,
-    NotEnoughBytes
-}
 
 /// Struct of the protocol
 ///

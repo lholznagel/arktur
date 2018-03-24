@@ -22,6 +22,8 @@ extern crate crc;
 extern crate time;
 
 pub mod payload;
+pub mod errors;
 
 mod protocol;
 pub use protocol::Protocol;
+pub use errors::ParseErrors;
