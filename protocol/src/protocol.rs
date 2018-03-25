@@ -152,15 +152,10 @@ impl<T: Payload> Protocol<T> {
     /// # }
     /// ```
     fn parse(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
-        let checksum = match parser::u8_to_u32(&bytes[2..6]) {
-            Ok(val) => val,
-            Err(_) => return Err(ParseErrors::NotEnoughBytes)
-        };
-
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
-            checksum,
+            checksum: parser::u8_to_u32(&bytes[2..6])?,
             payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
         };
 

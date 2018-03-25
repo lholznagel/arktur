@@ -25,11 +25,14 @@ impl Payload for GetBlocksAck {
     fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[0..]);
-            let blocks = String::from(parser::u8_to_string(&content));
             let mut result: Vec<String> = Vec::new();
 
-            for peer in blocks.split(", ").collect::<Vec<&str>>() {
-                result.push(String::from(peer));
+            if !content.is_empty() {
+                let blocks = String::from(parser::u8_to_string(&content));
+
+                for peer in blocks.split(", ").collect::<Vec<&str>>() {
+                    result.push(String::from(peer));
+                }
             }
 
             Ok(Self {
@@ -51,6 +54,19 @@ impl Payload for GetBlocksAck {
 mod tests {
     use super::*;
     use payload::parser;
+
+    #[test]
+    fn test_building_and_parsing_empty() {
+        let block_ack = GetBlocksAck {
+            blocks: Vec::new()
+        };
+
+        let block_ack = block_ack.to_bytes();
+        let complete = parser::parse_payload(&block_ack);
+        let parsed = GetBlocksAck::parse(complete).unwrap();
+
+        assert_eq!(Vec::<String>::new(), parsed.blocks);
+    }
 
     #[test]
     fn test_building_and_parsing() {

@@ -1,12 +1,12 @@
 use blockchain_hooks::{as_number, ApplicationState, EventCodes};
 use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::{Punsh, EmptyPayload};
-use blockchain_protocol::payload::peers::GetPeers;
+use blockchain_protocol::payload::peers::GetPeersAck;
 
 use hooks::State;
 
 pub fn register_ack(state: ApplicationState<State>) {
-    let message = Protocol::<GetPeers>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");

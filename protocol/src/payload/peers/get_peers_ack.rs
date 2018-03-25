@@ -12,12 +12,12 @@ use errors::ParseErrors;
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct GetPeers {
+pub struct GetPeersAck {
     /// peers of all peers
     pub peers: Vec<String>,
 }
 
-impl GetPeers {
+impl GetPeersAck {
     /// Sets the peers that should be send
     pub fn set_peers(mut self, peers: Vec<String>) -> Self {
         self.peers = peers;
@@ -25,7 +25,7 @@ impl GetPeers {
     }
 }
 
-impl Payload for GetPeers {
+impl Payload for GetPeersAck {
     fn new() -> Self {
         Self { peers: Vec::new() }
     }
@@ -64,13 +64,13 @@ mod tests {
     fn test_building_and_parsing() {
         let peers = vec![String::from("172.0.0.1"), String::from("172.0.0.2")];
 
-        let register_ack = GetPeers {
+        let register_ack = GetPeersAck {
             peers: peers.clone()
         };
 
         let register_ack = register_ack.to_bytes();
         let complete = parser::parse_payload(&register_ack);
-        let parsed = GetPeers::parse(complete).unwrap();
+        let parsed = GetPeersAck::parse(complete).unwrap();
 
         assert_eq!(peers, parsed.peers);
     }

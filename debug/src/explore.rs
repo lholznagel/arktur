@@ -1,6 +1,6 @@
 use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
 use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::peers::GetPeers;
+use blockchain_protocol::payload::peers::GetPeersAck;
 use blockchain_protocol::payload::EmptyPayload;
 
 use clap::ArgMatches;
@@ -93,7 +93,7 @@ impl ExploreState {
 }
 
 pub fn get_peers_ack(state: ApplicationState<ExploreState>) {
-    let message = Protocol::<GetPeers>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
+    let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer).expect("Parsing should be successful");
     let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
 
     if !state_lock.peers.contains_key(&state.source) {

@@ -1,11 +1,11 @@
 use blockchain_hooks::ApplicationState;
 use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::peers::GetPeers;
+use blockchain_protocol::payload::peers::GetPeersAck;
 
 use hooks::State;
 
 pub fn get_peers_ack(state: ApplicationState<State>) {
-    let message = Protocol::<GetPeers>::from_bytes(&state.payload_buffer)
+    let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     info!("Syncing peers.");
 
