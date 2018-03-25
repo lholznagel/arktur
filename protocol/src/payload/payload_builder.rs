@@ -133,4 +133,49 @@ mod tests {
         let expected = vec![10, 83, 111, 109, 101, 83, 116, 114, 105, 110, 103, 15, 83, 111, 109, 101, 79, 116, 104, 101, 114, 83, 116, 114, 105, 110, 103, 0];
         assert_eq!(expected, result);
     }
+
+    #[test]
+    fn test_u8() {
+        let result = PayloadBuilder::new()
+            .add_u8(240)
+            .build();
+
+        // last 0u8 is added by the build() function
+        let expected = vec![1u8, 240u8, 0u8];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_u64() {
+        let result = PayloadBuilder::new()
+            .add_u64(1465)
+            .build();
+
+        // last 0u8 is added by the build() function
+        let expected = vec![8u8, 185u8, 5u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8, 0u8];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_string_overflow_125() {
+        let result = PayloadBuilder::new()
+            .add_string_overflow(String::from("A".repeat(125)))
+            .build();
+
+        assert_eq!(result.len(), 127);
+        assert_eq!(result[0], 125u8);
+        assert_eq!(result[result.len() - 1], 0u8);
+    }
+
+    #[test]
+    fn test_string_overflow_500() {
+        let result = PayloadBuilder::new()
+            .add_string_overflow(String::from("A".repeat(500)))
+            .build();
+
+        assert_eq!(result.len(), 503);
+        assert_eq!(result[0], 255u8);
+        assert_eq!(result[256], 245u8);
+        assert_eq!(result[result.len() - 1], 0u8);
+    }
 }
