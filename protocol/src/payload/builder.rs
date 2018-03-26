@@ -108,6 +108,28 @@ impl Builder {
         self
     }
 
+    /// Converts a string vector to bytes
+    ///
+    /// # Parameters
+    ///
+    /// - `vector: Vec<String>` - vector to add
+    ///
+    /// # Return
+    ///
+    /// Updated instance of Builder
+    pub fn add_string_vector(mut self, vector: Vec<String>) -> Self {
+        vector
+            .iter()
+            .map(|value| {
+                let value_byte = value.clone().into_bytes();
+
+                self.byte_vec.push(value_byte.len() as u8);
+                self.byte_vec.extend(value_byte.iter());
+            })
+            .last();
+        self
+    }
+
     /// Converts the string vector to byte vector
     ///
     /// # Returns
@@ -176,6 +198,36 @@ mod tests {
         assert_eq!(result.len(), 503);
         assert_eq!(result[0], 255u8);
         assert_eq!(result[256], 245u8);
+        assert_eq!(result[result.len() - 1], 0u8);
+    }
+
+
+    #[test]
+    fn test_vector_1() {
+        let result = Builder::new()
+            .add_string_vector(vec!["A".to_string()])
+            .build();
+
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[0], 1u8);
+        assert_eq!(result[1], 65u8);
+        assert_eq!(result[result.len() - 1], 0u8);
+    }
+
+    #[test]
+    fn test_vector_3() {
+        let result = Builder::new()
+            .add_string_vector(vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()])
+            .build();
+
+        assert_eq!(result.len(), 13);
+        assert_eq!(result[0], 3u8);
+        assert_eq!(result[1], 65u8);
+        assert_eq!(result[2], 66u8);
+        assert_eq!(result[3], 67u8);
+        assert_eq!(result[9], 71u8);
+        assert_eq!(result[10], 72u8);
+        assert_eq!(result[11], 73u8);
         assert_eq!(result[result.len() - 1], 0u8);
     }
 }
