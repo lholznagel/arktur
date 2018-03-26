@@ -1,4 +1,4 @@
-use payload::{parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, Builder};
 use errors::ParseErrors;
 
 /// Model for the event `FoundBlock`
@@ -42,7 +42,7 @@ impl Payload for HashValAck {
     }
 
     fn to_bytes(self) -> Vec<u8> {
-        PayloadBuilder::new()
+        Builder::new()
             .add_u64(self.index)
             .add_string(self.hash)
             .build()

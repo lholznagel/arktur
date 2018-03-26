@@ -1,4 +1,4 @@
-use payload::{parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, Builder};
 use errors::ParseErrors;
 
 /// Struct of the FoundBlock payload
@@ -76,7 +76,7 @@ impl Payload for BlockFound {
     }
 
     fn to_bytes(self) -> Vec<u8> {
-        PayloadBuilder::new()
+        Builder::new()
             .add_u8(((self.content.clone().len() as u64 / 255) as u8) + 1)
             .add_u8(0) // empty
             .add_u8(0) // empty

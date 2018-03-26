@@ -6,11 +6,11 @@ pub mod blocks;
 
 pub mod parser;
 mod payload;
-mod payload_builder;
+mod builder;
 
 pub use self::empty::EmptyPayload;
 
 pub use self::hole_puncher::punsh::Punsh;
 
 pub use self::payload::Payload;
-pub use self::payload_builder::PayloadBuilder;
+pub use self::builder::Builder;

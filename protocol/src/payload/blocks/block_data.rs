@@ -1,4 +1,4 @@
-use payload::{parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, Builder};
 use errors::ParseErrors;
 
 /// Model for the event `FoundBlock`
@@ -47,7 +47,7 @@ impl Payload for BlockData {
     }
 
     fn to_bytes(self) -> Vec<u8> {
-        PayloadBuilder::new()
+        Builder::new()
             .add_string(self.unique_key)
             .add_string_overflow(self.content)
             .build()

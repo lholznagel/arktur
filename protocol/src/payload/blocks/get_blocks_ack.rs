@@ -1,4 +1,4 @@
-use payload::{parser, Payload, PayloadBuilder};
+use payload::{parser, Payload, Builder};
 use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
@@ -44,7 +44,7 @@ impl Payload for GetBlocksAck {
     }
 
     fn to_bytes(self) -> Vec<u8> {
-        PayloadBuilder::new()
+        Builder::new()
             .add_string_overflow(self.blocks.join(", "))
             .build()
     }

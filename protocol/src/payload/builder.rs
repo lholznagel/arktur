@@ -2,12 +2,12 @@
 ///
 /// Used for parsing the payloads to bytes
 #[derive(Debug)]
-pub struct PayloadBuilder {
+pub struct Builder {
     byte_vec: Vec<u8>
 }
 
-impl PayloadBuilder {
-    /// Creates a new instance of the PayloadBuilder
+impl Builder {
+    /// Creates a new instance of the Builder
     pub fn new() -> Self {
         Self {
             byte_vec: Vec::new()
@@ -22,7 +22,7 @@ impl PayloadBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of PayloadBuilder
+    /// Updated instance of Builder
     pub fn add_string(mut self, value: String) -> Self {
         let value_byte = value.clone().into_bytes();
 
@@ -39,7 +39,7 @@ impl PayloadBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of PayloadBuilder
+    /// Updated instance of Builder
     pub fn add_u8(mut self, value: u8) -> Self {
         self.byte_vec.push(1);
         self.byte_vec.push(value);
@@ -54,7 +54,7 @@ impl PayloadBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of PayloadBuilder
+    /// Updated instance of Builder
     pub fn add_u64(mut self, value: u64) -> Self {
         let b1 = ((value >> 56) & 0xFF) as u8;
         let b2 = ((value >> 48) & 0xFF) as u8;
@@ -78,7 +78,7 @@ impl PayloadBuilder {
     ///
     /// # Return
     ///
-    /// Updated instance of PayloadBuilder
+    /// Updated instance of Builder
     pub fn add_string_overflow(mut self, value: String) -> Self {
         let value_byte = value.clone().into_bytes();
         let mut current_index = 0;
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_string_vec_to_byte_vec() {
-        let result = PayloadBuilder::new()
+        let result = Builder::new()
             .add_string(String::from("SomeString"))
             .add_string(String::from("SomeOtherString"))
             .build();
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_u8() {
-        let result = PayloadBuilder::new()
+        let result = Builder::new()
             .add_u8(240)
             .build();
 
@@ -147,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_u64() {
-        let result = PayloadBuilder::new()
+        let result = Builder::new()
             .add_u64(1465)
             .build();
 
@@ -158,7 +158,7 @@ mod tests {
 
     #[test]
     fn test_string_overflow_125() {
-        let result = PayloadBuilder::new()
+        let result = Builder::new()
             .add_string_overflow(String::from("A".repeat(125)))
             .build();
 
@@ -169,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_string_overflow_500() {
-        let result = PayloadBuilder::new()
+        let result = Builder::new()
             .add_string_overflow(String::from("A".repeat(500)))
             .build();
 
