@@ -6,7 +6,6 @@ extern crate test;
 use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::*;
 use blockchain_protocol::payload::blocks::*;
-use blockchain_protocol::payload::peers::*;
 
 use test::Bencher;
 
@@ -116,7 +115,7 @@ fn bench_ping(b: &mut Bencher) {
     });
 }
 
-#[bench]
+/*#[bench]
 fn bench_register_ack(b: &mut Bencher) {
     b.iter(|| {
         let payload = GetPeersAck {
@@ -130,7 +129,7 @@ fn bench_register_ack(b: &mut Bencher) {
 
         Protocol::<GetPeersAck>::from_bytes(&blockchain_protocol).unwrap();
     });
-}
+}*/
 
 #[bench]
 fn bench_register(b: &mut Bencher) {

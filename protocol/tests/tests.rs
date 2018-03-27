@@ -5,6 +5,7 @@ extern crate blockchain_protocol;
 use blockchain_protocol::Protocol;
 use blockchain_protocol::payload::*;
 use blockchain_protocol::payload::blocks::*;
+use blockchain_protocol::payload::peers::*;
 
 quickcheck! {
     fn test_val_ack(address: String) -> bool {
@@ -25,7 +26,6 @@ quickcheck! {
     }
 }
 
-// TODO: Update test
 /*quickcheck! {
     fn test_get_peers_ack(peers: Vec<String>) -> bool {
         let peers = peers;

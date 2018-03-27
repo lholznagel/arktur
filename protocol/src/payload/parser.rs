@@ -127,6 +127,48 @@ pub fn u8_to_string(value: &[u8]) -> String {
         .to_string()
 }
 
+/// Reads an array of u8 values to a string vector
+///
+/// # Parameters
+///
+/// - `value: [u8]] - array of bytes
+///
+/// # Return
+///
+/// Bytes converted into a byte vector
+pub fn u8_to_string_vec(values: &[u8]) -> Vec<String> {
+    let mut index: u64 = 0;
+    let mut complete = Vec::new();
+
+    if !values.is_empty() {
+        loop {
+            if index == values.len() as u64 {
+                break;
+            }
+
+            let mut current = Vec::new();
+            let current_length = values[index as usize];
+
+            for i in (index + 1)..(index + current_length as u64 + 1) {
+                current.push(values[i as usize]);
+                index += 1;
+            }
+
+            if !current.is_empty() {
+                let string_converted = str::from_utf8(&current)
+                    .unwrap_or("")
+                    .to_string();
+
+                complete.push(string_converted);
+            }
+
+            index += 1;
+        }
+    }
+
+    complete
+}
+
 /// Combines an string overflow back together
 ///
 /// # Parameters
@@ -244,5 +286,21 @@ mod tests {
     fn test_string_overflow_multi() {
         let result = string_overflow(&[vec![65, 66, 67], vec![68, 69, 70], vec![71, 72, 73]]);
         assert_eq!(result, vec![65, 66, 67, 68, 69, 70, 71, 72, 73]);
+    }
+
+    #[test]
+    fn test_u8_to_string_vector_1() {
+        let input = [3, 65, 66, 67];
+        let result = u8_to_string_vec(&input);
+        let expected = vec!["ABC".to_string()];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_u8_to_string_vector_3() {
+        let input = [3, 65, 66, 67, 3, 68, 69, 70, 3, 71, 72, 73];
+        let result = u8_to_string_vec(&input);
+        let expected = vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()];
+        assert_eq!(result, expected);
     }
 }

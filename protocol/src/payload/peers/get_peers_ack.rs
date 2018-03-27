@@ -32,16 +32,15 @@ impl Payload for GetPeersAck {
 
     fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
-            let content = parser::string_overflow(&bytes[0..]);
-            let peers = String::from(parser::u8_to_string(&content));
-            let mut result: Vec<String> = Vec::new();
+            let mut peers = Vec::new();
 
-            for peer in peers.split(", ").collect::<Vec<&str>>() {
-                result.push(String::from(peer));
+            for byte in bytes {
+                let parsed = parser::u8_to_string_vec(&byte);
+                peers.extend(parsed);
             }
 
             Ok(Self {
-                peers: result
+                peers
             })
         } else {
             Ok(Self::new())
@@ -50,7 +49,7 @@ impl Payload for GetPeersAck {
 
     fn to_bytes(self) -> Vec<u8> {
         Builder::new()
-            .add_string_overflow(self.peers.join(", "))
+            .add_string_vector(self.peers)
             .build()
     }
 }
@@ -69,9 +68,8 @@ mod tests {
         };
 
         let register_ack = register_ack.to_bytes();
-        let complete = parser::parse_payload(&register_ack);
-        let parsed = GetPeersAck::parse(complete).unwrap();
+        let complete = parser::u8_to_string_vec(&register_ack);
 
-        assert_eq!(peers, parsed.peers);
+        assert_eq!(peers, complete);
     }
 }
