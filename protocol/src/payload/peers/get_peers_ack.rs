@@ -1,4 +1,4 @@
-use payload::{parser, Payload, Builder};
+use payload::{Payload, Builder};
 use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
@@ -35,8 +35,9 @@ impl Payload for GetPeersAck {
             let mut peers = Vec::new();
 
             for byte in bytes {
-                let parsed = parser::u8_to_string_vec(&byte);
-                peers.extend(parsed);
+                if !byte.is_empty() {
+                    peers.push(String::from_utf8(byte).unwrap());
+                }
             }
 
             Ok(Self {
@@ -58,6 +59,19 @@ impl Payload for GetPeersAck {
 mod tests {
     use super::*;
     use payload::parser;
+
+    #[test]
+    fn test_building_and_parsing_empty() {
+        let peers_ack = GetPeersAck {
+            peers: Vec::new()
+        };
+
+        let peers_ack = peers_ack.to_bytes();
+        let complete = parser::parse_payload(&peers_ack);
+        let parsed = GetPeersAck::parse(complete).unwrap();
+
+        assert_eq!(Vec::<String>::new(), parsed.peers);
+    }
 
     #[test]
     fn test_building_and_parsing() {
