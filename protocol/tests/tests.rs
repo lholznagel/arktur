@@ -7,7 +7,7 @@ use blockchain_protocol::payload::*;
 use blockchain_protocol::payload::blocks::*;
 
 quickcheck! {
-    fn test_val_ack(address: String) -> bool {
+    fn test_punsh(address: String) -> bool {
         let address = address;
 
         let payload = Punsh {

@@ -10,7 +10,72 @@ use blockchain_protocol::payload::blocks::*;
 use test::Bencher;
 
 #[bench]
-fn bench_data_for_block(b: &mut Bencher) {
+fn bench_empty(b: &mut Bencher) {
+    b.iter(|| {
+        let blockchain_protocol = Protocol::<EmptyPayload>::new()
+            .set_event_code(0)
+            .build();
+
+        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
+fn bench_punch(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = Punsh {
+            address: String::from("SomeAddress")
+        };
+
+        let blockchain_protocol = Protocol::<Punsh>::new()
+            .set_event_code(2)
+            .set_payload(payload)
+            .build();
+
+        Protocol::<Punsh>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
+fn bench_get_block(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = GetBlock {
+            block: String::from("SomeBlock")
+        };
+
+        let blockchain_protocol = Protocol::<GetBlock>::new()
+            .set_event_code(130)
+            .set_payload(payload)
+            .build();
+
+        Protocol::<GetBlock>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
+fn bench_get_block_ack(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = GetBlockAck {
+            filename: String::from("SomeFilename"),
+            index: 345678,
+            timestamp: 2345790,
+            nonce: 1234567890,
+            prev: String::from("PrevHash"),
+            hash: String::from("CurrentHash"),
+            content: String::from("MySuperAwesomeContent")
+        };
+
+        let blockchain_protocol = Protocol::<GetBlockAck>::new()
+            .set_event_code(131)
+            .set_payload(payload)
+            .build();
+
+        Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
+fn bench_block_data(b: &mut Bencher) {
     b.iter(|| {
         let payload = BlockData {
             unique_key: String::from("asdafhgr"),
@@ -27,7 +92,27 @@ fn bench_data_for_block(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_found_block(b: &mut Bencher) {
+fn bench_block_gen(b: &mut Bencher) {
+    b.iter(|| {
+        let payload = BlockGen {
+            index: 458648,
+            timestamp: 321,
+            sign_key: String::from("0000"),
+            prev: String::from("agg43g34g"),
+            content: String::from("gg4g43g43gg")
+        };
+
+        let blockchain_protocol = Protocol::<BlockGen>::new()
+            .set_event_code(33)
+            .set_payload(payload)
+            .build();
+
+        Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
+    });
+}
+
+#[bench]
+fn bench_block_found(b: &mut Bencher) {
     b.iter(|| {
         let payload = BlockFound {
             index: 6565,
@@ -48,27 +133,7 @@ fn bench_found_block(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_new_block(b: &mut Bencher) {
-    b.iter(|| {
-        let payload = BlockGen {
-            index: 458648,
-            timestamp: 321,
-            sign_key: String::from("0000"),
-            prev: String::from("agg43g34g"),
-            content: String::from("gg4g43g43gg")
-        };
-
-        let blockchain_protocol = Protocol::<BlockGen>::new()
-            .set_event_code(33)
-            .set_payload(payload)
-            .build();
-
-        Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
-fn bench_validate_hash(b: &mut Bencher) {
+fn bench_hash_val(b: &mut Bencher) {
     b.iter(|| {
         let payload = HashVal {
             index: 6456948,
@@ -88,7 +153,7 @@ fn bench_validate_hash(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_validated_hash(b: &mut Bencher) {
+fn bench_hash_val_ack(b: &mut Bencher) {
     b.iter(|| {
         let payload = HashValAck {
             index: 245458,
@@ -101,44 +166,5 @@ fn bench_validated_hash(b: &mut Bencher) {
             .build();
 
         Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-#[bench]
-fn bench_ping(b: &mut Bencher) {
-    b.iter(|| {
-        let blockchain_protocol = Protocol::<EmptyPayload>::new()
-            .set_event_code(0)
-            .build();
-
-        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}
-
-/*#[bench]
-fn bench_register_ack(b: &mut Bencher) {
-    b.iter(|| {
-        let payload = GetPeersAck {
-            peers: vec![String::from("geggwegwegwegweg")]
-        };
-
-        let blockchain_protocol = Protocol::<GetPeersAck>::new()
-            .set_event_code(17)
-            .set_payload(payload)
-            .build();
-
-        Protocol::<GetPeersAck>::from_bytes(&blockchain_protocol).unwrap();
-    });
-}*/
-
-#[bench]
-fn bench_register(b: &mut Bencher) {
-    b.iter(|| {
-        let blockchain_protocol = Protocol::<EmptyPayload>::new()
-            .set_event_code(16)
-            .set_payload(EmptyPayload::new())
-            .build();
-
-        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
