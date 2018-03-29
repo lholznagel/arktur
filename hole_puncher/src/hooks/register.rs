@@ -1,7 +1,7 @@
-use blockchain_hooks::{as_number, ApplicationState, EventCodes};
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::Payload;
-use blockchain_protocol::payload::peers::GetPeersAck;
+use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_protocol::Protocol;
+use carina_protocol::payload::Payload;
+use carina_protocol::payload::peers::GetPeersAck;
 
 use hooks::State;
 

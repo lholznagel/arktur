@@ -1,4 +1,4 @@
-use blockchain_hooks::ApplicationState;
+use carina_hooks::ApplicationState;
 
 use hooks::State;
 

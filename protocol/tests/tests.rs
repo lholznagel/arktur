@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate quickcheck;
-extern crate blockchain_protocol;
+extern crate carina_protocol;
 
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::*;
-use blockchain_protocol::payload::blocks::*;
+use carina_protocol::Protocol;
+use carina_protocol::payload::*;
+use carina_protocol::payload::blocks::*;
 
 quickcheck! {
     fn test_punsh(address: String) -> bool {

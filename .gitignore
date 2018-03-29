@@ -4,6 +4,5 @@ target/
 **/*.rs.bk
 *.iml
 
-connection_manager/peers
 peer/block_data
-docker/blockchain_peer
+docker/carina_peer

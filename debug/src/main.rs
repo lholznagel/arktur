@@ -15,10 +15,10 @@
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
 //! Small debug application
-extern crate blockchain_hooks;
+extern crate carina_hooks;
 #[macro_use]
-extern crate blockchain_logging;
-extern crate blockchain_protocol;
+extern crate carina_logging;
+extern crate carina_protocol;
 extern crate clap;
 extern crate futures_cpupool;
 extern crate rand;
@@ -29,10 +29,10 @@ mod block;
 mod explore;
 
 fn main() {
-    let matches = App::new("Blockchain debug cli")
+    let matches = App::new("Carina debug cli")
         .version("0.1.0")
         .author("Lars Holznagel")
-        .about("Debug tool for rust-blockchain")
+        .about("Debug tool for Carina")
         .arg(Arg::with_name("HOLE_PUNCHER_IP")
             .value_name("ip")
             .help("Sets the IP of the Hole puncher service")

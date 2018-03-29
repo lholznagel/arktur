@@ -1,6 +1,6 @@
 [package]
 authors = ["lholznagel <contact@lholznagel.info>"]
-name = "blockchain_protocol"
+name = "carina_protocol"
 version = "0.1.0"
 
 [dependencies]

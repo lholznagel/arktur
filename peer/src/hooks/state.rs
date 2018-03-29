@@ -1,5 +1,5 @@
-use blockchain_protocol::payload::Payload;
-use blockchain_protocol::payload::blocks::BlockFound;
+use carina_protocol::payload::Payload;
+use carina_protocol::payload::blocks::BlockFound;
 
 use std::collections::HashMap;
 

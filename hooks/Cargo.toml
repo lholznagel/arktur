@@ -1,5 +1,5 @@
 [package]
-name = "blockchain_hooks"
+name = "carina_hooks"
 version = "0.1.0"
 authors = ["lholznagel <github@lholznagel.info>"]
 

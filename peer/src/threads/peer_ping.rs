@@ -1,6 +1,6 @@
-use blockchain_hooks::{as_number, EventCodes};
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::{EmptyPayload, Payload};
+use carina_hooks::{as_number, EventCodes};
+use carina_protocol::Protocol;
+use carina_protocol::payload::{EmptyPayload, Payload};
 
 use hooks::State;
 use futures_cpupool::{CpuFuture, CpuPool};

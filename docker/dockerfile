@@ -1,8 +1,8 @@
 FROM    phusion/baseimage:latest
 
-COPY    ./blockchain_peer /etc/service/blockchain_peer/peer
-COPY    ./run.sh /etc/service/blockchain_peer/run
+COPY    ./carina_peer /etc/service/carina_peer/peer
+COPY    ./run.sh /etc/service/carina_peer/run
 
-RUN     chmod +x /etc/service/blockchain_peer/run && \
-        chmod +x /etc/service/blockchain_peer/peer && \
-        chown -R root: /etc/service/blockchain_peer
+RUN     chmod +x /etc/service/carina_peer/run && \
+        chmod +x /etc/service/carina_peer/peer && \
+        chown -R root: /etc/service/carina_peer

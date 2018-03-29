@@ -65,17 +65,17 @@
 //! - The connection between both networks should be good to go
 //!
 //! Default port: 50000
-extern crate blockchain_hooks;
+extern crate carina_hooks;
 #[macro_use]
-extern crate blockchain_logging;
-extern crate blockchain_protocol;
+extern crate carina_logging;
+extern crate carina_protocol;
 extern crate futures_cpupool;
 
 mod hooks;
 
-use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::{EmptyPayload, Payload};
+use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
+use carina_protocol::Protocol;
+use carina_protocol::payload::{EmptyPayload, Payload};
 
 use futures_cpupool::CpuPool;
 

@@ -1,6 +1,6 @@
-use blockchain_hooks::ApplicationState;
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::peers::GetPeersAck;
+use carina_hooks::ApplicationState;
+use carina_protocol::Protocol;
+use carina_protocol::payload::peers::GetPeersAck;
 
 use hooks::State;
 

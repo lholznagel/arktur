@@ -1,7 +1,7 @@
-use blockchain_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::peers::GetPeersAck;
-use blockchain_protocol::payload::EmptyPayload;
+use carina_hooks::{as_number, ApplicationState, as_enum, EventCodes, Hooks, HookRegister};
+use carina_protocol::Protocol;
+use carina_protocol::payload::peers::GetPeersAck;
+use carina_protocol::payload::EmptyPayload;
 
 use clap::ArgMatches;
 use futures_cpupool::{CpuFuture, CpuPool};

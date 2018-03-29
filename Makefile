@@ -24,7 +24,7 @@ commit:
 release:
 	rm -rf target/release
 	cargo build --release
-	exec ./release.sh
+	exec ./scripts/release.sh
 
 # generate the documentation
 doc:
@@ -44,7 +44,7 @@ peer:
 # start a peer in a docker container
 peer_docker_run:
 	make peer_docker_build
-	docker run -it --net="host" --label peer blockchain_peer:latest
+	docker run -it --net="host" --label peer carina_peer:latest
 
 # run multiple peers in docker container
 # number is determind by the script docker/start.sh
@@ -56,8 +56,8 @@ peer_docker_run_multi:
 peer_docker_build:
 	clear
 	cd peer; cargo build
-	cp target/debug/blockchain_peer docker/blockchain_peer
-	cd docker; docker build -t blockchain_peer .
+	cp target/debug/carina_peer docker/carina_peer
+	cd docker; docker build -t carina_peer .
 
 # remove all started peer containers
 docker_clean:

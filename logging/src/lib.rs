@@ -1,8 +1,8 @@
 #![deny(missing_docs)]
 
-//! blockchain_logging
+//! carina_logging
 //!
-//! Logging crate for the blockchain project
+//! Logging crate for the carina project
 //! Contains multiple macros for outputting to the console
 
 /// Default log implementation
@@ -13,7 +13,7 @@
 /// # Example:
 ///
 /// ``` notest
-/// use crate blockchain_logging;
+/// use crate carina_logging;
 ///
 /// log!("My super cool log")
 /// ```

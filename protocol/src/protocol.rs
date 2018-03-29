@@ -56,10 +56,10 @@ impl<T: Payload> Protocol<T> {
     ///
     /// # Example
     /// ```
-    /// extern crate blockchain_protocol;
+    /// extern crate carina_protocol;
     ///
-    /// use blockchain_protocol::Protocol;
-    /// use blockchain_protocol::payload::{EmptyPayload, Payload};
+    /// use carina_protocol::Protocol;
+    /// use carina_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
     ///     let payload = EmptyPayload::new();
@@ -132,10 +132,10 @@ impl<T: Payload> Protocol<T> {
     ///
     /// # Example
     /// ```
-    /// extern crate blockchain_protocol;
+    /// extern crate carina_protocol;
     ///
-    /// use blockchain_protocol::Protocol;
-    /// use blockchain_protocol::payload::{EmptyPayload, Payload};
+    /// use carina_protocol::Protocol;
+    /// use carina_protocol::payload::{EmptyPayload, Payload};
     ///
     /// # fn main() {
     ///     let payload = EmptyPayload::new();

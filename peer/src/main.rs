@@ -18,18 +18,18 @@
 //!
 //! Connects with the connection manager and to other peers
 //! Calculates the hash value for a new block
-extern crate blockchain_hooks;
+extern crate carina_hooks;
 #[macro_use]
-extern crate blockchain_logging;
-extern crate blockchain_protocol;
+extern crate carina_logging;
+extern crate carina_protocol;
 extern crate clap;
 extern crate crypto;
 extern crate futures_cpupool;
 extern crate time;
 
-use blockchain_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use blockchain_protocol::Protocol;
-use blockchain_protocol::payload::EmptyPayload;
+use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
+use carina_protocol::Protocol;
+use carina_protocol::payload::EmptyPayload;
 
 use clap::{Arg, App};
 use futures_cpupool::CpuPool;
@@ -42,10 +42,10 @@ mod hooks;
 mod threads;
 
 fn main() {
-    let matches = App::new("Blockchain network cli")
+    let matches = App::new("Carina network cli")
         .version("0.1.0")
         .author("Lars Holznagel")
-        .about("Client tool for rust-blockchain")
+        .about("Client tool for carina")
         .arg(Arg::with_name("HOLE_PUNCHER_IP")
             .value_name("ip")
             .help("Sets the IP of the Hole puncher service")

@@ -1,22 +1,24 @@
-# rust-blockchain
+# Carina
 
-Sample blockchain written in rust
+Carina is a sample blockchain written in rust.
+The main purpose of this project is to learn rust and do something interesting.
 
 ## Goal
-This is a small project to play a little bit with block chains. The goal is NOT to build another crypto currency.
-The goal is to explore blockchain and rust :)
+
+There is no specific goal.
+I wanted to code something with rust and was very interessted in blockchin.
+So I decided to do something with that.
+This should not be another crypto currency, there are enough.
 
 ## Sub projects
 The main project consits of mutliple sub projects. Each project is specialized for one thing.
 
 Name | Description
 -- | --
-connection_manager | DEPRECATED - Contains the hole puncher and sends all blocks to the connected peers.
-file | Handles files actions. For example saving the current connected peers or storing the block data
-hole_puncher | Helps two peers connect through NAT
-logging | Small crate for logging. Contains some macros for logging across all crates
-network | Contains a UDP-Builder and handles UDP-Connections
-peer | Generates the hashes for a block
+debug | Helps me to check if everything is ok. For example if the full mesh is build up.
+hole_puncher | Global server that supports two peers behind NAT to build up a connection.
+logging | Small crate for logging. Contains some macros for logging across all crates.
+peer | Peer in the network for generating the next block
 protocol | Crate for parsing the used protocol
 
 ## License
