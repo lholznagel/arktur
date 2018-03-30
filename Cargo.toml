@@ -9,5 +9,6 @@ members = [
   "hole_puncher",
   "logging",
   "peer",
+  "peer_cli",
   "protocol"
 ]

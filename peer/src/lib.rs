@@ -14,15 +14,12 @@
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
-//! Terminal client application
-//!
-//! Connects with the connection manager and to other peers
-//! Calculates the hash value for a new block
+//! Library that represents a blockchain peer
+
 extern crate carina_hooks;
 #[macro_use]
 extern crate carina_logging;
 extern crate carina_protocol;
-extern crate clap;
 extern crate crypto;
 extern crate futures_cpupool;
 extern crate time;
@@ -31,7 +28,6 @@ use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use carina_protocol::Protocol;
 use carina_protocol::payload::EmptyPayload;
 
-use clap::{Arg, App};
 use futures_cpupool::CpuPool;
 
 use std::net::UdpSocket;
@@ -41,42 +37,8 @@ use std::sync::{Arc, Mutex};
 mod hooks;
 mod threads;
 
-fn main() {
-    let matches = App::new("Carina network cli")
-        .version("0.1.0")
-        .author("Lars Holznagel")
-        .about("Client tool for carina")
-        .arg(Arg::with_name("HOLE_PUNCHER_IP")
-            .value_name("ip")
-            .help("Sets the IP of the Hole puncher service")
-            .takes_value(true)
-            .required(true)
-            .long("puncher_ip")
-            .default_value("0.0.0.0"))
-        .arg(Arg::with_name("HOLE_PUNCHER_PORT")
-            .value_name("port")
-            .help("Sets the port of the Hole puncher service.")
-            .takes_value(true)
-            .long("puncher_port")
-            .default_value("50000"))
-        .arg(Arg::with_name("STORAGE")
-            .value_name("storage")
-            .help("Sets the location for the blocks.")
-            .takes_value(true)
-            .long("storage")
-            .default_value("block_data"))
-        .get_matches();
-
-    let mut hole_puncher = String::from("");
-    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
-    hole_puncher.push_str(":");
-    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
-
-    connect(hole_puncher, matches.value_of("STORAGE").unwrap().to_string());
-}
-
 /// Builds up a UDP connection with the hole_puncher
-fn connect(hole_puncher: String, storage: String) {
+pub fn connect(hole_puncher: String, storage: String) {
     info!("Hole puncher: {:?}", hole_puncher.clone());
     let pool = CpuPool::new_num_cpus();
     let mut thread_storage = Vec::new();

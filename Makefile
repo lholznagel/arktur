@@ -14,9 +14,7 @@ test:
 	rustup run nightly cargo test
 
 # check that everything works before commiting
-commit:
-	make bench
-	make test
+commit: bench test
 	git add -A
 	git commit
 
@@ -39,17 +37,15 @@ hole_puncher:
 # start a peer
 peer:
 	clear
-	cd peer; cargo run
+	cd peer_cli; cargo run
 
 # start a peer in a docker container
-peer_docker_run:
-	make peer_docker_build
+peer_docker_run: peer_docker_build
 	docker run -it --net="host" --label peer carina_peer:latest
 
 # run multiple peers in docker container
 # number is determind by the script docker/start.sh
-peer_docker_run_multi:
-	make peer_docker_build
+peer_docker_run_multi: peer_docker_build
 	./docker/start.sh
 
 # only build the docker image

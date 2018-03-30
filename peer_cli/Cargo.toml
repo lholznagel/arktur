@@ -1,0 +1,13 @@
+[package]
+name = "carina_peer_cli"
+version = "0.1.0"
+authors = ["lholznagel <contact@lholznagel.info>"]
+
+[dependencies]
+carina_peer = { path = "../peer" }
+clippy = { version = "0.0.190", optional = true }
+clap = "2.31.2"
+
+[features]
+default = []
+dev = ["clippy"]
