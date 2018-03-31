@@ -141,6 +141,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carina_peer_test"
+version = "0.1.0"
+dependencies = [
+ "carina_hooks 0.1.0",
+ "carina_peer 0.1.0",
+ "carina_protocol 0.1.0",
+ "clippy 0.0.186 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-cpupool 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "carina_protocol"
 version = "0.1.0"
 dependencies = [

@@ -58,11 +58,11 @@ pub fn init(config: config::Config) {
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack);
 
-    connect(config.hole_puncher.address(), config.storage, hooks);
+    connect(config.hole_puncher.address(), config.port, config.storage, hooks);
 }
 
 /// Builds up a UDP connection with the hole_puncher
-fn connect(hole_puncher: String, storage: String, hooks: Hooks<hooks::State>) {
+fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks::State>) {
     info!("Hole puncher: {:?}", hole_puncher.clone());
     let pool = CpuPool::new_num_cpus();
     let mut thread_storage = Vec::new();
@@ -73,7 +73,7 @@ fn connect(hole_puncher: String, storage: String, hooks: Hooks<hooks::State>) {
         .set_event_code(as_number(EventCodes::Register))
         .build();
 
-    let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
+    let socket = UdpSocket::bind(format!("0.0.0.0:{}", port)).expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");
 
     let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
