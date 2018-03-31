@@ -1,7 +1,7 @@
 use state::ApplicationState;
 
 /// Struct for registering all available hooks
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Hooks<T> {
     /// Executed on a `PING` event
     /// Code: 0

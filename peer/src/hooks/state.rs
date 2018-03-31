@@ -3,6 +3,7 @@ use carina_protocol::payload::blocks::BlockFound;
 
 use std::collections::HashMap;
 
+#[derive(Clone, Debug)]
 pub struct State {
     /// Current generated block
     pub current_block: BlockFound,

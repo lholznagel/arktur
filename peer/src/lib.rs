@@ -34,15 +34,12 @@ use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
 /// Contains all hook implementations
+pub mod config;
 mod hooks;
 mod threads;
 
 /// Builds up a UDP connection with the hole_puncher
-pub fn connect(hole_puncher: String, storage: String) {
-    info!("Hole puncher: {:?}", hole_puncher.clone());
-    let pool = CpuPool::new_num_cpus();
-    let mut thread_storage = Vec::new();
-
+pub fn init(config: config::Config) {
     let hooks = Hooks::new()
         .set_block_data(hooks::blocks::block_data)
         .set_block_found(hooks::blocks::block_found)
@@ -60,6 +57,15 @@ pub fn connect(hole_puncher: String, storage: String) {
         .set_pong(hooks::misc::pong)
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack);
+
+    connect(config.hole_puncher.address(), config.storage, hooks);
+}
+
+/// Builds up a UDP connection with the hole_puncher
+fn connect(hole_puncher: String, storage: String, hooks: Hooks<hooks::State>) {
+    info!("Hole puncher: {:?}", hole_puncher.clone());
+    let pool = CpuPool::new_num_cpus();
+    let mut thread_storage = Vec::new();
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
@@ -80,7 +86,6 @@ pub fn connect(hole_puncher: String, storage: String) {
     thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));
 
     let mut hook_notification = HookRegister::new(hooks, state).get_notification();
-
     loop {
         let mut buffer = [0; 65535];
 

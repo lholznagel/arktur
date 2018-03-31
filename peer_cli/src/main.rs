@@ -18,6 +18,7 @@
 extern crate carina_peer;
 extern crate clap;
 
+use carina_peer::config::{Config, HolePuncher};
 use clap::{Arg, App};
 
 fn main() {
@@ -46,10 +47,14 @@ fn main() {
             .default_value("block_data"))
         .get_matches();
 
-    let mut hole_puncher = String::from("");
-    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_IP").unwrap());
-    hole_puncher.push_str(":");
-    hole_puncher.push_str(matches.value_of("HOLE_PUNCHER_PORT").unwrap());
+    let config = Config {
+        hole_puncher: HolePuncher {
+            host: matches.value_of("HOLE_PUNCHER_IP").unwrap().to_string(),
+            port: matches.value_of("HOLE_PUNCHER_PORT").unwrap().parse().unwrap()
+        },
+        port: 0,
+        storage: matches.value_of("STORAGE").unwrap().to_string()
+    };
 
-    carina_peer::connect(hole_puncher, matches.value_of("STORAGE").unwrap().to_string());
+    carina_peer::init(config);
 }
