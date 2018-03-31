@@ -7,10 +7,11 @@ version = "0.1.0"
 carina_hooks = { path = "../hooks" }
 carina_logging = { path = "../logging" }
 carina_protocol = { path = "../protocol" }
+clippy = { version = "0.0.186", optional = true }
 futures-cpupool = "0.1.8"
+log = "0.4.1"
 rust-crypto = "0.2.36"
 time = "0.1.39"
-clippy = { version = "0.0.186", optional = true }
 
 [features]
 default = []

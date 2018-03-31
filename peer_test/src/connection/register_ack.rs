@@ -10,22 +10,21 @@ use test_case::TestCase;
 
 use std::{thread, time};
 use std::net::UdpSocket;
+use std::io::Error;
 
 pub struct RegisterAck;
 
 impl TestCase for RegisterAck {
     fn description() -> String {
-        String::from("Tests if register works.")
+        String::from("Tests if peer registering works.")
     }
 
     fn name() -> String {
         String::from("Register ack")
     }
 
-    fn execute(cpu_pool: &CpuPool) -> CpuFuture<bool, ()> {
+    fn execute(cpu_pool: &CpuPool) -> CpuFuture<bool, Error> {
         cpu_pool.spawn_fn(move || {
-            println!("Starting peer");
-
             thread::spawn(|| {
                 let config = Config {
                     hole_puncher: HolePuncher::new(),
@@ -37,16 +36,16 @@ impl TestCase for RegisterAck {
             // wait 1 second to let the peer startup
             thread::sleep(time::Duration::from_secs(1));
 
-            println!("Peer started");
-
-            let socket = UdpSocket::bind("0.0.0.0:0").expect("Binding an UdpSocket should be successful.");
+            let socket = UdpSocket::bind("0.0.0.0:0")
+                .expect("Binding an UdpSocket should be successful.");
 
             let request = Protocol::<EmptyPayload>::new()
                 .set_event_code(as_number(EventCodes::Register))
                 .build();
-            socket.send_to(request.as_slice(), "0.0.0.0:12345").expect("Sending a request should be successful.");
+            socket.send_to(request.as_slice(), "0.0.0.0:12345")
+                .expect("Sending a request should be successful.");
 
-            let mut buffer = [0; 65535];
+            let mut buffer = [0; 1024];
 
             match socket.recv_from(&mut buffer) {
                 Ok((bytes, _)) => {
@@ -59,14 +58,9 @@ impl TestCase for RegisterAck {
                         .expect("Parsing the protocol should be successful.");
 
                     assert_eq!(message.payload.peers.len(), 0);
-                    println!("Test ok");
                     Ok(true)
-
                 }
-                Err(e) => {
-                    println!("Error: {:?}", e);
-                    Ok(false)
-                },
+                Err(e) => Err(e)
             }
         })
     }

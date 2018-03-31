@@ -37,6 +37,10 @@ fn main() {
     thread_storage.push(connection::RegisterAck::execute(&pool));
 
     for thread in thread_storage {
-        thread.wait().unwrap();
+        if thread.wait().unwrap() {
+            println!("ok");
+        } else {
+            println!("fail");
+        }
     }
 }
