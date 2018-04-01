@@ -5,7 +5,6 @@ version = "0.1.0"
 
 [dependencies]
 carina_hooks = { path = "../hooks" }
-carina_logging = { path = "../logging" }
 carina_protocol = { path = "../protocol" }
 clippy = { version = "0.0.186", optional = true }
 futures-cpupool = "0.1.8"

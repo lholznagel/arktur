@@ -37,7 +37,7 @@ pub fn execute(hole_puncher: String, args: &ArgMatches) {
     let state_lock = state.lock().expect("Locking the mutex should be successful.");
     for (address, value) in &state_lock.peers {
         if state_lock.peers.len() - 1 == value.len() {
-            success!("Peer {} knows all peers", address);
+            info!("Peer {} knows all peers", address);
             success += 1;
         } else {
             error!("Peer {} does not know all peers", address);

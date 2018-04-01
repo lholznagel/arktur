@@ -1,84 +1,76 @@
-#![deny(missing_docs)]
+extern crate log;
 
-//! carina_logging
-//!
-//! Logging crate for the carina project
-//! Contains multiple macros for outputting to the console
+use log::{Log, Level, Metadata, Record, SetLoggerError};
 
-/// Default log implementation
-///
-/// Simply logs the given string
-/// Used by all other log macros
-///
-/// # Example:
-///
-/// ``` notest
-/// use crate carina_logging;
-///
-/// log!("My super cool log")
-/// ```
-#[macro_export]
-macro_rules! log {
-    ($msg:expr) => {
-        println!("{}", $msg);
+struct Logger {
+    level: Level,
+    exclude: Vec<String>
+}
+
+impl Log for Logger {
+    fn enabled(&self, metadata: &Metadata) -> bool {
+        let mut result = true;
+
+        for value in self.exclude.clone() {
+            if metadata.target().contains(&format!("{}:", value)) {
+                result = false;
+            }
+        }
+
+        !self.exclude.contains(&metadata.target().to_string()) && result && metadata.level() <= self.level
+    }
+
+    fn log(&self, record: &Record) {
+        if !self.enabled(record.metadata()) {
+           return;
+        }
+
+        let mut level_msg = String::new();
+        match record.level() {
+            Level::Error => level_msg.push_str("\x1B[31mErr  "),
+            Level::Warn  => level_msg.push_str("\x1B[93mWarn "),
+            Level::Info  => level_msg.push_str("\x1B[34mInfo "),
+            Level::Debug => level_msg.push_str("\x1B[35mDebug"),
+            Level::Trace => level_msg.push_str("\x1B[35mTrace")
+        };
+
+        println!("{} - {}\x1B[0m", level_msg, record.args());
+    }
+
+    fn flush(&self) {
     }
 }
 
-/// Logs an debug message
-///
-/// Color of the output is orange
-#[macro_export]
-macro_rules! debug {
-    ($msg:expr) => (print!(concat!("\x1B[93mDebug   - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[93mDebug   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
+pub struct LogBuilder {
+    level: Level,
+    exclude: Vec<String>
 }
 
-/// Logs an error message
-///
-/// Color of the output is red
-#[macro_export]
-macro_rules! error {
-    ($msg:expr) => (print!(concat!("\x1B[31mError   - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[31mError   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
-}
+impl LogBuilder {
+    pub fn new() -> Self {
+        Self {
+            level: Level::Info,
+            exclude: Vec::new()
+        }
+    }
 
+    pub fn add_exclude(mut self, name: String) -> Self {
+        self.exclude.push(name);
+        self
+    }
 
-/// Logs an successful message
-///
-/// Color of the output is green
-#[macro_export]
-macro_rules! success {
-    ($msg:expr) => (print!(concat!("\x1B[32mSuccess - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[32mSuccess - ", $msg, "\x1B[0m", "\n"), $($arg)*));
-}
+    pub fn set_level(mut self, level: Level) -> Self {
+        self.level = level;
+        self
+    }
 
-/// Logs an info message
-///
-/// Color of the output is blue
-#[macro_export]
-macro_rules! info {
-    ($msg:expr) => (print!(concat!("\x1B[1;34mInfo    - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[1;34mInfo    - ", $msg, "\x1B[0m", "\n"), $($arg)*));
-}
-
-/// Logs an sending message
-///
-/// Exmaple: A new peer registeres and a ping is send to the peer
-///
-/// Color of the output is purple
-#[macro_export]
-macro_rules! sending {
-    ($msg:expr) => (print!(concat!("\x1B[35mSending - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[35mSending - ", $msg, "\x1B[0m", "\n"), $($arg)*));
-}
-
-/// Logs an event message
-///
-/// Example: A peer got a pong from another peer
-///
-/// Color of the output is red
-#[macro_export]
-macro_rules! event {
-    ($msg:expr) => (print!(concat!("\x1B[36mEvent   - ", $msg, "\x1B[0m", "\n")));
-    ($msg:expr, $($arg:tt)*) => (print!(concat!("\x1B[36mEvent   - ", $msg, "\x1B[0m", "\n"), $($arg)*));
+    pub fn build(self) -> Result<(), SetLoggerError> {
+        let logger = Logger { 
+            level: self.level, 
+            exclude: self.exclude 
+        };
+        log::set_boxed_logger(Box::new(logger))?;
+        log::set_max_level(self.level.to_level_filter());
+        Ok(())
+    }
 }

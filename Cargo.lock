@@ -92,6 +92,7 @@ dependencies = [
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.186 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-cpupool 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -104,6 +105,7 @@ dependencies = [
  "carina_protocol 0.1.0",
  "clippy 0.0.186 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-cpupool 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -117,13 +119,15 @@ dependencies = [
 [[package]]
 name = "carina_logging"
 version = "0.1.0"
+dependencies = [
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "carina_peer"
 version = "0.1.0"
 dependencies = [
  "carina_hooks 0.1.0",
- "carina_logging 0.1.0",
  "carina_protocol 0.1.0",
  "clippy 0.0.186 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-cpupool 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -136,9 +140,11 @@ dependencies = [
 name = "carina_peer_cli"
 version = "0.1.0"
 dependencies = [
+ "carina_logging 0.1.0",
  "carina_peer 0.1.0",
  "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.190 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

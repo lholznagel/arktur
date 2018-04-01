@@ -17,12 +17,12 @@
 //! Library that represents a blockchain peer
 
 extern crate carina_hooks;
-#[macro_use]
-extern crate carina_logging;
 extern crate carina_protocol;
 extern crate crypto;
 extern crate futures_cpupool;
 extern crate time;
+#[macro_use]
+extern crate log;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use carina_protocol::Protocol;

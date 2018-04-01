@@ -17,7 +17,7 @@
 //! Small debug application
 extern crate carina_hooks;
 #[macro_use]
-extern crate carina_logging;
+extern crate log;
 extern crate carina_protocol;
 extern crate clap;
 extern crate futures_cpupool;

@@ -67,7 +67,7 @@
 //! Default port: 50000
 extern crate carina_hooks;
 #[macro_use]
-extern crate carina_logging;
+extern crate log;
 extern crate carina_protocol;
 extern crate futures_cpupool;
 

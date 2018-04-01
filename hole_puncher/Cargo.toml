@@ -8,7 +8,7 @@ carina_hooks = { path = "../hooks" }
 carina_logging = { path = "../logging" }
 carina_protocol = { path = "../protocol" }
 futures-cpupool = "0.1.8"
-
+log = "0.4.1"
 clippy = { version = "0.0.186", optional = true }
 
 [features]

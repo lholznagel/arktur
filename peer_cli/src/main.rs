@@ -15,13 +15,21 @@
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
 //! Terminal client application for a peer
+extern crate log;
+extern crate carina_logging;
 extern crate carina_peer;
 extern crate clap;
 
+use carina_logging::LogBuilder;
 use carina_peer::config::{Config, HolePuncher};
 use clap::{Arg, App};
 
 fn main() {
+    LogBuilder::new()
+        .set_level(log::Level::Trace)
+        .build()
+        .unwrap();
+
     let matches = App::new("Carina network cli")
         .version("0.1.0")
         .author("Lars Holznagel")
