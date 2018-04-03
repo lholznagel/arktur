@@ -23,6 +23,7 @@ extern crate futures_cpupool;
 extern crate time;
 #[macro_use]
 extern crate log;
+extern crate sodiumoxide;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
 use carina_protocol::Protocol;
