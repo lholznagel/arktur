@@ -17,6 +17,7 @@
 #[cfg(test)]
 #[macro_use]
 extern crate quickcheck;
+extern crate sodiumoxide;
 
 extern crate crc;
 extern crate time;

@@ -31,6 +31,21 @@ impl Builder {
         self
     }
 
+    /// Adds a new nacl pub key
+    ///
+    /// # Parameters
+    /// 
+    /// - `value: [u8; 32]` - pub key as bytes
+    /// 
+    /// # Return 
+    /// 
+    /// Updated instance of Builder
+    pub fn add_pub_key(mut self, value: [u8; 32]) -> Self {
+        self.byte_vec.push(32);
+        self.byte_vec.extend(value.iter());
+        self
+    }
+
     /// Adds a new u8 value
     ///
     /// # Parameters

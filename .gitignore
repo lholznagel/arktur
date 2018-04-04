@@ -4,5 +4,5 @@ target/
 **/*.rs.bk
 *.iml
 
-peer/block_data
+peer_cli/block_data
 docker/carina_peer
