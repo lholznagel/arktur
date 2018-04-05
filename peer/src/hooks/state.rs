@@ -2,6 +2,7 @@ use carina_protocol::payload::Payload;
 use carina_protocol::payload::blocks::BlockFound;
 
 use sodiumoxide::crypto::box_;
+use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{PublicKey, SecretKey};
 
 use std::collections::HashMap;
 
@@ -16,19 +17,15 @@ pub struct State {
     /// contains the data for the next block
     pub next_block: HashMap<String, String>,
     /// all peers this peer is connected to
-    pub peers: HashMap<String, u8>,
+    pub peers: HashMap<String, (PublicKey, u8)>, // (public_key, heartbeat)
     /// location for all blocks
     pub storage: String,
-    /// public nacl key
-    pub pub_key: [u8; 32],
-    /// private nacl key
-    pub priv_key: [u8; 32]
+    /// nacl public and secret key
+    pub keys: (PublicKey, SecretKey)
 }
 
 impl State {
     pub fn new(storage: String) -> Self {
-        let (pub_key, priv_key) = box_::gen_keypair();
-
         Self {
             current_block: BlockFound::new(),
             hashes: Vec::new(),
@@ -36,8 +33,7 @@ impl State {
             next_block: HashMap::new(),
             peers: HashMap::new(),
             storage,
-            pub_key: pub_key.0,
-            priv_key: priv_key.0
+            keys: box_::gen_keypair()
         }
     }
 }

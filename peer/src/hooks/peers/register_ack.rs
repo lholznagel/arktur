@@ -1,14 +1,14 @@
 use carina_hooks::{as_number, ApplicationState, EventCodes};
 use carina_protocol::Protocol;
-use carina_protocol::payload::{Punsh, EmptyPayload};
-use carina_protocol::payload::peers::GetPeersAck;
+use carina_protocol::payload::Punsh;
+use carina_protocol::payload::peers::{GetPeersAck, Register};
 
 use hooks::State;
 
 pub fn register_ack(state: ApplicationState<State>) {
     let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
-    let mut state_lock = state.state.lock()
+    let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
     if !message.payload.peers.is_empty() {
@@ -25,15 +25,14 @@ pub fn register_ack(state: ApplicationState<State>) {
                     .build();
                 state.udp.send_to(&result, "0.0.0.0:50000").expect("Sending a message should be successful");
 
-                let result = Protocol::<EmptyPayload>::new()
+                let register = Register {
+                    pub_key: state_lock.keys.0
+                };
+                let result = Protocol::<Register>::new()
                     .set_event_code(as_number(EventCodes::Register))
+                    .set_payload(register)
                     .build();
                 state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
-
-                if !state_lock.peers.contains_key(&address) {
-                    info!("Registered new peer.");
-                    state_lock.peers.insert(address, 0);
-                }
             }
         }
     }

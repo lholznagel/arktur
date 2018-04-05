@@ -1,6 +1,6 @@
-use carina_hooks::ApplicationState;
+use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_protocol::payload::peers::{GetPeersAck, Register};
 use carina_protocol::Protocol;
-use carina_protocol::payload::peers::GetPeersAck;
 
 use hooks::State;
 
@@ -10,12 +10,19 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
     info!("Syncing peers.");
 
     {
-        let mut state_lock = state.state.lock()
+        let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
 
         for new_peer in message.payload.peers {
             if !new_peer.is_empty() && !state_lock.peers.contains_key(&new_peer) {
-                state_lock.peers.insert(new_peer, 0);
+                let register = Register {
+                    pub_key: state_lock.keys.0
+                };
+                let result = Protocol::<Register>::new()
+                    .set_event_code(as_number(EventCodes::Register))
+                    .set_payload(register)
+                    .build();
+                state.udp.send_to(&result, new_peer).expect("Sending a response should be successful");
             }
         }
     }

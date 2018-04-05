@@ -1,11 +1,14 @@
 use carina_hooks::{as_number, ApplicationState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::Payload;
-use carina_protocol::payload::peers::GetPeersAck;
+use carina_protocol::payload::peers::{GetPeersAck, Register};
 
 use hooks::State;
 
 pub fn register(state: ApplicationState<State>) {
+    let message = Protocol::<Register>::from_bytes(&state.payload_buffer)
+        .expect("Parsing the protocol should be successful.");
+
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
@@ -32,6 +35,6 @@ pub fn register(state: ApplicationState<State>) {
 
     if !state_lock.peers.contains_key(&state.source) {
         info!("Registered new peer.");
-        state_lock.peers.insert(state.source, 0);
+        state_lock.peers.insert(state.source, (message.payload.pub_key, 0));
     }
 }

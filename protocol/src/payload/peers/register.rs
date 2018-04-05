@@ -1,4 +1,5 @@
 use payload::{Payload, Builder};
+use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::PublicKey;
 use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
@@ -14,12 +15,12 @@ use errors::ParseErrors;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Register {
     /// public key of the registering peer
-    pub pub_key: [u8; 32],
+    pub pub_key: PublicKey,
 }
 
 impl Register {
     /// Sets the peers that should be send
-    pub fn set_pub_key(mut self, pub_key: [u8; 32]) -> Self {
+    pub fn set_pub_key(mut self, pub_key: PublicKey) -> Self {
         self.pub_key = pub_key;
         self
     }
@@ -27,7 +28,7 @@ impl Register {
 
 impl Payload for Register {
     fn new() -> Self {
-        Self { pub_key: [0; 32] }
+        Self { pub_key: PublicKey::from_slice(&[0; 32]).unwrap() }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
@@ -38,7 +39,7 @@ impl Payload for Register {
             }
 
             Ok(Self {
-                pub_key
+                pub_key: PublicKey::from_slice(&pub_key).unwrap()
             })
         } else {
             Ok(Self::new())
@@ -47,7 +48,7 @@ impl Payload for Register {
 
     fn to_bytes(self) -> Vec<u8> {
         Builder::new()
-            .add_pub_key(self.pub_key)
+            .add_pub_key(self.pub_key.0)
             .build()
     }
 }
@@ -62,13 +63,13 @@ mod tests {
     fn test_building_and_parsing() {
         let (pub_key, _) = box_::gen_keypair();
         let register = Register {
-            pub_key: pub_key.0
+            pub_key
         };
 
         let register = register.to_bytes();
         let complete = parser::parse_payload(&register);
         let parsed = Register::parse(complete).unwrap();
 
-        assert_eq!(pub_key.0, parsed.pub_key);
+        assert_eq!(pub_key, parsed.pub_key);
     }
 }

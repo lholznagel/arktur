@@ -4,9 +4,10 @@ use hooks::State;
 
 pub fn pong(state: ApplicationState<State>) {
     let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
-    if state_lock.peers.contains_key(&state.source) {
-        state_lock.peers.insert(state.source, 0);
-    }
+    match state_lock.peers.clone().get(&state.source) {
+        Some(peer) => state_lock.peers.insert(state.source, (peer.0, peer.1)),
+        None => None
+    };
 
     info!("Received PONG");
 }
