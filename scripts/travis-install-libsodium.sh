@@ -2,9 +2,9 @@
 
 set -e
 
-git clone https://github.com/jedisct1/libsodium.git --branch=stable
-cd libsodium
-./configure --disable-dependency-tracking --enable-minimal --prefix=/usr
-make -j$(nproc)
-sudo make install
-/sbin/ldconfig ||:
+# libsodium version
+VERSION=1.0.16
+
+wget https://github.com/jedisct1/libsodium/releases/download/$VERSION/libsodium-$VERSION.tar.gz
+tar xvfz libsodium-$VERSION.tar.gz
+cd libsodium-$VERSION && ./configure --prefix=$HOME/libsodium && make && make install && cd ..
