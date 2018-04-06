@@ -19,18 +19,18 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
             {
                 let mut state_lock = state.lock().unwrap();
 
-                for (peer, counter) in state_lock.peers.clone() {
+                for (peer, (public_key, counter)) in state_lock.peers.clone() {
                     // if we pinged him 6 times he is considered dead
-                    if counter.1 == 6 {
+                    if counter == 6 {
                         state_lock.peers.remove(&peer);
                         info!("Peer did not answer. He´s dead Jimmy :(");
                     } else {
-                        state_lock.peers.insert(peer.clone(), (counter.0, counter.1 + 1));
+                        state_lock.peers.insert(peer.clone(), (public_key, counter + 1));
 
                         let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
                             .set_payload(EmptyPayload::new())
-                            .build(&state_lock.nacl);
+                            .build(&mut state_lock.nacl, &public_key);
 
                         udp.send_to(&message, peer).expect("Sending a UDP message should be successful");
                     }

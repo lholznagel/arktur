@@ -70,6 +70,7 @@ extern crate carina_hooks;
 extern crate log;
 extern crate carina_protocol;
 extern crate futures_cpupool;
+extern crate sodiumoxide;
 
 mod hooks;
 
@@ -113,20 +114,26 @@ fn connect() {
             thread::sleep(time::Duration::from_secs(30));
 
             {
+                let mut nacl = {
+                    let state_lock = state_clone_peer_ping.lock()
+                        .expect("Locking the mutex should be successful.");
+                    state_lock.nacl.clone()
+                };
+
                 let mut state_lock = state_clone_peer_ping.lock().unwrap();
 
-                for (peer, counter) in state_lock.peers.clone() {
+                for (peer, (public_key, counter)) in state_lock.peers.clone() {
                     // if we pinged him 6 times he is considered dead
                     if counter == 6 {
                         state_lock.peers.remove(&peer);
                         info!("Peer did not answer. Removing. He´s dead Jimmy :(");
                     } else {
-                        state_lock.peers.insert(peer.clone(), counter + 1);
+                        state_lock.peers.insert(peer.clone(), (public_key, counter + 1));
 
                         let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
                             .set_payload(EmptyPayload::new())
-                            .build(&state_lock.nacl);
+                            .build(&mut nacl, &public_key);
 
                         udp_clone_peer_ping.send_to(&message, peer).expect("Sending a UDP message should be successful");
                     }

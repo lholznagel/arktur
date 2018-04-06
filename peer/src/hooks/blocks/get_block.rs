@@ -9,10 +9,23 @@ use std::fs::File;
 use std::io::Read;
 
 pub fn get_block(state: ApplicationState<State>) {
-    let message = Protocol::<GetBlock>::from_bytes(&state.payload_buffer)
+    let mut nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+    let source_peer = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().clone()
+    };
+
+    let message = Protocol::<GetBlock>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
         .expect("Parsing the protocol should be successful.");
+
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
+    let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
 
     if Path::new(&format!("{}/{}", state_lock.storage, message.payload.block)).exists() {
         let mut file = File::open(format!("{}/{}", state_lock.storage, message.payload.block)).expect("Should be able to read the block");
@@ -35,7 +48,7 @@ pub fn get_block(state: ApplicationState<State>) {
         let message = Protocol::new()
             .set_event_code(as_number(EventCodes::GetBlockAck))
             .set_payload(payload)
-            .build(&state_lock.nacl);
+            .build(&mut nacl, &contacting_peer.0);
 
         state.udp.send_to(message.as_slice(), state.source.clone())
             .expect("Sending using UDP should be successful.");

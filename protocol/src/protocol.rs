@@ -1,7 +1,8 @@
 //! Contains the protocol model and a builder for the protocol
 use errors::ParseErrors;
 use nacl::Nacl;
-
+use sodiumoxide::crypto::box_;
+use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{Nonce, PublicKey};
 use payload::{Payload, parser};
 use crc::crc32;
 
@@ -55,30 +56,14 @@ impl<T: Payload> Protocol<T> {
     /// # Return
     ///
     /// Parsed result of the byte array
-    ///
-    /// # Example
-    /// ```
-    /// extern crate carina_protocol;
-    ///
-    /// use carina_protocol::Protocol;
-    /// use carina_protocol::payload::{EmptyPayload, Payload};
-    ///
-    /// # fn main() {
-    ///     let payload = EmptyPayload::new();
-    ///     let expected = Protocol {
-    ///         version: 1,
-    ///         event_code: 1,
-    ///         checksum: 801444648,
-    ///         payload: payload
-    ///     };
-    /// 
-    ///     let payload = &[1, 1, 40, 19, 197, 47, 0];
-    ///     let result = Protocol::from_bytes(payload);
-    ///     assert_eq!(result.unwrap(), expected);
-    /// # }
-    /// ```
-    pub fn from_bytes(payload: &[u8]) -> Result<Self, ParseErrors> {
-        Protocol::parse(payload)
+    pub fn from_bytes(payload: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Self, ParseErrors> {
+        Protocol::parse(payload, nacl, public_key)
+    }
+
+    /// Same as from_bytes but unencrypted
+    /// TODO: nonce
+    pub fn from_bytes_unencrypted(payload: &[u8]) -> Result<Self, ParseErrors> {
+        Protocol::parse_unencrypted(payload)
     }
 
     /// Sets the event code
@@ -114,12 +99,19 @@ impl<T: Payload> Protocol<T> {
     }
 
     /// Combines the struct to a vector of bytes
-    pub fn build(self, _nacl: &Nacl) -> Vec<u8> {
+    pub fn build(self, nacl: &mut Nacl, public_key: &PublicKey) -> Vec<u8> {
+        let nonce = nacl.get_nonce();
+        let mut payload = Vec::new();
+        payload.extend(nonce.0.iter());
+
         let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
         result.append(&mut checksum);
         result.append(&mut self.payload.to_bytes());
-        result
+
+        let encrypted = box_::seal(&result, &nonce, &public_key, &nacl.get_secret_key());
+        payload.extend(encrypted);
+        payload
     }
 
     /// Same as build but the payload is not encrypted using nacl
@@ -127,6 +119,7 @@ impl<T: Payload> Protocol<T> {
     /// Should only be used for registering
     /// After sharing publickeys there is no reason to send
     /// non encrypted payloads!
+    /// TODO: parse nonce
     pub fn build_unencrypted(self) -> Vec<u8> {
         let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
@@ -144,34 +137,32 @@ impl<T: Payload> Protocol<T> {
     /// # Return
     ///
     /// Protocol struct. See struct for more information
-    ///
-    /// # Example
-    /// ```
-    /// extern crate carina_protocol;
-    ///
-    /// use carina_protocol::Protocol;
-    /// use carina_protocol::payload::{EmptyPayload, Payload};
-    ///
-    /// # fn main() {
-    ///     let payload = EmptyPayload::new();
-    ///     let expected = Protocol {
-    ///         version: 1,
-    ///         event_code: 1,
-    ///         checksum: 801444648,
-    ///         payload: payload
-    ///     };
-    /// 
-    ///     let payload = &[1, 1, 40, 19, 197, 47, 0];
-    ///     let result = Protocol::from_bytes(payload);
-    ///     assert_eq!(result.unwrap(), expected);
-    /// # }
-    /// ```
-    fn parse(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
+    fn parse(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Protocol<T>, ParseErrors> {
+        let nonce = Nonce::from_slice(&bytes[0..24]).unwrap();
+        let decrypted = box_::open(&bytes[24..], &nonce, &public_key, &nacl.get_secret_key()).unwrap();
+
+        let protocol = Protocol {
+            version: decrypted[0],
+            event_code: decrypted[1],
+            checksum: parser::u8_to_u32(&decrypted[2..6])?,
+            payload: T::parse(parser::parse_payload(&decrypted[6..])).unwrap()
+        };
+
+        if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
+            Ok(protocol)
+        } else {
+            Err(ParseErrors::ChecksumDoNotMatch)
+        }
+    }
+
+    /// Same as parse but without encryption
+    /// TODO: parse nonce
+    fn parse_unencrypted(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
             checksum: parser::u8_to_u32(&bytes[2..6])?,
-            payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
+            payload: T::parse(parser::parse_payload(&bytes[6..]))?
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
@@ -207,41 +198,5 @@ impl<T: Payload> Protocol<T> {
         let b4 = (checksum & 0xFF) as u8;
 
         vec![b4, b3, b2, b1]
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use payload::{Payload, EmptyPayload};
-
-    #[test]
-    fn test_u8() {
-        let payload = EmptyPayload::new();
-        let expected = Protocol::<EmptyPayload> {
-            version: 1,
-            event_code: 1,
-            checksum: 801444648,
-            payload: payload,
-        };
-
-        let payload = &[1, 1, 40, 19, 197, 47, 0];
-        let result = Protocol::<EmptyPayload>::from_bytes(payload);
-        assert_eq!(result.unwrap(), expected);
-    }
-
-    #[test]
-    fn test_hex() {
-        let payload = EmptyPayload::new();
-        let expected = Protocol::<EmptyPayload> {
-            version: 1,
-            event_code: 1,
-            checksum: 801444648,
-            payload: payload,
-        };
-
-        let payload = &[0x01, 0x01, 0x28, 0x13, 0xC5, 0x2F, 0x00];
-        let result = Protocol::<EmptyPayload>::from_bytes(payload);
-        assert_eq!(result.unwrap(), expected);
     }
 }

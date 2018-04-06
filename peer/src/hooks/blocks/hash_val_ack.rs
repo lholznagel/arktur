@@ -8,8 +8,20 @@ use hooks::State;
 use std::collections::HashMap;
 
 pub fn hash_val_ack(state: ApplicationState<State>) {
-    let message = Protocol::<HashValAck>::from_bytes(&state.payload_buffer)
+    let mut nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+    let source_peer = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().clone()
+    };
+
+    let message = Protocol::<HashValAck>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
         .expect("Parsing the protocol should be successful.");
+
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
@@ -46,12 +58,12 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         payload.timestamp = state_lock.current_block.timestamp;
         payload.hash = state_lock.current_block.hash.clone();
 
-        let message = Protocol::new()
-            .set_event_code(as_number(EventCodes::BlockFound))
-            .set_payload(payload)
-            .build(&state_lock.nacl);
+        for (peer, (public_key, _)) in state_lock.peers.clone() {
+            let message = Protocol::new()
+                .set_event_code(as_number(EventCodes::BlockFound))
+                .set_payload(payload.clone())
+                .build(&mut nacl, &public_key);
 
-        for (peer, _) in state_lock.peers.clone() {
             state.udp.send_to(message.as_slice(), peer).unwrap();
         }
     }

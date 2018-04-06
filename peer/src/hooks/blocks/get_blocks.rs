@@ -7,8 +7,15 @@ use hooks::State;
 use std::fs::read_dir;
 
 pub fn get_blocks(state: ApplicationState<State>) {
+    let mut nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
+    let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
 
     info!("Syncing blocks.");
     let mut count = 0;
@@ -25,7 +32,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
             let message = Protocol::new()
                 .set_event_code(as_number(EventCodes::GetBlocksAck))
                 .set_payload(payload)
-                .build(&state_lock.nacl);
+                .build(&mut nacl, &contacting_peer.0);
 
             state.udp.send_to(message.as_slice(), state.source.clone())
                 .expect("Sending using UDP should be successful.");
@@ -44,7 +51,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
         let message = Protocol::new()
             .set_event_code(as_number(EventCodes::GetBlocksAck))
             .set_payload(payload)
-            .build(&state_lock.nacl);
+            .build(&mut nacl, &contacting_peer.0);
 
         state.udp.send_to(message.as_slice(), state.source.clone())
             .expect("Sending using UDP should be successful.");

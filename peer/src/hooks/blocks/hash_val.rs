@@ -8,8 +8,20 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn hash_val(state: ApplicationState<State>) {
-    let message = Protocol::<HashVal>::from_bytes(&state.payload_buffer)
+    let mut nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+    let source_peer = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().clone()
+    };
+
+    let message = Protocol::<HashVal>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
         .expect("Parsing the protocol should be successful.");
+
     info!("Validating hash.");
 
     let mut generated_block = String::from("");
@@ -27,9 +39,10 @@ pub fn hash_val(state: ApplicationState<State>) {
     let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(EventCodes::HashValAck));
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
-    let message = message.build(&state_lock.nacl);
 
-    for (peer, _) in state_lock.peers.clone() {
+    for (peer, (public_key, _)) in state_lock.peers.clone() {
+        let message = message.clone()
+            .build(&mut nacl, &public_key);
         state.udp.send_to(message.as_slice(), peer).expect("Sending using UDP should be successful.");
     }
 }

@@ -54,12 +54,11 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                             }
                         }
 
-                        let message = Protocol::new()
-                            .set_event_code(as_number(EventCodes::BlockGen))
-                            .set_payload(payload)
-                            .build(&state_lock.nacl);
-
-                        for (peer, _) in state_lock.peers.clone() {
+                        for (peer, (public_key, _)) in state_lock.peers.clone() {
+                            let message = Protocol::new()
+                                .set_event_code(as_number(EventCodes::BlockGen))
+                                .set_payload(payload.clone())
+                                .build(&mut state_lock.nacl, &public_key);
                             udp.send_to(message.as_slice(), peer).unwrap();
                         }
                     } else {

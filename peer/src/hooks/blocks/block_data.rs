@@ -5,10 +5,22 @@ use carina_protocol::payload::blocks::BlockData;
 use hooks::State;
 
 pub fn block_data(state: ApplicationState<State>) {
-    let message = Protocol::<BlockData>::from_bytes(&state.payload_buffer)
-        .expect("Parsing the protocol should be successful.");
+    let nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+    let source_peer = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().clone()
+    };
+
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
+
+    let message = Protocol::<BlockData>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
+        .expect("Parsing the protocol should be successful.");
 
     if !state_lock.next_block.contains_key(&message.payload.unique_key) {
         state_lock.next_block.insert(message.payload.unique_key, message.payload.content);

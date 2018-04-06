@@ -8,7 +8,18 @@ use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
 pub fn block_gen(state: ApplicationState<State>) {
-    let message = Protocol::<BlockGen>::from_bytes(&state.payload_buffer)
+    let mut nacl = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+    let source_peer = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().clone()
+    };
+
+    let message = Protocol::<BlockGen>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
         .expect("Parsing the protocol should be successful.");
 
     {
@@ -59,21 +70,23 @@ pub fn block_gen(state: ApplicationState<State>) {
     };
 
     info!("Found hash! {:?}", hash);
-    let message = Protocol::<HashVal>::new()
-        .set_event_code(as_number(EventCodes::HashVal))
-        .set_payload(HashVal {
-            content: message.payload.content,
-            timestamp: message.payload.timestamp,
-            index: message.payload.index,
-            prev: message.payload.prev,
-            nonce: nonce
-        })
-        .build(&state_lock.nacl);
-
-    
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
-    for (peer, _) in state_lock.peers.clone() {
+
+    let payload = HashVal {
+        content: message.payload.content,
+        timestamp: message.payload.timestamp,
+        index: message.payload.index,
+        prev: message.payload.prev,
+        nonce: nonce
+    };
+
+    for (peer, (public_key, _)) in state_lock.peers.clone() {
+        let message = Protocol::<HashVal>::new()
+            .set_event_code(as_number(EventCodes::HashVal))
+            .set_payload(payload.clone())
+            .build(&mut nacl, &public_key);
+
         state.udp.send_to(message.as_slice(), peer)
             .expect("Sending using UDP should be successful.");
     }

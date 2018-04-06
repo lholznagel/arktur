@@ -1,4 +1,5 @@
 use payload::{Payload, Builder};
+use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::PublicKey;
 use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
@@ -12,28 +13,38 @@ use errors::ParseErrors;
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct GetPeersAck {
+pub struct RegisterAck {
+    /// public key of the peer
+    pub public_key: Option<PublicKey>,
     /// peers of all peers
     pub peers: Vec<String>,
 }
 
-impl GetPeersAck {
+impl RegisterAck {
     /// Sets the peers that should be send
     pub fn set_peers(mut self, peers: Vec<String>) -> Self {
         self.peers = peers;
         self
     }
+
+    /// Sets the public key
+    pub fn set_public_key(mut self, public_key: &PublicKey) -> Self {
+        self.public_key = Some(*public_key);
+        self
+    }
 }
 
-impl Payload for GetPeersAck {
+impl Payload for RegisterAck {
     fn new() -> Self {
-        Self {
+        Self { 
+            public_key: None,
             peers: Vec::new() 
         }
     }
 
     fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
         if !bytes.is_empty() {
+            let public_key = PublicKey::from_slice(&bytes[0]);
             let mut peers = Vec::new();
 
             for byte in bytes[1..].iter() {
@@ -43,6 +54,7 @@ impl Payload for GetPeersAck {
             }
 
             Ok(Self {
+                public_key,
                 peers
             })
         } else {
@@ -52,6 +64,7 @@ impl Payload for GetPeersAck {
 
     fn to_bytes(self) -> Vec<u8> {
         Builder::new()
+            .add_pub_key(self.public_key.unwrap().0)
             .add_string_vector(self.peers)
             .build()
     }
@@ -60,32 +73,39 @@ impl Payload for GetPeersAck {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nacl::Nacl;
     use payload::parser;
 
     #[test]
     fn test_building_and_parsing_empty() {
-        let peers_ack = GetPeersAck {
+        let our_nacl = Nacl::new();
+
+        let register_ack = RegisterAck {
+            public_key: Some(our_nacl.get_public_key()),
             peers: Vec::new()
         };
 
-        let peers_ack = peers_ack.to_bytes();
-        let complete = parser::parse_payload(&peers_ack);
-        let parsed = GetPeersAck::parse(complete).unwrap();
+        let register_ack = register_ack.to_bytes();
+        let complete = parser::parse_payload(&register_ack);
+        let parsed = RegisterAck::parse(complete).unwrap();
 
         assert_eq!(Vec::<String>::new(), parsed.peers);
     }
 
     #[test]
     fn test_building_and_parsing() {
+        let our_nacl = Nacl::new();
         let peers = vec![String::from("172.0.0.1"), String::from("172.0.0.2")];
 
-        let register_ack = GetPeersAck {
+        let register_ack = RegisterAck {
+            public_key: Some(our_nacl.get_public_key()),
             peers: peers.clone()
         };
 
         let register_ack = register_ack.to_bytes();
-        let complete = parser::u8_to_string_vec(&register_ack);
+        let complete = parser::parse_payload(&register_ack);
+        let parsed = RegisterAck::parse(complete).unwrap();
 
-        assert_eq!(peers, complete);
+        assert_eq!(peers, parsed.peers);
     }
 }

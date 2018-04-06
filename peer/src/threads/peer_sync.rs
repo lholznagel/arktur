@@ -17,13 +17,13 @@ pub fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
             thread::sleep(time::Duration::from_secs(10));
 
             {
-                let state_lock = state.lock().unwrap();
+                let mut state_lock = state.lock().unwrap();
 
-                for (peer, _) in state_lock.peers.clone() {
+                for (peer, (public_key, _)) in state_lock.peers.clone() {
                     let message = Protocol::new()
                         .set_event_code(as_number(EventCodes::GetPeers))
                         .set_payload(EmptyPayload::new())
-                        .build(&state_lock.nacl);
+                        .build(&mut state_lock.nacl, &public_key);
 
                     udp.send_to(&message, peer).expect("Sending a UDP message should be successful");
                 }

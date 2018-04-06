@@ -10,6 +10,7 @@ carina_protocol = { path = "../protocol" }
 futures-cpupool = "0.1.8"
 log = { version = "0.4.1", features = ["std"] }
 clippy = { version = "0.0.186", optional = true }
+sodiumoxide = "0.0.16"
 
 [features]
 default = []
