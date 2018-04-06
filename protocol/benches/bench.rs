@@ -4,6 +4,7 @@ extern crate carina_protocol;
 extern crate test;
 
 use carina_protocol::Protocol;
+use carina_protocol::nacl::Nacl;
 use carina_protocol::payload::*;
 use carina_protocol::payload::blocks::*;
 
@@ -11,10 +12,11 @@ use test::Bencher;
 
 #[bench]
 fn bench_empty(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let blockchain_protocol = Protocol::<EmptyPayload>::new()
             .set_event_code(0)
-            .build();
+            .build(&nacl);
 
         Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -22,6 +24,7 @@ fn bench_empty(b: &mut Bencher) {
 
 #[bench]
 fn bench_punch(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = Punsh {
             address: String::from("SomeAddress")
@@ -30,7 +33,7 @@ fn bench_punch(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<Punsh>::new()
             .set_event_code(2)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<Punsh>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -38,6 +41,7 @@ fn bench_punch(b: &mut Bencher) {
 
 #[bench]
 fn bench_get_block(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = GetBlock {
             block: String::from("SomeBlock")
@@ -46,7 +50,7 @@ fn bench_get_block(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<GetBlock>::new()
             .set_event_code(130)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<GetBlock>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -54,6 +58,7 @@ fn bench_get_block(b: &mut Bencher) {
 
 #[bench]
 fn bench_get_block_ack(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = GetBlockAck {
             filename: String::from("SomeFilename"),
@@ -68,7 +73,7 @@ fn bench_get_block_ack(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<GetBlockAck>::new()
             .set_event_code(131)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -76,6 +81,7 @@ fn bench_get_block_ack(b: &mut Bencher) {
 
 #[bench]
 fn bench_block_data(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = BlockData {
             unique_key: String::from("asdafhgr"),
@@ -85,7 +91,7 @@ fn bench_block_data(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<BlockData>::new()
             .set_event_code(37)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -93,6 +99,7 @@ fn bench_block_data(b: &mut Bencher) {
 
 #[bench]
 fn bench_block_gen(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = BlockGen {
             index: 458648,
@@ -105,7 +112,7 @@ fn bench_block_gen(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<BlockGen>::new()
             .set_event_code(33)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -113,6 +120,7 @@ fn bench_block_gen(b: &mut Bencher) {
 
 #[bench]
 fn bench_block_found(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = BlockFound {
             index: 6565,
@@ -126,7 +134,7 @@ fn bench_block_found(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<BlockFound>::new()
             .set_event_code(37)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -134,6 +142,7 @@ fn bench_block_found(b: &mut Bencher) {
 
 #[bench]
 fn bench_hash_val(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = HashVal {
             index: 6456948,
@@ -146,7 +155,7 @@ fn bench_hash_val(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<HashVal>::new()
             .set_event_code(35)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
     });
@@ -154,6 +163,7 @@ fn bench_hash_val(b: &mut Bencher) {
 
 #[bench]
 fn bench_hash_val_ack(b: &mut Bencher) {
+    let nacl = Nacl::new();
     b.iter(|| {
         let payload = HashValAck {
             index: 245458,
@@ -163,7 +173,7 @@ fn bench_hash_val_ack(b: &mut Bencher) {
         let blockchain_protocol = Protocol::<HashValAck>::new()
             .set_event_code(36)
             .set_payload(payload)
-            .build();
+            .build(&nacl);
 
         Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
     });

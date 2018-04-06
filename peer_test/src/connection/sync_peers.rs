@@ -48,9 +48,11 @@ impl TestCase for SyncPeers {
             let socket = UdpSocket::bind("0.0.0.0:0")
                 .expect("Binding an UdpSocket should be successful.");
 
+            let mut state_lock = state.state.lock()
+                .expect("Locking the mutex should be successful.");
             let request = Protocol::<EmptyPayload>::new()
                 .set_event_code(as_number(EventCodes::Register))
-                .build();
+                .build(&state_lock.nacl);
             socket.send_to(request.as_slice(), "0.0.0.0:12345")
                 .expect("Sending a request should be successful.");
 

@@ -1,8 +1,8 @@
+use carina_protocol::nacl::Nacl;
 use carina_protocol::payload::Payload;
 use carina_protocol::payload::blocks::BlockFound;
 
-use sodiumoxide::crypto::box_;
-use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{PublicKey, SecretKey};
+use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::PublicKey;
 
 use std::collections::HashMap;
 
@@ -21,7 +21,7 @@ pub struct State {
     /// location for all blocks
     pub storage: String,
     /// nacl public and secret key
-    pub keys: (PublicKey, SecretKey)
+    pub nacl: Nacl
 }
 
 impl State {
@@ -33,7 +33,7 @@ impl State {
             next_block: HashMap::new(),
             peers: HashMap::new(),
             storage,
-            keys: box_::gen_keypair()
+            nacl: Nacl::new()
         }
     }
 }

@@ -49,7 +49,7 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         let message = Protocol::new()
             .set_event_code(as_number(EventCodes::BlockFound))
             .set_payload(payload)
-            .build();
+            .build(&state_lock.nacl);
 
         for (peer, _) in state_lock.peers.clone() {
             state.udp.send_to(message.as_slice(), peer).unwrap();

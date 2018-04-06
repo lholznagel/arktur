@@ -17,7 +17,7 @@ pub fn get_peers(state: ApplicationState<State>) {
     let answer = Protocol::new()
         .set_event_code(as_number(EventCodes::GetPeersAck))
         .set_payload(GetPeersAck::new().set_peers(peers))
-        .build();
+        .build(&state_lock.nacl);
 
     info!("Sending Debugger all peers.");
     state.udp.send_to(&answer, state.source)

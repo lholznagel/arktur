@@ -30,7 +30,7 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
                         let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::Ping))
                             .set_payload(EmptyPayload::new())
-                            .build();
+                            .build(&state_lock.nacl);
 
                         udp.send_to(&message, peer).expect("Sending a UDP message should be successful");
                     }

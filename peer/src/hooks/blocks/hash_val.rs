@@ -22,13 +22,13 @@ pub fn hash_val(state: ApplicationState<State>) {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(generated_block.as_str());
 
+    let state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
     let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(EventCodes::HashValAck));
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
-    let message = message.build();
+    let message = message.build(&state_lock.nacl);
 
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
     for (peer, _) in state_lock.peers.clone() {
         state.udp.send_to(message.as_slice(), peer).expect("Sending using UDP should be successful.");
     }

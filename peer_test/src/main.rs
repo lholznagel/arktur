@@ -1,4 +1,4 @@
-#![deny(
+/*#![deny(
     missing_docs,
     missing_debug_implementations,
     missing_copy_implementations,
@@ -43,4 +43,5 @@ fn main() {
             println!("fail");
         }
     }
-}
+}*/
+pub fn main() {}

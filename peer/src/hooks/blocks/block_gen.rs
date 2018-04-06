@@ -46,19 +46,17 @@ pub fn block_gen(state: ApplicationState<State>) {
         }
     }
 
-    {
-        let mut state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
-        state_lock.is_calculating = false;
-        state_lock.current_block = BlockFound {
-            content: message.payload.content.clone(),
-            timestamp: message.payload.timestamp.clone(),
-            index: message.payload.index.clone(),
-            prev: message.payload.prev.clone(),
-            nonce: nonce.clone(),
-            hash: hash.clone()
-        }
-    }
+    let mut state_lock = state.state.lock()
+        .expect("Locking the mutex should be successful.");
+    state_lock.is_calculating = false;
+    state_lock.current_block = BlockFound {
+        content: message.payload.content.clone(),
+        timestamp: message.payload.timestamp.clone(),
+        index: message.payload.index.clone(),
+        prev: message.payload.prev.clone(),
+        nonce: nonce.clone(),
+        hash: hash.clone()
+    };
 
     info!("Found hash! {:?}", hash);
     let message = Protocol::<HashVal>::new()
@@ -70,7 +68,7 @@ pub fn block_gen(state: ApplicationState<State>) {
             prev: message.payload.prev,
             nonce: nonce
         })
-        .build();
+        .build(&state_lock.nacl);
 
     
     let state_lock = state.state.lock()

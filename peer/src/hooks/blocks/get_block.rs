@@ -35,7 +35,7 @@ pub fn get_block(state: ApplicationState<State>) {
         let message = Protocol::new()
             .set_event_code(as_number(EventCodes::GetBlockAck))
             .set_payload(payload)
-            .build();
+            .build(&state_lock.nacl);
 
         state.udp.send_to(message.as_slice(), state.source.clone())
             .expect("Sending using UDP should be successful.");

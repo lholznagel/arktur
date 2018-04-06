@@ -72,7 +72,7 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
 
     let request = Protocol::<EmptyPayload>::new()
         .set_event_code(as_number(EventCodes::Register))
-        .build();
+        .build_unencrypted();
 
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", port)).expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");

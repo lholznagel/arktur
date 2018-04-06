@@ -22,16 +22,16 @@ pub fn register_ack(state: ApplicationState<State>) {
                 let result = Protocol::<Punsh>::new()
                     .set_payload(payload)
                     .set_event_code(as_number(EventCodes::Punsh))
-                    .build();
+                    .build(&state_lock.nacl);
                 state.udp.send_to(&result, "0.0.0.0:50000").expect("Sending a message should be successful");
 
                 let register = Register {
-                    pub_key: state_lock.keys.0
+                    pub_key: state_lock.nacl.get_public_key()
                 };
                 let result = Protocol::<Register>::new()
                     .set_event_code(as_number(EventCodes::Register))
                     .set_payload(register)
-                    .build();
+                    .build(&state_lock.nacl);
                 state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
             }
         }

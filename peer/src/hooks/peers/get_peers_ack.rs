@@ -16,12 +16,12 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
         for new_peer in message.payload.peers {
             if !new_peer.is_empty() && !state_lock.peers.contains_key(&new_peer) {
                 let register = Register {
-                    pub_key: state_lock.keys.0
+                    pub_key: state_lock.nacl.get_public_key()
                 };
                 let result = Protocol::<Register>::new()
                     .set_event_code(as_number(EventCodes::Register))
                     .set_payload(register)
-                    .build();
+                    .build(&state_lock.nacl);
                 state.udp.send_to(&result, new_peer).expect("Sending a response should be successful");
             }
         }

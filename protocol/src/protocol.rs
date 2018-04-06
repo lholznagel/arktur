@@ -1,5 +1,6 @@
 //! Contains the protocol model and a builder for the protocol
 use errors::ParseErrors;
+use nacl::Nacl;
 
 use payload::{Payload, parser};
 use crc::crc32;
@@ -30,17 +31,18 @@ pub struct Protocol<T> {
     /// Checksum of this message
     pub checksum: u32,
     /// Contains the content of the payload field
-    pub payload: T,
+    pub payload: T
 }
 
 impl<T: Payload> Protocol<T> {
     /// Creates a new instance of the protocol information
     pub fn new() -> Self {
+
         Self {
             version: 1,
             event_code: 255,
             checksum: 0,
-            payload: T::new(),
+            payload: T::new()
         }
     }
 
@@ -112,7 +114,20 @@ impl<T: Payload> Protocol<T> {
     }
 
     /// Combines the struct to a vector of bytes
-    pub fn build(self) -> Vec<u8> {
+    pub fn build(self, _nacl: &Nacl) -> Vec<u8> {
+        let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
+        let mut result = self.header_to_bytes();
+        result.append(&mut checksum);
+        result.append(&mut self.payload.to_bytes());
+        result
+    }
+
+    /// Same as build but the payload is not encrypted using nacl
+    /// 
+    /// Should only be used for registering
+    /// After sharing publickeys there is no reason to send
+    /// non encrypted payloads!
+    pub fn build_unencrypted(self) -> Vec<u8> {
         let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
         result.append(&mut checksum);

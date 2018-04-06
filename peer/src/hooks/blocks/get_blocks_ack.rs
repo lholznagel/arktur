@@ -20,7 +20,7 @@ pub fn get_blocks_ack(state: ApplicationState<State>) {
             let message = Protocol::new()
                 .set_event_code(as_number(EventCodes::GetBlock))
                 .set_payload(payload)
-                .build();
+                .build(&state_lock.nacl);
 
             state.udp.send_to(message.as_slice(), state.source.clone())
                 .expect("Sending using UDP should be successful.");

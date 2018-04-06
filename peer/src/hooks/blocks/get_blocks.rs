@@ -25,7 +25,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
             let message = Protocol::new()
                 .set_event_code(as_number(EventCodes::GetBlocksAck))
                 .set_payload(payload)
-                .build();
+                .build(&state_lock.nacl);
 
             state.udp.send_to(message.as_slice(), state.source.clone())
                 .expect("Sending using UDP should be successful.");
@@ -44,7 +44,7 @@ pub fn get_blocks(state: ApplicationState<State>) {
         let message = Protocol::new()
             .set_event_code(as_number(EventCodes::GetBlocksAck))
             .set_payload(payload)
-            .build();
+            .build(&state_lock.nacl);
 
         state.udp.send_to(message.as_slice(), state.source.clone())
             .expect("Sending using UDP should be successful.");

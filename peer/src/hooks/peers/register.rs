@@ -16,7 +16,7 @@ pub fn register(state: ApplicationState<State>) {
         let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(GetPeersAck::new())
-            .build();
+            .build(&state_lock.nacl);
         state.udp.send_to(&answer, state.source.clone())
             .expect("Sending using UDP should be successful.");
     } else {
@@ -28,7 +28,7 @@ pub fn register(state: ApplicationState<State>) {
         let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(GetPeersAck::new().set_peers(peers))
-            .build();
+            .build(&state_lock.nacl);
         state.udp.send_to(&answer, state.source.clone())
             .expect("Sending using UDP should be successful.");
     }

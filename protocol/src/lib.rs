@@ -24,6 +24,7 @@ extern crate time;
 
 pub mod payload;
 pub mod errors;
+pub mod nacl;
 
 mod protocol;
 pub use protocol::Protocol;

@@ -23,7 +23,7 @@ pub fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
                     let message = Protocol::new()
                         .set_event_code(as_number(EventCodes::GetPeers))
                         .set_payload(EmptyPayload::new())
-                        .build();
+                        .build(&state_lock.nacl);
 
                     udp.send_to(&message, peer).expect("Sending a UDP message should be successful");
                 }

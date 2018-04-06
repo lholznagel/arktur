@@ -1,4 +1,4 @@
-#![deny(
+/*#![deny(
     missing_docs,
     missing_debug_implementations,
     missing_copy_implementations,
@@ -87,4 +87,6 @@ fn main() {
         ("block", Some(sub_matches)) => block::execute(sub_matches),
         (_, _) => error!("Nothing to do")
     };
-}
+}*/
+
+pub fn main() {}
