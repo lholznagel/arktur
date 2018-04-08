@@ -32,7 +32,7 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
             let contacting_peer = state_lock.peers.get_mut(&new_peer).unwrap();
             if !new_peer.is_empty() && !peers.contains_key(&new_peer) {
                 let register = Register {
-                    pub_key: nacl.get_public_key()
+                    public_key: nacl.get_public_key()
                 };
                 let result = Protocol::<Register>::new()
                     .set_event_code(as_number(EventCodes::Register))

@@ -1,12 +1,12 @@
 use carina_hooks::{as_number, ApplicationState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::Punsh;
-use carina_protocol::payload::peers::{GetPeersAck, Register};
+use carina_protocol::payload::peers::{RegisterAck, Register};
 
 use hooks::State;
 
 pub fn register_ack(state: ApplicationState<State>) {
-    let message = Protocol::<GetPeersAck>::from_bytes_unencrypted(&state.payload_buffer)
+    let message = Protocol::<RegisterAck>::from_bytes_unencrypted(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     let own_public_key = {
@@ -22,6 +22,7 @@ pub fn register_ack(state: ApplicationState<State>) {
 
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
+    state_lock.peers.insert(state.source.clone(), (message.payload.public_key.unwrap(), 0));
 
     if !message.payload.peers.is_empty() {
         for address in message.payload.peers {
@@ -30,8 +31,8 @@ pub fn register_ack(state: ApplicationState<State>) {
                     address: address.clone()
                 };
                 
-                // notify hole puncher
-                let contacting_hole_puncher = state_lock.peers.get_mut("0.0.0.0:50000").unwrap();
+                // TODO: replace 127.0.0.1 with the configured peer ip
+                let contacting_hole_puncher = state_lock.peers.get_mut("127.0.0.1:50000").unwrap();
                 let result = Protocol::<Punsh>::new()
                     .set_payload(payload)
                     .set_event_code(as_number(EventCodes::Punsh))
@@ -39,7 +40,7 @@ pub fn register_ack(state: ApplicationState<State>) {
                 state.udp.send_to(&result, "0.0.0.0:50000").expect("Sending a message should be successful");
 
                 let register = Register {
-                    pub_key: own_public_key
+                    public_key: own_public_key
                 };
                 let result = Protocol::<Register>::new()
                     .set_event_code(as_number(EventCodes::Register))

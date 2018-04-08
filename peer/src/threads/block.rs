@@ -47,7 +47,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                                 let mut file = File::open(format!("{}/last", state_lock.storage)).expect("Should be able to read the last block");
                                 let mut content = String::new();
 
-                                file.read_to_string(&mut content).expect("Should be able to rad last block");
+                                file.read_to_string(&mut content).expect("Should be able to read last block");
 
                                 let result: Vec<&str> = content.split('\n').collect();
                                 payload = BlockGen::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);

@@ -40,7 +40,7 @@ impl Builder {
     /// # Return 
     /// 
     /// Updated instance of Builder
-    pub fn add_pub_key(mut self, value: [u8; 32]) -> Self {
+    pub fn add_public_key(mut self, value: [u8; 32]) -> Self {
         self.byte_vec.push(32);
         self.byte_vec.extend(value.iter());
         self

@@ -64,7 +64,7 @@ impl Payload for RegisterAck {
 
     fn to_bytes(self) -> Vec<u8> {
         Builder::new()
-            .add_pub_key(self.public_key.unwrap().0)
+            .add_public_key(self.public_key.unwrap().0)
             .add_string_vector(self.peers)
             .build()
     }

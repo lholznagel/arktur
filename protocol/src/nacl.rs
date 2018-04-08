@@ -35,7 +35,6 @@ impl Nacl {
     }
 
     /// Gets the secret key
-    #[allow(dead_code)] // TODO: remove me
     pub(crate) fn get_secret_key(&self) -> SecretKey {
         self.secret_key.clone()
     }

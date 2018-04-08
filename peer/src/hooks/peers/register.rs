@@ -46,9 +46,9 @@ pub fn register(state: ApplicationState<State>) {
     }
 
     if !peers.contains_key(&state.source) {
-        info!("Registered new peer.");
         let mut state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
-        state_lock.peers.insert(state.source, (message.payload.pub_key, 0));
+        state_lock.peers.insert(state.source, (message.payload.public_key, 0));
+        info!("Registered new peer.");
     }
 }

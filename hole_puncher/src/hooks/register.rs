@@ -46,5 +46,5 @@ pub fn register(state: ApplicationState<State>) {
             .expect("Sending using UDP should be successful.");
     }
 
-    state_lock.peers.insert(state.source, (message.payload.pub_key, 0));
+    state_lock.peers.insert(state.source, (message.payload.public_key, 0));
 }
