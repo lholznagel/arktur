@@ -5,7 +5,7 @@ use carina_protocol::payload::EmptyPayload;
 use hooks::State;
 
 pub fn ping(state: ApplicationState<State>) {
-    info!("Received PING. Answering with PONG.");
+    info!("[PING] Ping from {}", state.source);
     let mut nacl = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");

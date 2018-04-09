@@ -22,6 +22,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
             let current_time = time::now_utc();
 
             if current_time.tm_sec == 0 && current_time.tm_min % 2 == 0 && !block_send {
+                debug!("[THREAD BLOCK] Time to generate a new block.");
                 block_send = true;
 
                 {
@@ -31,6 +32,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                         Ok(path) => path.count(),
                         Err(_) => 0
                     };
+                    debug!("[THREAD BLOCK] Latest block number: {}", blocks_saved);
 
                     // at least 3 peers are required
                     if state_lock.peers.len() >= 2 {
@@ -51,6 +53,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
 
                                 let result: Vec<&str> = content.split('\n').collect();
                                 payload = BlockGen::block(blocks_saved as u64 - 1, result[5].to_string(), next_block);
+                                debug!("[THREAD BLOCK] Written block files");
                             }
                         }
 
@@ -60,6 +63,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                                 .set_payload(payload.clone())
                                 .build(&mut state_lock.nacl, &public_key);
                             udp.send_to(message.as_slice(), peer).unwrap();
+                            debug!("[THREAD BLOCK] Generating new Block: {:?}", payload);
                         }
                     } else {
                         error!("Not enough peers to create next block.");

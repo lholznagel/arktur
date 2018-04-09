@@ -23,7 +23,7 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
                     // if we pinged him 6 times he is considered dead
                     if counter == 6 {
                         state_lock.peers.remove(&peer);
-                        info!("Peer did not answer. He´s dead Jimmy :(");
+                        info!("Peer {:?} did not answer. He´s dead Jimmy :(", peer);
                     } else {
                         state_lock.peers.insert(peer.clone(), (public_key, counter + 1));
 
@@ -32,6 +32,7 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
                             .set_payload(EmptyPayload::new())
                             .build(&mut state_lock.nacl, &public_key);
 
+                        debug!("[THREAD PING] Send ping to {}", peer);
                         udp.send_to(&message, peer).expect("Sending a UDP message should be successful");
                     }
                 }
