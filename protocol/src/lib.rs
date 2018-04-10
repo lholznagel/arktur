@@ -29,3 +29,4 @@ pub mod nacl;
 mod protocol;
 pub use protocol::Protocol;
 pub use errors::ParseErrors;
+pub use protocol::parse_encrypted;

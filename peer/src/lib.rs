@@ -26,8 +26,8 @@ extern crate log;
 extern crate sodiumoxide;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use carina_protocol::Protocol;
-use carina_protocol::payload::EmptyPayload;
+use carina_protocol::{Protocol, ParseErrors};
+use carina_protocol::payload::peers::Register;
 
 use futures_cpupool::CpuPool;
 
@@ -70,8 +70,15 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
 
-    let request = Protocol::<EmptyPayload>::new()
+    let register = Register {
+        public_key: {
+            let state_lock = state.lock().expect("Locking the mutex should be successful.");
+            state_lock.nacl.get_public_key()
+        }
+    };
+    let request = Protocol::<Register>::new()
         .set_event_code(as_number(EventCodes::Register))
+        .set_payload(register)
         .build_unencrypted();
 
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", port)).expect("Binding an UdpSocket should be successful.");
@@ -86,7 +93,7 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
     thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));
 
-    let mut hook_notification = HookRegister::new(hooks, state).get_notification();
+    let mut hook_notification = HookRegister::new(hooks, Arc::clone(&state)).get_notification();
     loop {
         let mut buffer = [0; 65535];
 
@@ -96,6 +103,27 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
                 for i in 0..bytes {
                     updated_buffer.push(buffer[i])
                 }
+
+                let mut nacl = {
+                    let state_lock = state.lock()
+                        .expect("Locking the mutex should be successful.");
+                    state_lock.nacl.clone()
+                };
+                let updated_buffer = {
+                    let state_lock = state.lock()
+                        .expect("Locking the mutex should be successful.");
+
+                    match state_lock.peers.get(&source.to_string()) {
+                        Some(peer) => {
+                            match carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0) {
+                                Ok(val) => val,
+                                Err(ParseErrors::NotEncrypted) => updated_buffer,
+                                _ => updated_buffer
+                            }
+                        },
+                        None => updated_buffer
+                    }
+                };
 
                 let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
                 hook_notification.notify(socket_clone, as_enum(updated_buffer[1]), updated_buffer, source.to_string());

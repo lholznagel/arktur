@@ -38,7 +38,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
     /// - `source` - source this message comes from
     pub fn notify(&mut self, udp: UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) {
         let udp_clone = udp.try_clone().expect("Cloning the current UDP connection should be successful");
-        println!("[HOOKS] {:?}", event);
 
         let state = ApplicationState {
             payload_buffer,

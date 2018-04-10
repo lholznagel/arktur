@@ -75,7 +75,7 @@ extern crate sodiumoxide;
 mod hooks;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use carina_protocol::Protocol;
+use carina_protocol::{Protocol, ParseErrors};
 use carina_protocol::payload::{EmptyPayload, Payload};
 
 use futures_cpupool::CpuPool;
@@ -101,7 +101,7 @@ fn connect() {
 
     let state = Arc::new(Mutex::new(hooks::State::new()));
     let state_clone_peer_ping = Arc::clone(&state);
-    let mut hook_notification = HookRegister::new(hooks, state)
+    let mut hook_notification = HookRegister::new(hooks, Arc::clone(&state))
         .get_notification();
 
     let socket = UdpSocket::bind("0.0.0.0:50000").expect("Binding an UdpSocket should be successful.");
@@ -155,6 +155,27 @@ fn connect() {
                 for i in 0..bytes {
                     updated_buffer.push(buffer[i])
                 }
+
+                let mut nacl = {
+                    let state_lock = state.lock()
+                        .expect("Locking the mutex should be successful.");
+                    state_lock.nacl.clone()
+                };
+                let updated_buffer = {
+                    let state_lock = state.lock()
+                        .expect("Locking the mutex should be successful.");
+
+                    match state_lock.peers.get(&source.to_string()) {
+                        Some(peer) => {
+                            match carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0) {
+                                Ok(val) => val,
+                                Err(ParseErrors::NotEncrypted) => updated_buffer,
+                                _ => updated_buffer
+                            }
+                        },
+                        None => updated_buffer
+                    }
+                };
 
                 let socket_clone = socket.try_clone().expect("Cloning the socket should be successful.");
                 hook_notification.notify(socket_clone, as_enum(updated_buffer[1]), updated_buffer, source.to_string());

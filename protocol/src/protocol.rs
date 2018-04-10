@@ -6,6 +6,12 @@ use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{Nonce, PublicKey};
 use payload::{Payload, parser};
 use crc::crc32;
 
+/// temp solution
+pub fn parse_encrypted(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Vec<u8>, ParseErrors> {
+    let nonce = Nonce::from_slice(&bytes[0..24]).unwrap();
+    Ok(box_::open(&bytes[24..], &nonce, &public_key, &nacl.get_secret_key()).unwrap())
+}
+
 /// Struct of the protocol
 ///
 /// ```
@@ -137,15 +143,12 @@ impl<T: Payload> Protocol<T> {
     /// # Return
     ///
     /// Protocol struct. See struct for more information
-    fn parse(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Protocol<T>, ParseErrors> {
-        let nonce = Nonce::from_slice(&bytes[0..24]).unwrap();
-        let decrypted = box_::open(&bytes[24..], &nonce, &public_key, &nacl.get_secret_key()).unwrap();
-
+    fn parse(bytes: &[u8], _nacl: &Nacl, _public_key: &PublicKey) -> Result<Protocol<T>, ParseErrors> {
         let protocol = Protocol {
-            version: decrypted[0],
-            event_code: decrypted[1],
-            checksum: parser::u8_to_u32(&decrypted[2..6])?,
-            payload: T::parse(parser::parse_payload(&decrypted[6..])).unwrap()
+            version: bytes[0],
+            event_code: bytes[1],
+            checksum: parser::u8_to_u32(&bytes[2..6])?,
+            payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {

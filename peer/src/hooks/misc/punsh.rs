@@ -24,16 +24,17 @@ pub fn punsh(state: ApplicationState<State>) {
     let message = Protocol::<Punsh>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
         .expect("Parsing the protocol should be successful.");
 
-    let contacting_peer = state_lock.peers.get(&message.payload.address.clone()).unwrap();
+    match state_lock.peers.get(&message.payload.address.clone()) {
+        Some(contacting_peer) => {
+            for _ in 0..4 {
+                let result = Protocol::<EmptyPayload>::new()
+                    .set_event_code(as_number(EventCodes::Ping))
+                    .build(&mut nacl, &contacting_peer.0);
+                state.udp.send_to(&result, message.payload.address.clone()).expect("Sending using UDP should be successful.");
 
-    info!("Sending pings to new peer.");
-    // send 4 pings with a timeout of 250 milliseconds
-    for _ in 0..4 {
-        let result = Protocol::<EmptyPayload>::new()
-            .set_event_code(as_number(EventCodes::Ping))
-            .build(&mut nacl, &contacting_peer.0);
-        state.udp.send_to(&result, message.payload.address.clone()).expect("Sending using UDP should be successful.");
-
-        thread::sleep(time::Duration::from_millis(250));
-    }
+                thread::sleep(time::Duration::from_millis(250));
+            }
+        },
+        _ => ()
+    };
 }
