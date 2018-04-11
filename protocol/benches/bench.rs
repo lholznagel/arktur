@@ -21,7 +21,7 @@ fn bench_empty(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<EmptyPayload>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -41,7 +41,7 @@ fn bench_punch(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<Punsh>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<Punsh>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -61,7 +61,7 @@ fn bench_get_block(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<GetBlock>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<GetBlock>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -87,7 +87,7 @@ fn bench_get_block_ack(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -108,7 +108,7 @@ fn bench_block_data(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<BlockData>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -132,7 +132,7 @@ fn bench_block_gen(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<BlockGen>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -157,7 +157,7 @@ fn bench_block_found(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<BlockFound>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -181,7 +181,7 @@ fn bench_hash_val(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<HashVal>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
     });
 }
 
@@ -202,6 +202,6 @@ fn bench_hash_val_ack(b: &mut Bencher) {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &our_nacl, &their_nacl.get_public_key()).unwrap();
-        Protocol::<HashValAck>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
     });
 }

@@ -12,7 +12,7 @@ pub fn register(state: ApplicationState<State>) {
         state_lock.nacl.clone()
     };
 
-    let message = Protocol::<Register>::from_bytes_unencrypted(&state.payload_buffer)
+    let message = Protocol::<Register>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");

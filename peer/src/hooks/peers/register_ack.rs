@@ -7,7 +7,7 @@ use hooks::State;
 
 pub fn register_ack(state: ApplicationState<State>) {
     info!("[REGISTER_ACK] Registration acknowledge form {}", state.source);
-    let message = Protocol::<RegisterAck>::from_bytes_unencrypted(&state.payload_buffer)
+    let message = Protocol::<RegisterAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     debug!("[REGISTER_ACK] message: {:?}", message);
 

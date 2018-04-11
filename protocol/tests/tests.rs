@@ -23,7 +23,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<Punsh>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<Punsh>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(address, blockchain_parsed.payload.address);
         true
     }
@@ -45,7 +45,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<GetBlock>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<GetBlock>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(block, blockchain_parsed.payload.block);
         true
     }
@@ -79,7 +79,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<GetBlockAck>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(filename, blockchain_parsed.payload.filename);
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -108,7 +108,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<BlockData>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<BlockData>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(unique_key, blockchain_parsed.payload.unique_key);
         assert_eq!(content, blockchain_parsed.payload.content);
         true
@@ -139,7 +139,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<BlockGen>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<BlockGen>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -175,7 +175,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<BlockFound>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<BlockFound>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
         assert_eq!(nonce, blockchain_parsed.payload.nonce);
@@ -210,7 +210,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<HashVal>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<HashVal>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(content, blockchain_parsed.payload.content);
         assert_eq!(timestamp, blockchain_parsed.payload.timestamp);
@@ -238,7 +238,7 @@ quickcheck! {
             .build(&mut our_nacl, &their_nacl.get_public_key());
 
         let blockchain_protocol = carina_protocol::parse_encrypted(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
-        let blockchain_parsed = Protocol::<HashValAck>::from_bytes(&blockchain_protocol, &their_nacl, &our_nacl.get_public_key()).unwrap();
+        let blockchain_parsed = Protocol::<HashValAck>::from_bytes(&blockchain_protocol).unwrap();
         assert_eq!(index, blockchain_parsed.payload.index);
         assert_eq!(hash, blockchain_parsed.payload.hash);
         true

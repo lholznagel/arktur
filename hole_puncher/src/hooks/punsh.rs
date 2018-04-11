@@ -10,13 +10,8 @@ pub fn punsh(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
-    let source_peer = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
-        state_lock.peers.get(&state.source.clone()).unwrap().clone()
-    };
 
-    let message = Protocol::<Punsh>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
+    let message = Protocol::<Punsh>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     let state_lock = state.state.lock()

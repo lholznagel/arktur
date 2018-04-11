@@ -62,14 +62,8 @@ impl<T: Payload> Protocol<T> {
     /// # Return
     ///
     /// Parsed result of the byte array
-    pub fn from_bytes(payload: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Self, ParseErrors> {
-        Protocol::parse(payload, nacl, public_key)
-    }
-
-    /// Same as from_bytes but unencrypted
-    /// TODO: nonce
-    pub fn from_bytes_unencrypted(payload: &[u8]) -> Result<Self, ParseErrors> {
-        Protocol::parse_unencrypted(payload)
+    pub fn from_bytes(payload: &[u8]) -> Result<Self, ParseErrors> {
+        Protocol::parse(payload)
     }
 
     /// Sets the event code
@@ -143,29 +137,12 @@ impl<T: Payload> Protocol<T> {
     /// # Return
     ///
     /// Protocol struct. See struct for more information
-    fn parse(bytes: &[u8], _nacl: &Nacl, _public_key: &PublicKey) -> Result<Protocol<T>, ParseErrors> {
+    fn parse(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
             checksum: parser::u8_to_u32(&bytes[2..6])?,
             payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
-        };
-
-        if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
-            Ok(protocol)
-        } else {
-            Err(ParseErrors::ChecksumDoNotMatch)
-        }
-    }
-
-    /// Same as parse but without encryption
-    /// TODO: parse nonce
-    fn parse_unencrypted(bytes: &[u8]) -> Result<Protocol<T>, ParseErrors> {
-        let protocol = Protocol {
-            version: bytes[0],
-            event_code: bytes[1],
-            checksum: parser::u8_to_u32(&bytes[2..6])?,
-            payload: T::parse(parser::parse_payload(&bytes[6..]))?
         };
 
         if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {

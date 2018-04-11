@@ -10,11 +10,6 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
-    let source_peer = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
-        state_lock.peers.get(&state.source.clone()).unwrap().clone()
-    };
     let peers = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
@@ -23,7 +18,7 @@ pub fn get_peers_ack(state: ApplicationState<State>) {
 
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
-    let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer, &nacl, &source_peer.0)
+    let message = Protocol::<GetPeersAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     info!("Syncing peers.");
 

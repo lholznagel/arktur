@@ -6,7 +6,7 @@ use hooks::State;
 
 pub fn register(state: ApplicationState<State>) {
     info!("[REGISTER] New registration from {}", state.source);
-    let message = Protocol::<Register>::from_bytes_unencrypted(&state.payload_buffer)
+    let message = Protocol::<Register>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     debug!("[REGISTER] message: {:?}", message);
 
