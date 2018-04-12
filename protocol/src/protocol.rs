@@ -4,7 +4,6 @@ use nacl::Nacl;
 use sodiumoxide::crypto::box_;
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{Nonce, PublicKey};
 use payload::{Payload, parser};
-use crc::crc32;
 
 /// temp solution
 pub fn parse_encrypted(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Vec<u8>, ParseErrors> {
@@ -19,9 +18,6 @@ pub fn parse_encrypted(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Res
 /// //+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// //| Version               | Type                  |
 /// //+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
-/// //| Checksum                                      |
-/// //|                                               |
-/// //+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// //|                                               |
 /// ////                                             //
 /// ////                Payload                      //
@@ -35,8 +31,6 @@ pub struct Protocol<T> {
     pub version: u8,
     /// Event that is fired, defined by a number between 0 and 255
     pub event_code: u8,
-    /// Checksum of this message
-    pub checksum: u32,
     /// Contains the content of the payload field
     pub payload: T
 }
@@ -48,7 +42,6 @@ impl<T: Payload> Protocol<T> {
         Self {
             version: 1,
             event_code: 255,
-            checksum: 0,
             payload: T::new()
         }
     }
@@ -104,9 +97,7 @@ impl<T: Payload> Protocol<T> {
         let mut payload = Vec::new();
         payload.extend(nonce.0.iter());
 
-        let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
-        result.append(&mut checksum);
         result.append(&mut self.payload.to_bytes());
 
         let encrypted = box_::seal(&result, &nonce, &public_key, &nacl.get_secret_key());
@@ -121,9 +112,7 @@ impl<T: Payload> Protocol<T> {
     /// non encrypted payloads!
     /// TODO: parse nonce
     pub fn build_unencrypted(self) -> Vec<u8> {
-        let mut checksum = self.checksum_to_bytes(crc32::checksum_ieee(&self.header_to_bytes()));
         let mut result = self.header_to_bytes();
-        result.append(&mut checksum);
         result.append(&mut self.payload.to_bytes());
         result
     }
@@ -141,15 +130,10 @@ impl<T: Payload> Protocol<T> {
         let protocol = Protocol {
             version: bytes[0],
             event_code: bytes[1],
-            checksum: parser::u8_to_u32(&bytes[2..6])?,
-            payload: T::parse(parser::parse_payload(&bytes[6..])).unwrap()
+            payload: T::parse(parser::parse_payload(&bytes[2..])).unwrap()
         };
 
-        if protocol.checksum == crc32::checksum_ieee(&protocol.header_to_bytes()) {
-            Ok(protocol)
-        } else {
-            Err(ParseErrors::ChecksumDoNotMatch)
-        }
+        Ok(protocol)
     }
 
     /// Turns the header values to bytes
@@ -160,23 +144,5 @@ impl<T: Payload> Protocol<T> {
     /// - `Vec<u8>` - Vector containing the header values as u8
     fn header_to_bytes(&self) -> Vec<u8> {
         vec![self.version.clone(), self.event_code.clone()]
-    }
-
-    /// Turns the checksum bytes
-    ///
-    /// # Params
-    ///
-    /// - `checksum` - checksum that should be converted
-    ///
-    /// # Return
-    ///
-    /// - `Vec<u8>` - Vector containing the header values as u8
-    fn checksum_to_bytes(&self, checksum: u32) -> Vec<u8> {
-        let b1 = ((checksum >> 24) & 0xFF) as u8;
-        let b2 = ((checksum >> 16) & 0xFF) as u8;
-        let b3 = ((checksum >> 8) & 0xFF) as u8;
-        let b4 = (checksum & 0xFF) as u8;
-
-        vec![b4, b3, b2, b1]
     }
 }

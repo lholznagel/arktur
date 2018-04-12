@@ -3,8 +3,6 @@
 /// Contains error message that could be thrown during parsing;
 #[derive(Copy, Clone, Debug)]
 pub enum ParseErrors {
-    /// thown when the checksum does not match
-    ChecksumDoNotMatch,
     /// Thrown when decrypting the message is not successfull
     ErrorDecrypting,
     /// Thrown when a message is not encrypted

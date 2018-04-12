@@ -4,7 +4,6 @@ name = "carina_protocol"
 version = "0.1.0"
 
 [dependencies]
-crc = "1.7.0"
 time = "0.1.38"
 clippy = { version = "0.0.186", optional = true }
 sodiumoxide = "0.0.16"
