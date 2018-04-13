@@ -48,7 +48,7 @@ pub fn register_ack(state: ApplicationState<State>) {
             let result = Protocol::<Register>::new()
                 .set_event_code(as_number(EventCodes::Register))
                 .set_payload(register)
-                .build_unencrypted();
+                .build_unencrypted(&mut nacl);
             debug!("[REGISTER_ACK] Registering at {}", address);
             state.udp.send_to(&result, address.clone()).expect("Sending a response should be successful");
         }

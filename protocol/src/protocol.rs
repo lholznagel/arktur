@@ -110,11 +110,13 @@ impl<T: Payload> Protocol<T> {
     /// Should only be used for registering
     /// After sharing publickeys there is no reason to send
     /// non encrypted payloads!
-    /// TODO: parse nonce
-    pub fn build_unencrypted(self) -> Vec<u8> {
-        let mut result = self.header_to_bytes();
-        result.append(&mut self.payload.to_bytes());
-        result
+    pub fn build_unencrypted(self, nacl: &mut Nacl) -> Vec<u8> {
+        let nonce = nacl.get_nonce();
+        let mut payload = Vec::new();
+        payload.extend(nonce.0.iter());
+        payload.extend(self.header_to_bytes());
+        payload.extend(self.payload.to_bytes());
+        payload
     }
 
     /// Parses the protocol

@@ -76,10 +76,16 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
             state_lock.nacl.get_public_key()
         }
     };
+    let mut nacl = {
+        let state_lock = state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.clone()
+    };
+
     let request = Protocol::<Register>::new()
         .set_event_code(as_number(EventCodes::Register))
         .set_payload(register)
-        .build_unencrypted();
+        .build_unencrypted(&mut nacl);
 
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", port)).expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");

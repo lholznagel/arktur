@@ -15,7 +15,7 @@ pub fn register(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.peers.clone()
     };
-    let nacl = {
+    let mut nacl = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
@@ -36,7 +36,7 @@ pub fn register(state: ApplicationState<State>) {
     let answer = Protocol::new()
             .set_event_code(as_number(EventCodes::RegisterAck))
             .set_payload(payload)
-            .build_unencrypted();
+            .build_unencrypted(&mut nacl);
         state.udp.send_to(&answer, state.source.clone())
             .expect("Sending using UDP should be successful.");
     debug!("[REGISTER] Acknowledge registration");
