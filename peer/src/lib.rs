@@ -41,6 +41,8 @@ mod threads;
 
 /// Builds up a UDP connection with the hole_puncher
 pub fn init(config: config::Config) {
+    sodiumoxide::init();
+
     let hooks = Hooks::new()
         .set_block_data(hooks::blocks::block_data)
         .set_block_found(hooks::blocks::block_found)

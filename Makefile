@@ -4,9 +4,6 @@
 default:
 	cargo build --features dev
 
-peer_test:
-	cd peer_test; cargo run
-
 # run the benchmarks
 bench:
 	rustup run nightly cargo bench
@@ -17,7 +14,7 @@ test:
 	rustup run nightly cargo test
 
 # check that everything works before commiting
-commit: peer_test bench test
+commit: bench test
 	git add -A
 	git commit
 
