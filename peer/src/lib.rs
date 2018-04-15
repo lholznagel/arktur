@@ -26,7 +26,7 @@ extern crate log;
 extern crate sodiumoxide;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use carina_protocol::{Protocol, ParseErrors};
+use carina_protocol::Protocol;
 use carina_protocol::payload::peers::Register;
 
 use futures_cpupool::CpuPool;
@@ -67,7 +67,7 @@ pub fn init(config: config::Config) {
 /// Builds up a UDP connection with the hole_puncher
 fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks::State>) {
     info!("Hole puncher: {:?}", hole_puncher.clone());
-    let pool = CpuPool::new_num_cpus();
+    let pool = CpuPool::new(4);
     let mut thread_storage = Vec::new();
 
     let state = Arc::new(Mutex::new(hooks::State::new(storage)));
@@ -122,14 +122,8 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
                         .expect("Locking the mutex should be successful.");
 
                     match state_lock.peers.get(&source.to_string()) {
-                        Some(peer) => {
-                            match carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0) {
-                                Ok(val) => val,
-                                Err(ParseErrors::NotEncrypted) => updated_buffer,
-                                _ => updated_buffer
-                            }
-                        },
-                        None => updated_buffer
+                        Some(peer) => carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0),
+                        None => updated_buffer[24..].to_vec()
                     }
                 };
 

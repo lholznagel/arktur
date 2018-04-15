@@ -75,7 +75,7 @@ extern crate sodiumoxide;
 mod hooks;
 
 use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
-use carina_protocol::{Protocol, ParseErrors};
+use carina_protocol::Protocol;
 use carina_protocol::payload::{EmptyPayload, Payload};
 
 use futures_cpupool::CpuPool;
@@ -166,14 +166,8 @@ fn connect() {
                         .expect("Locking the mutex should be successful.");
 
                     match state_lock.peers.get(&source.to_string()) {
-                        Some(peer) => {
-                            match carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0) {
-                                Ok(val) => val,
-                                Err(ParseErrors::NotEncrypted) => updated_buffer,
-                                _ => updated_buffer
-                            }
-                        },
-                        None => updated_buffer
+                        Some(peer) => carina_protocol::parse_encrypted(&updated_buffer, &nacl, &peer.0),
+                        None => updated_buffer[24..].to_vec()
                     }
                 };
 

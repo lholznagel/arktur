@@ -37,7 +37,7 @@ hole_puncher:
 # start a peer
 peer:
 	clear
-	cd peer_cli; cargo run
+	cd peer_cli; RUST_BACKTRACE=1 cargo run
 
 # start a peer in a docker container
 peer_docker_run: peer_docker_build

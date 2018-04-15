@@ -13,6 +13,7 @@ pub fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
         loop {
+            info!("[SYNC_PEERS] Syncing peers");
             // sync every 5 minutes
             thread::sleep(time::Duration::from_secs(10));
 

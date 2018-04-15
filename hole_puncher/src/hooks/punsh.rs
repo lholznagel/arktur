@@ -14,9 +14,9 @@ pub fn punsh(state: ApplicationState<State>) {
     let message = Protocol::<Punsh>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
-    let state_lock = state.state.lock()
+    /*let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
-    let contacting_peer = state_lock.peers.get(&message.payload.address).unwrap();
+    let contacting_peer = state_lock.peers.get(&message.payload.address).unwrap();*/
 
     if !message.payload.address.is_empty() {
         let payload = Punsh {
@@ -26,7 +26,7 @@ pub fn punsh(state: ApplicationState<State>) {
         let result = Protocol::<Punsh>::new()
             .set_payload(payload)
             .set_event_code(as_number(EventCodes::Punsh))
-            .build(&mut nacl, &contacting_peer.0);
+            .build_unencrypted(&mut nacl);
 
         state.udp.send_to(&result, message.payload.address)
             .expect("Sending using UDP should be successful.");

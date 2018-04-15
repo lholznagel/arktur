@@ -6,9 +6,12 @@ use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{Nonce, PublicKey};
 use payload::{Payload, parser};
 
 /// temp solution
-pub fn parse_encrypted(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Result<Vec<u8>, ParseErrors> {
+pub fn parse_encrypted(bytes: &[u8], nacl: &Nacl, public_key: &PublicKey) -> Vec<u8> {
     let nonce = Nonce::from_slice(&bytes[0..24]).unwrap();
-    Ok(box_::open(&bytes[24..], &nonce, &public_key, &nacl.get_secret_key()).unwrap())
+    match box_::open(&bytes[24..], &nonce, &public_key, &nacl.get_secret_key()) {
+        Ok(val) => val,
+        Err(_) => bytes[24..].to_vec()
+    }
 }
 
 /// Struct of the protocol
