@@ -1,0 +1,6 @@
+%YAML 1.2
+---
+
+port: 0
+
+storage: ./block_data

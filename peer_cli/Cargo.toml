@@ -4,11 +4,14 @@ version = "0.1.0"
 authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
-carina_peer = { path = "../peer" }
 carina_logging = { path = "../logging" }
-clippy = { version = "0.0.190", optional = true }
+carina_peer = { path = "../peer" }
 clap = "2.31.2"
+clippy = { version = "0.0.190", optional = true }
 log = { version = "0.4.1", features = ["std"] }
+serde = "1.0.38"
+serde_derive = "1.0.38"
+serde_yaml = "0.7.3"
 
 [features]
 default = []

@@ -15,14 +15,23 @@
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
 //! Terminal client application for a peer
-extern crate log;
 extern crate carina_logging;
 extern crate carina_peer;
 extern crate clap;
+extern crate log;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_yaml;
+
+mod configuration;
 
 use carina_logging::LogBuilder;
-use carina_peer::config::{Config, HolePuncher};
+use carina_peer::config::HolePuncher;
 use clap::{Arg, App};
+use std::fs::File;
+use std::io::Read;
+use configuration::Configuration;
 
 fn main() {
     LogBuilder::new()
@@ -47,21 +56,23 @@ fn main() {
             .takes_value(true)
             .long("puncher_port")
             .default_value("50000"))
-        .arg(Arg::with_name("STORAGE")
-            .value_name("storage")
-            .help("Sets the location for the blocks.")
+        .arg(Arg::with_name("CONFIG")
+            .value_name("config")
+            .help("Sets the location of the config file.")
             .takes_value(true)
-            .long("storage")
-            .default_value("block_data"))
+            .long("config")
+            .default_value("./config.yml"))
         .get_matches();
 
-    let config = Config {
-        hole_puncher: HolePuncher {
-            host: matches.value_of("HOLE_PUNCHER_IP").unwrap().to_string(),
-            port: matches.value_of("HOLE_PUNCHER_PORT").unwrap().parse().unwrap()
-        },
-        port: 0,
-        storage: matches.value_of("STORAGE").unwrap().to_string()
+    let mut file = File::open(matches.value_of("CONFIG").unwrap().to_string()).unwrap();
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
+    let config: Configuration = serde_yaml::from_str(&content).unwrap();
+
+    let mut config = config.to_config();
+    config.hole_puncher = HolePuncher {
+        host: matches.value_of("HOLE_PUNCHER_IP").unwrap().to_string(),
+        port: matches.value_of("HOLE_PUNCHER_PORT").unwrap().parse().unwrap()
     };
 
     carina_peer::init(config);
