@@ -15,6 +15,7 @@
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
 //! Terminal client application for a peer
+extern crate base64;
 extern crate carina_logging;
 extern crate carina_peer;
 extern crate clap;
@@ -23,7 +24,9 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_yaml;
+extern crate sodiumoxide;
 
+mod key;
 mod configuration;
 mod console;
 
@@ -49,10 +52,19 @@ fn main() {
                 .long("config")
                 .default_value("./config.yml"))
             )
+        .arg(Arg::with_name("GENKEY")
+            .value_name("genkey")
+            .help("Generates a new secret key"))
+        .arg(Arg::with_name("PUBLICKEY")
+            .value_name("publickey")
+            .takes_value(true)
+            .help("Generates a public key, from the secret key."))
         .get_matches();
+
+    key::execute(&matches);
 
     match matches.subcommand() {
         ("console", Some(sub_matches)) => console::execute(sub_matches),
-        (_, _)                         => panic!("No valid command!")
+        _                              => ()
     }
 }

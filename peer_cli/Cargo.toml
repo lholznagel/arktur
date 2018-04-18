@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
+base64 = "0.9.0"
 carina_logging = { path = "../logging" }
 carina_peer = { path = "../peer" }
 clap = "2.31.2"
@@ -12,6 +13,7 @@ log = { version = "0.4.1", features = ["std"] }
 serde = "1.0.38"
 serde_derive = "1.0.38"
 serde_yaml = "0.7.3"
+sodiumoxide = "0.0.16"
 
 [features]
 default = []
