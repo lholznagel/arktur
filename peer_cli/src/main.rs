@@ -45,6 +45,7 @@ fn main() {
         .about("Client tool for carina")
         .subcommand(
             SubCommand::with_name("console")
+            .about("Starts the peer.")
             .arg(Arg::with_name("CONFIG")
                 .value_name("config")
                 .help("Sets the location of the config file.")
@@ -52,19 +53,22 @@ fn main() {
                 .long("config")
                 .default_value("./config.yml"))
             )
-        .arg(Arg::with_name("GENKEY")
-            .value_name("genkey")
-            .help("Generates a new secret key"))
-        .arg(Arg::with_name("PUBLICKEY")
-            .value_name("publickey")
-            .takes_value(true)
-            .help("Generates a public key, from the secret key."))
+        .subcommand(
+            SubCommand::with_name("genkey")
+                .about("Generates a new secret key")
+            )
+        .subcommand(
+            SubCommand::with_name("pubkey")
+                .about("Generates a new public key from a secret key")
+                .arg(Arg::with_name("secret key")
+                    .required(true))
+            )
         .get_matches();
-
-    key::execute(&matches);
 
     match matches.subcommand() {
         ("console", Some(sub_matches)) => console::execute(sub_matches),
+        ("genkey", Some(sub_matches))  => key::genkey(sub_matches),
+        ("pubkey", Some(sub_matches))  => key::pubkey(sub_matches),
         _                              => ()
     }
 }
