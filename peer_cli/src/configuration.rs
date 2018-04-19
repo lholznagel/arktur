@@ -7,6 +7,13 @@ pub struct Configuration {
 }
 
 impl Configuration {
+    pub fn new() -> Self {
+        Self {
+            port: 45000,
+            storage: String::from("./block_data")
+        }
+    }
+
     pub fn to_config(self) -> Config {
         let mut config = Config::new();
         config.port = self.port;

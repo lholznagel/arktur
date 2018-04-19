@@ -26,9 +26,10 @@ extern crate serde_derive;
 extern crate serde_yaml;
 extern crate sodiumoxide;
 
-mod key;
+mod config;
 mod configuration;
 mod console;
+mod key;
 
 use carina_logging::LogBuilder;
 use clap::{Arg, App, SubCommand};
@@ -43,6 +44,12 @@ fn main() {
         .version("0.1.0")
         .author("Lars Holznagel")
         .about("Client tool for carina")
+        .subcommand(
+            SubCommand::with_name("config")
+            .about("Everything about configs.")
+            .arg(Arg::with_name("init")
+                .help("Creates a new default config file."))
+        )
         .subcommand(
             SubCommand::with_name("console")
             .about("Starts the peer.")
@@ -66,6 +73,7 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
+        ("config", Some(sub_matches))  => config::execute(sub_matches),
         ("console", Some(sub_matches)) => console::execute(sub_matches),
         ("genkey", Some(sub_matches))  => key::genkey(sub_matches),
         ("pubkey", Some(sub_matches))  => key::pubkey(sub_matches),
