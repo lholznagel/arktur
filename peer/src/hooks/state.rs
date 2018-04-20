@@ -1,6 +1,7 @@
 use carina_protocol::nacl::Nacl;
-use carina_protocol::payload::Payload;
 use carina_protocol::payload::blocks::BlockFound;
+use carina_protocol::payload::Payload;
+use config::Config;
 
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::PublicKey;
 
@@ -25,14 +26,19 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(storage: String) -> Self {
+    pub fn new(config: Config) -> Self {
+        let mut peers = HashMap::new();
+        for peer in config.peers {
+            peers.insert(peer.address.clone(), (peer.public_key(), 0));
+        }
+
         Self {
             current_block: BlockFound::new(),
             hashes: Vec::new(),
             is_calculating: false,
             next_block: HashMap::new(),
-            peers: HashMap::new(),
-            storage,
+            peers,
+            storage: config.storage,
             nacl: Nacl::new()
         }
     }

@@ -21,13 +21,10 @@ extern crate carina_peer;
 extern crate clap;
 extern crate log;
 extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 extern crate serde_yaml;
 extern crate sodiumoxide;
 
 mod config;
-mod configuration;
 mod console;
 mod key;
 

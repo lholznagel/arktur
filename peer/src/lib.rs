@@ -16,9 +16,13 @@
 
 //! Library that represents a blockchain peer
 
+extern crate base64;
 extern crate carina_hooks;
 extern crate carina_protocol;
 extern crate crypto;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate futures_cpupool;
 extern crate time;
 #[macro_use]
@@ -61,16 +65,16 @@ pub fn init(config: config::Config) {
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack);
 
-    connect(config.hole_puncher.address(), config.port, config.storage, hooks);
+    connect(String::from("0.0.0.0:50000"), config, hooks);
 }
 
 /// Builds up a UDP connection with the hole_puncher
-fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks::State>) {
+fn connect(hole_puncher: String, config: config::Config, hooks: Hooks<hooks::State>) {
     info!("Hole puncher: {:?}", hole_puncher.clone());
     let pool = CpuPool::new(4);
     let mut thread_storage = Vec::new();
 
-    let state = Arc::new(Mutex::new(hooks::State::new(storage)));
+    let state = Arc::new(Mutex::new(hooks::State::new(config.clone())));
 
     let register = Register {
         public_key: {
@@ -89,7 +93,7 @@ fn connect(hole_puncher: String, port: u16, storage: String, hooks: Hooks<hooks:
         .set_payload(register)
         .build_unencrypted(&mut nacl);
 
-    let socket = UdpSocket::bind(format!("0.0.0.0:{}", port)).expect("Binding an UdpSocket should be successful.");
+    let socket = UdpSocket::bind(format!("0.0.0.0:{}", config.port)).expect("Binding an UdpSocket should be successful.");
     socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");
 
     let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");

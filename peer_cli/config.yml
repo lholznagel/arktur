@@ -1,2 +1,5 @@
+---
 port: 45000
+secretKey: "lAWl2x1gGixyXX2ssScJLXEQ/cA8jNZFhycaTd93598="
 storage: "./block_data"
+peers: []
