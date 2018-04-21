@@ -18,7 +18,7 @@ pub struct State {
     /// contains the data for the next block
     pub next_block: HashMap<String, String>,
     /// all peers this peer is connected to
-    pub peers: HashMap<String, (PublicKey, u8)>, // (public_key, heartbeat)
+    pub peers: HashMap<String, (PublicKey, u8, bool)>, // (public_key, heartbeat)
     /// location for all blocks
     pub storage: String,
     /// nacl public and secret key
@@ -29,7 +29,7 @@ impl State {
     pub fn new(config: Config) -> Self {
         let mut peers = HashMap::new();
         for peer in config.peers {
-            peers.insert(peer.address.clone(), (peer.public_key(), 0));
+            peers.insert(peer.address.clone(), (peer.public_key(), 0, false));
         }
 
         Self {

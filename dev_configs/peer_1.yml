@@ -1,0 +1,9 @@
+---
+port: 45001
+secretKey: ezIacLCOKCVPW8DG6Eufk9/phRKI2elzJv7nLB2Ihh0=
+storage: ../dev_configs/block_data_peer_1
+peers:
+  - address: 127.0.0.1:45002
+    publicKey: OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=
+  - address: 127.0.0.1:45003
+    publicKey: /gfCzCrTj02YA+dAXCY2EODAYZFELeKH1bec5nenbU0=

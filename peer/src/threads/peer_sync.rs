@@ -9,7 +9,7 @@ use std::{thread, time};
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
-pub fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
+fn peer_sync(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
         loop {

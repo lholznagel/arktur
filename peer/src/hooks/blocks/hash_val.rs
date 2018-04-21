@@ -35,7 +35,7 @@ pub fn hash_val(state: ApplicationState<State>) {
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
 
-    for (peer, (public_key, _)) in state_lock.peers.clone() {
+    for (peer, (public_key, _, _)) in state_lock.peers.clone() {
         let message = message.clone()
             .build(&mut nacl, &public_key);
         state.udp.send_to(message.as_slice(), peer).expect("Sending using UDP should be successful.");

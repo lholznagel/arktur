@@ -59,18 +59,16 @@ pub fn init(config: config::Config) {
         .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hash_val(hooks::blocks::hash_val)
         .set_hash_val_ack(hooks::blocks::hash_val_ack)
-        .set_punsh(hooks::misc::punsh)
         .set_ping(hooks::misc::ping)
         .set_pong(hooks::misc::pong)
         .set_register(hooks::peers::register)
         .set_register_ack(hooks::peers::register_ack);
 
-    connect(String::from("0.0.0.0:50000"), config, hooks);
+    connect(config, hooks);
 }
 
 /// Builds up a UDP connection with the hole_puncher
-fn connect(hole_puncher: String, config: config::Config, hooks: Hooks<hooks::State>) {
-    info!("Hole puncher: {:?}", hole_puncher.clone());
+fn connect(config: config::Config, hooks: Hooks<hooks::State>) {
     let pool = CpuPool::new(4);
     let mut thread_storage = Vec::new();
 
@@ -94,13 +92,15 @@ fn connect(hole_puncher: String, config: config::Config, hooks: Hooks<hooks::Sta
         .build_unencrypted(&mut nacl);
 
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", config.port)).expect("Binding an UdpSocket should be successful.");
-    socket.send_to(request.as_slice(), hole_puncher.clone()).expect("Sending a request should be successful.");
+    for peer in config.peers {
+        socket.send_to(request.as_slice(), peer.address).expect("Sending a request should be successful.");
+    }
 
-    let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
-    thread_storage.push(threads::peer_sync(&pool, Arc::clone(&state), udp_clone_peer));
+    //let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
+    //thread_storage.push(threads::peer_sync(&pool, Arc::clone(&state), udp_clone_peer));
 
-    let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
-    thread_storage.push(threads::peer_ping(&pool, Arc::clone(&state), udp_clone_peer_ping));
+    //let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
+    //thread_storage.push(threads::peer_ping(&pool, Arc::clone(&state), udp_clone_peer_ping));
 
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
     thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));

@@ -20,6 +20,16 @@ pub fn register(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
+    let own_public_key = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.nacl.get_public_key()
+    };
+    let connected = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.get(&state.source.clone()).unwrap().2
+    };
 
     let mut payload = RegisterAck {
         public_key: Some(nacl.get_public_key()),
@@ -32,20 +42,31 @@ pub fn register(state: ApplicationState<State>) {
             payload.peers.push(peer);
         }
     }
-    // send the message
-    let answer = Protocol::new()
-            .set_event_code(as_number(EventCodes::RegisterAck))
-            .set_payload(payload)
-            .build_unencrypted(&mut nacl);
+
+    if !connected {
+        // send the message
+        let answer = Protocol::new()
+                .set_event_code(as_number(EventCodes::RegisterAck))
+                .set_payload(payload)
+                .build_unencrypted(&mut nacl);
         state.udp.send_to(&answer, state.source.clone())
             .expect("Sending using UDP should be successful.");
-    debug!("[REGISTER] Acknowledge registration");
+        debug!("[REGISTER] Acknowledge registration");
 
-    // add the new peer if it does not exist
-    if !peers.contains_key(&state.source) {
+        let register = Register {
+            public_key: own_public_key
+        };
+        let result = Protocol::<Register>::new()
+            .set_event_code(as_number(EventCodes::Register))
+            .set_payload(register)
+            .build_unencrypted(&mut nacl);
+        debug!("[REGISTER_ACK] Registering at {}", state.source);
+        state.udp.send_to(&result, state.source.clone()).expect("Sending a response should be successful");
+
+        // add the new peer if it does not exist
         let mut state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");
-        state_lock.peers.insert(state.source, (message.payload.public_key, 0));
+        state_lock.peers.insert(state.source, (message.payload.public_key, 0, true));
         info!("[REGISTER] Registered new peer.");
     }
 }

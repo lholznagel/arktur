@@ -9,7 +9,7 @@ use std::{thread, time};
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
-pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
+fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> CpuFuture<bool, ()> {
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
         loop {
@@ -19,13 +19,13 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
             {
                 let mut state_lock = state.lock().unwrap();
 
-                for (peer, (public_key, counter)) in state_lock.peers.clone() {
+                for (peer, (public_key, counter, connected)) in state_lock.peers.clone() {
                     // if we pinged him 3 times he is considered dead
                     if counter == 3 {
                         state_lock.peers.remove(&peer);
                         info!("[THREAD PING] Peer {:?} did not answer. He´s dead Jimmy :(", peer);
                     } else {
-                        state_lock.peers.insert(peer.clone(), (public_key, counter + 1));
+                        state_lock.peers.insert(peer.clone(), (public_key, counter + 1, connected));
 
                         let message = Protocol::new()
                             .set_event_code(as_number(EventCodes::Ping))

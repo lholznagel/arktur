@@ -53,7 +53,7 @@ pub fn hash_val_ack(state: ApplicationState<State>) {
         payload.timestamp = state_lock.current_block.timestamp;
         payload.hash = state_lock.current_block.hash.clone();
 
-        for (peer, (public_key, _)) in state_lock.peers.clone() {
+        for (peer, (public_key, _, _)) in state_lock.peers.clone() {
             let message = Protocol::new()
                 .set_event_code(as_number(EventCodes::BlockFound))
                 .set_payload(payload.clone())

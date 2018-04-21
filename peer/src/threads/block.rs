@@ -57,7 +57,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                             }
                         }
 
-                        for (peer, (public_key, _)) in state_lock.peers.clone() {
+                        for (peer, (public_key, _, _)) in state_lock.peers.clone() {
                             let message = Protocol::new()
                                 .set_event_code(as_number(EventCodes::BlockGen))
                                 .set_payload(payload.clone())

@@ -1,0 +1,9 @@
+---
+port: 45003
+secretKey: BH7FBcW+yeIKzZkEs9j4FewDthPWw4a78NFSR7tJ/x4=
+storage: ../dev_configs/block_data_peer_3
+peers: 
+  - address: 127.0.0.1:45001
+    publicKey: 6On/cjx/xrE2I7ypxEc6ngwV4MK7nh4dERUFipbHjj8=
+  - address: 127.0.0.1:45002
+    publicKey: OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=

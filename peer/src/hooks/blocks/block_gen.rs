@@ -13,6 +13,11 @@ pub fn block_gen(state: ApplicationState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
+    let peers = {
+        let state_lock = state.state.lock()
+            .expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
+    };
     let message = Protocol::<BlockGen>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
@@ -63,10 +68,7 @@ pub fn block_gen(state: ApplicationState<State>) {
         hash: hash.clone()
     };
 
-    info!("Found hash! {:?}", hash);
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-
+    info!("[BLOCK GEN] Found hash! {:?}", hash);
     let payload = HashVal {
         content: message.payload.content,
         timestamp: message.payload.timestamp,
@@ -75,7 +77,8 @@ pub fn block_gen(state: ApplicationState<State>) {
         nonce: nonce
     };
 
-    for (peer, (public_key, _)) in state_lock.peers.clone() {
+    debug!("[BLOCK GEN] Sending hash to other peers for validation.");
+    for (peer, (public_key, _, _)) in peers {
         let message = Protocol::<HashVal>::new()
             .set_event_code(as_number(EventCodes::HashVal))
             .set_payload(payload.clone())
