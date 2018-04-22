@@ -52,7 +52,7 @@ peer_docker_run_multi: peer_docker_build
 peer_docker_build:
 	clear
 	cd peer; cargo build
-	cp target/debug/carina_peer docker/carina_peer
+	cp target/debug/carina_peer_cli docker/carina_peer
 	cd docker; docker build -t carina_peer .
 
 # remove all started peer containers

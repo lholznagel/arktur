@@ -1,8 +1,18 @@
 FROM    phusion/baseimage:latest
 
+ENV     LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
 COPY    ./carina_peer /etc/service/carina_peer/peer
 COPY    ./run.sh /etc/service/carina_peer/run
+COPY    ./libsodium.sh libsodium.sh
 
-RUN     chmod +x /etc/service/carina_peer/run && \
+RUN     apt-get update && \
+        apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
+        apt-get install build-essential -y --no-install-recommends && \
+        ./libsodium.sh && \
+        rm -rf libsodium* && \
+        apt-get purge --auto-remove build-essential -y && \
+        apt-get clean && \
+        chmod +x /etc/service/carina_peer/run && \
         chmod +x /etc/service/carina_peer/peer && \
         chown -R root: /etc/service/carina_peer
