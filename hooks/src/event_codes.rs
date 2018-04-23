@@ -23,21 +23,13 @@ pub enum EventCodes {
     ///
     /// Code: 2
     Punsh,
-    /// Requests a list of peers
-    ///
-    /// Code: 67
-    GetPeers,
-    /// Gets a list of peers
-    ///
-    /// Code: 67
-    GetPeersAck,
     /// Register at a peer or a hole puncher
     ///
-    /// Code: 66
+    /// Code: 64
     Register,
     /// Acknowledges the registration by sending back a list of peers
     ///
-    /// Code: 67
+    /// Code: 65
     RegisterAck,
     /// Requests a list of blocks
     ///
@@ -108,10 +100,8 @@ pub fn as_enum(value: u8) -> EventCodes {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
         2 => EventCodes::Punsh,
-        64 => EventCodes::GetPeers,
-        65 => EventCodes::GetPeersAck,
-        66 => EventCodes::Register,
-        67 => EventCodes::RegisterAck,
+        64 => EventCodes::Register,
+        65 => EventCodes::RegisterAck,
         128 => EventCodes::GetBlocks,
         129 => EventCodes::GetBlocksAck,
         130 => EventCodes::GetBlock,
@@ -146,10 +136,8 @@ pub fn as_number(value: EventCodes) -> u8 {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
         EventCodes::Punsh => 2,
-        EventCodes::GetPeers => 64,
-        EventCodes::GetPeersAck => 65,
-        EventCodes::Register => 66,
-        EventCodes::RegisterAck => 67,
+        EventCodes::Register => 64,
+        EventCodes::RegisterAck => 65,
         EventCodes::GetBlocks => 128,
         EventCodes::GetBlocksAck => 129,
         EventCodes::GetBlock => 130,

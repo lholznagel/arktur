@@ -66,7 +66,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
                             debug!("[THREAD BLOCK] Generating new Block: {:?}", payload);
                         }
                     } else {
-                        error!("Not enough peers to create next block.");
+                        error!("[THREAD BLOCK] Not enough peers to create next block.");
                     }
                 }
             } else {

@@ -50,8 +50,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
             EventCodes::Ping => self.hook.ping,
             EventCodes::Pong => self.hook.pong,
             EventCodes::Punsh => self.hook.punsh,
-            EventCodes::GetPeers => self.hook.get_peers,
-            EventCodes::GetPeersAck => self.hook.get_peers_ack,
             EventCodes::Register => self.hook.register,
             EventCodes::RegisterAck => self.hook.register_ack,
             EventCodes::GetBlocks => self.hook.get_blocks,

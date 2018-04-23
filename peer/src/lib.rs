@@ -55,8 +55,6 @@ pub fn init(config: config::Config) {
         .set_get_block_ack(hooks::blocks::get_block_ack)
         .set_get_blocks(hooks::blocks::get_blocks)
         .set_get_blocks_ack(hooks::blocks::get_blocks_ack)
-        .set_get_peers(hooks::peers::get_peers)
-        .set_get_peers_ack(hooks::peers::get_peers_ack)
         .set_hash_val(hooks::blocks::hash_val)
         .set_hash_val_ack(hooks::blocks::hash_val_ack)
         .set_ping(hooks::misc::ping)
@@ -96,11 +94,8 @@ fn connect(config: config::Config, hooks: Hooks<hooks::State>) {
         socket.send_to(request.as_slice(), peer.address).expect("Sending a request should be successful.");
     }
 
-    //let udp_clone_peer = socket.try_clone().expect("Cloning the UPD connection failed.");
-    //thread_storage.push(threads::peer_sync(&pool, Arc::clone(&state), udp_clone_peer));
-
-    //let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
-    //thread_storage.push(threads::peer_ping(&pool, Arc::clone(&state), udp_clone_peer_ping));
+    let udp_clone_peer_ping = socket.try_clone().expect("Cloning the UPD connection failed.");
+    thread_storage.push(threads::peer_ping(&pool, Arc::clone(&state), udp_clone_peer_ping));
 
     let udp_clone_block = socket.try_clone().expect("Cloning the UPD connection failed.");
     thread_storage.push(threads::block(&pool, Arc::clone(&state), udp_clone_block));

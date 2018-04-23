@@ -25,20 +25,6 @@ pub struct Hooks<T> {
     /// - `ApplicationState` - state of the application
     pub punsh: Option<fn(ApplicationState<T>)>,
 
-    /// Executed on a `GET_PEERS` event
-    /// Code: 64
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub get_peers: Option<fn(ApplicationState<T>)>,
-    /// Executed on a `GET_PEERS_ACK` event
-    /// Code: 65
-    ///
-    /// # Parameters
-    ///
-    /// - `ApplicationState` - state of the application
-    pub get_peers_ack: Option<fn(ApplicationState<T>)>,
     /// Executed on a `REGISTER` event
     /// Code: 66
     ///
@@ -125,8 +111,6 @@ impl<T> Hooks<T> {
             ping: None,
             pong: None,
             punsh: None,
-            get_peers: None,
-            get_peers_ack: None,
             register: None,
             register_ack: None,
             get_blocks: None,
@@ -156,18 +140,6 @@ impl<T> Hooks<T> {
     /// Registers a punsh hook
     pub fn set_punsh(mut self, function: fn(ApplicationState<T>)) -> Self {
         self.punsh = Some(function);
-        self
-    }
-
-    /// Registers a get_peers hook
-    pub fn set_get_peers(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.get_peers = Some(function);
-        self
-    }
-
-    /// Registers a get_peers_ack hook
-    pub fn set_get_peers_ack(mut self, function: fn(ApplicationState<T>)) -> Self {
-        self.get_peers = Some(function);
         self
     }
 
