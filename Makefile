@@ -1,5 +1,3 @@
-.PHONY: test-all commit release doc peer hole_puncher
-
 # just build the project
 default:
 	cargo build --features dev
@@ -29,11 +27,6 @@ doc:
 	rm -rf target/doc
 	cargo doc --all --frozen
 
-# start the hole puncher
-hole_puncher:
-	clear
-	cd hole_puncher; cargo run
-
 # start a peer
 peer:
 	clear
@@ -42,11 +35,6 @@ peer:
 # start a peer in a docker container
 peer_docker_run: peer_docker_build
 	docker run -it --net="host" --label peer carina_peer:latest
-
-# run multiple peers in docker container
-# number is determind by the script docker/start.sh
-peer_docker_run_multi: peer_docker_build
-	./docker/start.sh
 
 # only build the docker image
 peer_docker_build:

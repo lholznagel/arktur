@@ -4,15 +4,15 @@ name = "carina_peer"
 version = "0.1.0"
 
 [dependencies]
-base64 = "0.9.0"
+base64 = "0.9.1"
 carina_hooks = { path = "../hooks" }
 carina_protocol = { path = "../protocol" }
-clippy = { version = "0.0.186", optional = true }
+clippy = { version = "0.0.195", optional = true }
 futures-cpupool = "0.1.8"
 log = "0.4.1"
 rust-crypto = "0.2.36"
-serde = "1.0.40"
-serde_derive = "1.0.40"
+serde = "1.0.43"
+serde_derive = "1.0.43"
 sodiumoxide = "0.0.16"
 time = "0.1.39"
 

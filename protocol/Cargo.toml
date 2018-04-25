@@ -5,11 +5,11 @@ version = "0.1.0"
 
 [dependencies]
 time = "0.1.38"
-clippy = { version = "0.0.186", optional = true }
+clippy = { version = "0.0.195", optional = true }
 sodiumoxide = "0.0.16"
 
 [dev-dependencies]
-quickcheck = "0.6.0"
+quickcheck = "0.6.2"
 
 [features]
 default = []

@@ -6,7 +6,7 @@ authors = ["lholznagel <github@lholznagel.info>"]
 [dependencies]
 futures-cpupool = "0.1.8"
 
-clippy = { version = "0.0.186", optional = true }
+clippy = { version = "0.0.195", optional = true }
 
 [features]
 default = []
