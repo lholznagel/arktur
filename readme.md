@@ -15,7 +15,6 @@ The main project consists of multiple sub projects.
 
 Name         | Description
 ------------ | --------------------------------------------------------------------------------
-debug        | Helps me to check if everything is ok. For example if the full mesh is build up.
 logging      | Small crate for logging. Contains some macros for logging across all crates.
 peer         | Peer in the network for generating the next block
 peer_cli     | Terminal application for a peer
