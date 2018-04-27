@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
 
 /// Struct of the FoundBlock payload
 ///
@@ -58,7 +58,7 @@ impl Payload for BlockFound {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[9..]);
 
@@ -66,9 +66,9 @@ impl Payload for BlockFound {
                 index: parser::u8_to_u64(bytes[4].as_slice())?,
                 timestamp: parser::u8_to_u64(bytes[5].as_slice())? as i64,
                 nonce: parser::u8_to_u64(bytes[6].as_slice())?,
-                prev: parser::u8_to_string(&bytes[7]),
-                hash: parser::u8_to_string(&bytes[8]),
-                content: parser::u8_to_string(&content),
+                prev: parser::u8_to_string(&bytes[7])?,
+                hash: parser::u8_to_string(&bytes[8])?,
+                content: parser::u8_to_string(&content)?,
             })
         } else {
             Ok(Self::new())

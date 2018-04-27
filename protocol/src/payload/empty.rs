@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::Payload;
-use errors::ParseErrors;
 
 /// Empty payload
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -10,7 +10,7 @@ impl Payload for EmptyPayload {
         EmptyPayload
     }
 
-    fn parse(_: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(_: Vec<Vec<u8>>) -> Result<Self, Error> {
         Ok(EmptyPayload)
     }
 

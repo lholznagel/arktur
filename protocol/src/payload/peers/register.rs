@@ -1,6 +1,6 @@
+use failure::Error;
 use payload::{Payload, Builder};
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::PublicKey;
-use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
 ///
@@ -31,7 +31,7 @@ impl Payload for Register {
         Self { public_key: PublicKey::from_slice(&[0; 32]).unwrap() }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             let mut public_key = [0; 32];
             for (i, val) in bytes[0].iter().enumerate() {

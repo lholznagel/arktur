@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
 ///
@@ -28,10 +28,10 @@ impl Payload for Punsh {
         Self { address: String::from("") }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             Ok(Self {
-                address: String::from(parser::u8_to_string(&bytes[0]))
+                address: String::from(parser::u8_to_string(&bytes[0])?)
             })
         } else {
             Ok(Self::new())

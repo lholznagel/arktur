@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///
@@ -29,12 +29,12 @@ impl Payload for HashValAck {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
 
             Ok(Self {
                 index: parser::u8_to_u64(bytes[0].as_slice())?,
-                hash: parser::u8_to_string(&bytes[1])
+                hash: parser::u8_to_string(&bytes[1])?
             })
         } else {
             Ok(Self::new())

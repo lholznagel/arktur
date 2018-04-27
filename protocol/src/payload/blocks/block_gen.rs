@@ -1,6 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
-
 use time::get_time;
 
 /// Model for the event `NewBlock`
@@ -66,16 +65,16 @@ impl Payload for BlockGen {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[8..]);
 
             Ok(Self {
                 index: parser::u8_to_u64(bytes[4].as_slice())?,
                 timestamp: parser::u8_to_u64(bytes[5].as_slice())? as i64,
-                prev: parser::u8_to_string(&bytes[6]),
-                sign_key: parser::u8_to_string(&bytes[7]),
-                content: parser::u8_to_string(&content)
+                prev: parser::u8_to_string(&bytes[6])?,
+                sign_key: parser::u8_to_string(&bytes[7])?,
+                content: parser::u8_to_string(&content)?
             })
         } else {
             Ok(Self::new())

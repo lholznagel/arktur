@@ -1,6 +1,6 @@
 //! Useful functions for parsing an array of bytes
 use errors::ParseErrors;
-
+use failure::Error;
 use std::mem::transmute;
 use std::str;
 
@@ -60,9 +60,9 @@ pub fn parse_payload(payload: &[u8]) -> Vec<Vec<u8>> {
 /// # Returns
 ///
 /// Given u8 array as u16
-pub fn u8_to_u16(value: &[u8]) -> Result<u16, ParseErrors> {
+pub fn u8_to_u16(value: &[u8]) -> Result<u16, Error> {
     if value.len() != 2 {
-        return Err(ParseErrors::NotEnoughBytes);
+        return Err(Error::from(ParseErrors::NotEnoughBytes));
     }
 
     unsafe {
@@ -81,9 +81,9 @@ pub fn u8_to_u16(value: &[u8]) -> Result<u16, ParseErrors> {
 /// # Returns
 ///
 /// Given u8 array as u32
-pub fn u8_to_u32(value: &[u8]) -> Result<u32, ParseErrors> {
+pub fn u8_to_u32(value: &[u8]) -> Result<u32, Error> {
     if value.len() != 4 {
-        return Err(ParseErrors::NotEnoughBytes);
+        return Err(Error::from(ParseErrors::NotEnoughBytes));
     }
 
     unsafe {
@@ -102,9 +102,9 @@ pub fn u8_to_u32(value: &[u8]) -> Result<u32, ParseErrors> {
 /// # Returns
 ///
 /// Given u8 array as u64
-pub fn u8_to_u64(value: &[u8]) -> Result<u64, ParseErrors> {
+pub fn u8_to_u64(value: &[u8]) -> Result<u64, Error> {
     if value.len() != 8 {
-        return Err(ParseErrors::NotEnoughBytes);
+        return Err(Error::from(ParseErrors::NotEnoughBytes));
     }
 
     unsafe {
@@ -121,10 +121,8 @@ pub fn u8_to_u64(value: &[u8]) -> Result<u64, ParseErrors> {
 /// # Returns
 ///
 /// Given u8 array as string
-pub fn u8_to_string(value: &[u8]) -> String {
-    str::from_utf8(value)
-        .unwrap_or("")
-        .to_string()
+pub fn u8_to_string(value: &[u8]) -> Result<String, Error> {
+    Ok(str::from_utf8(value)?.to_string())
 }
 
 /// Reads an array of u8 values to a string vector
@@ -136,7 +134,7 @@ pub fn u8_to_string(value: &[u8]) -> String {
 /// # Return
 ///
 /// Bytes converted into a byte vector
-pub fn u8_to_string_vec(values: &[u8]) -> Vec<String> {
+pub fn u8_to_string_vec(values: &[u8]) -> Result<Vec<String>, Error> {
     let mut index: u64 = 0;
     let mut complete = Vec::new();
 
@@ -155,9 +153,7 @@ pub fn u8_to_string_vec(values: &[u8]) -> Vec<String> {
             }
 
             if !current.is_empty() {
-                let string_converted = str::from_utf8(&current)
-                    .unwrap_or("")
-                    .to_string();
+                let string_converted = str::from_utf8(&current)?.to_string();
 
                 complete.push(string_converted);
             }
@@ -166,7 +162,7 @@ pub fn u8_to_string_vec(values: &[u8]) -> Vec<String> {
         }
     }
 
-    complete
+    Ok(complete)
 }
 
 /// Combines an string overflow back together
@@ -291,7 +287,7 @@ mod tests {
     #[test]
     fn test_u8_to_string_vector_1() {
         let input = [3, 65, 66, 67];
-        let result = u8_to_string_vec(&input);
+        let result = u8_to_string_vec(&input).unwrap();
         let expected = vec!["ABC".to_string()];
         assert_eq!(result, expected);
     }
@@ -299,7 +295,7 @@ mod tests {
     #[test]
     fn test_u8_to_string_vector_3() {
         let input = [3, 65, 66, 67, 3, 68, 69, 70, 3, 71, 72, 73];
-        let result = u8_to_string_vec(&input);
+        let result = u8_to_string_vec(&input).unwrap();
         let expected = vec!["ABC".to_string(), "DEF".to_string(), "GHI".to_string()];
         assert_eq!(result, expected);
     }

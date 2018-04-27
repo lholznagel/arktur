@@ -1,5 +1,5 @@
-use payload::{Payload, Builder};
-use errors::ParseErrors;
+use failure::Error;
+use payload::{parser, Payload, Builder};
 
 /// Model for the event `RegisterAck`
 ///
@@ -22,13 +22,13 @@ impl Payload for GetBlocksAck {
         Self { blocks: Vec::new() }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             let mut blocks = Vec::new();
 
             for byte in bytes {
                 if !byte.is_empty() {
-                    blocks.push(String::from_utf8(byte).unwrap());
+                    blocks.push(parser::u8_to_string(&byte)?);
                 }
             }
 

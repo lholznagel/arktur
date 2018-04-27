@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
 
 /// Model for the event `RegisterAck`
 ///
@@ -20,10 +20,10 @@ impl Payload for GetBlock {
         Self { block: String::new() }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             Ok(Self {
-                block: parser::u8_to_string(&bytes[0]),
+                block: parser::u8_to_string(&bytes[0])?,
             })
         } else {
             Ok(Self::new())

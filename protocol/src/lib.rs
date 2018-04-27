@@ -13,7 +13,9 @@
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
-//! Helper library for parsing the protocol (still needs a better name) that is used in this project
+//! Library for creating and parsing the protocol used in the project
+#[macro_use]
+extern crate failure;
 #[cfg(test)]
 #[macro_use]
 extern crate quickcheck;

@@ -1,5 +1,5 @@
+use failure::Error;
 use payload::{parser, Payload, Builder};
-use errors::ParseErrors;
 
 /// Model for the event `FoundBlock`
 ///
@@ -33,13 +33,13 @@ impl Payload for BlockData {
         }
     }
 
-    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, ParseErrors> {
+    fn parse(bytes: Vec<Vec<u8>>) -> Result<Self, Error> {
         if !bytes.is_empty() {
             let content = parser::string_overflow(&bytes[1..]);
 
             Ok(Self {
-                unique_key: parser::u8_to_string(&bytes[0]),
-                content: parser::u8_to_string(&content)
+                unique_key: parser::u8_to_string(&bytes[0])?,
+                content: parser::u8_to_string(&content)?
             })
         } else {
             Ok(Self::new())
