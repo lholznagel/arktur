@@ -1,6 +1,6 @@
 use event_codes::EventCodes;
 use hooks::Hooks;
-use state::ApplicationState;
+use message_state::MessageState;
 
 use futures_cpupool::{CpuFuture, CpuPool};
 
@@ -39,7 +39,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
     pub fn notify(&mut self, udp: UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) {
         let udp_clone = udp.try_clone().expect("Cloning the current UDP connection should be successful");
 
-        let state = ApplicationState {
+        let state = MessageState {
             payload_buffer,
             source,
             state: Arc::clone(&self.state),
@@ -49,7 +49,6 @@ impl<T: 'static> HookNotification<T> where T: Send {
         let event_match = match event {
             EventCodes::Ping => self.hook.ping,
             EventCodes::Pong => self.hook.pong,
-            EventCodes::Punsh => self.hook.punsh,
             EventCodes::Register => self.hook.register,
             EventCodes::RegisterAck => self.hook.register_ack,
             EventCodes::GetBlocks => self.hook.get_blocks,

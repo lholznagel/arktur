@@ -1,4 +1,4 @@
-use carina_hooks::ApplicationState;
+use carina_hooks::MessageState;
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::GetBlockAck;
 
@@ -8,7 +8,7 @@ use std::path::Path;
 use std::fs::File;
 use std::io::Write;
 
-pub fn get_block_ack(state: ApplicationState<State>) {
+pub fn get_block_ack(state: MessageState<State>) {
     let message = Protocol::<GetBlockAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
     let state_lock = state.state.lock()

@@ -1,10 +1,10 @@
-use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_hooks::{as_number, MessageState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::peers::{RegisterAck, Register};
 
 use hooks::State;
 
-pub fn register(state: ApplicationState<State>) {
+pub fn register(state: MessageState<State>) {
     info!("[REGISTER] New registration from {}", state.source);
     let message = Protocol::<Register>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");

@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_hooks::{as_number, MessageState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::{BlockGen, BlockFound, HashVal};
 
@@ -7,7 +7,7 @@ use hooks::State;
 use crypto::digest::Digest;
 use crypto::sha3::Sha3;
 
-pub fn block_gen(state: ApplicationState<State>) {
+pub fn block_gen(state: MessageState<State>) {
     let mut nacl = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");

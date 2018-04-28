@@ -19,10 +19,6 @@ pub enum EventCodes {
     ///
     /// Code: 1
     Pong,
-    /// Notifies a given peer that a connection should be established to another peer
-    ///
-    /// Code: 2
-    Punsh,
     /// Register at a peer or a hole puncher
     ///
     /// Code: 64
@@ -99,7 +95,6 @@ pub fn as_enum(value: u8) -> EventCodes {
     match value {
         0 => EventCodes::Ping,
         1 => EventCodes::Pong,
-        2 => EventCodes::Punsh,
         64 => EventCodes::Register,
         65 => EventCodes::RegisterAck,
         128 => EventCodes::GetBlocks,
@@ -135,7 +130,6 @@ pub fn as_number(value: EventCodes) -> u8 {
     match value {
         EventCodes::Ping => 0,
         EventCodes::Pong => 1,
-        EventCodes::Punsh => 2,
         EventCodes::Register => 64,
         EventCodes::RegisterAck => 65,
         EventCodes::GetBlocks => 128,

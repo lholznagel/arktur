@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_hooks::{as_number, MessageState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::Payload;
 use carina_protocol::payload::blocks::{BlockFound, HashValAck};
@@ -7,7 +7,7 @@ use hooks::State;
 
 use std::collections::HashMap;
 
-pub fn hash_val_ack(state: ApplicationState<State>) {
+pub fn hash_val_ack(state: MessageState<State>) {
     let mut nacl = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");

@@ -1,10 +1,10 @@
-use carina_hooks::ApplicationState;
+use carina_hooks::MessageState;
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::BlockData;
 
 use hooks::State;
 
-pub fn block_data(state: ApplicationState<State>) {
+pub fn block_data(state: MessageState<State>) {
     let mut state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 

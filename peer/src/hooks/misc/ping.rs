@@ -1,10 +1,10 @@
-use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_hooks::{as_number, MessageState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::EmptyPayload;
 
 use hooks::State;
 
-pub fn ping(state: ApplicationState<State>) {
+pub fn ping(state: MessageState<State>) {
     info!("[PING] Ping from {}", state.source);
     let mut nacl = {
         let state_lock = state.state.lock()

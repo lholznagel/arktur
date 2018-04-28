@@ -12,7 +12,7 @@ pub struct HookRegister<T> where T: Send {
 
 impl<T: 'static> HookRegister<T> where T: Send {
     /// Creates new empty handlers
-    //pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>, ping: fn(ApplicationState<T>)) -> Self {
+    //pub fn new(hook: Box<Hooks<T>>, state: Arc<Mutex<T>>, ping: fn(MessageState<T>)) -> Self {
     pub fn new(hook: Hooks<T>, state: Arc<Mutex<T>>) -> Self {
         Self {
             hook,

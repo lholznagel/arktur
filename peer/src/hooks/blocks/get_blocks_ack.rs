@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, ApplicationState, EventCodes};
+use carina_hooks::{as_number, MessageState, EventCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::{GetBlocksAck, GetBlock};
 
@@ -6,7 +6,7 @@ use hooks::State;
 
 use std::path::Path;
 
-pub fn get_blocks_ack(state: ApplicationState<State>) {
+pub fn get_blocks_ack(state: MessageState<State>) {
     let mut nacl = {
         let state_lock = state.state.lock()
             .expect("Locking the mutex should be successful.");

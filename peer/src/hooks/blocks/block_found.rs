@@ -1,4 +1,4 @@
-use carina_hooks::ApplicationState;
+use carina_hooks::MessageState;
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::BlockFound;
 
@@ -10,7 +10,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub fn block_found(state: ApplicationState<State>) {
+pub fn block_found(state: MessageState<State>) {
     let message = Protocol::<BlockFound>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
@@ -27,7 +27,7 @@ pub fn block_found(state: ApplicationState<State>) {
     save_file(message.payload, state);
 }
 
-fn save_file(block: BlockFound, state: ApplicationState<State>) {
+fn save_file(block: BlockFound, state: MessageState<State>) {
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
 
