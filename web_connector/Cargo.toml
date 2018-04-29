@@ -1,0 +1,15 @@
+[package]
+name = "carina_web_connector"
+version = "0.1.0"
+authors = ["lholznagel <contact@lholznagel.info>"]
+
+[dependencies]
+actix = "0.5.6"
+actix-web = "0.5.6"
+carina_logging = { path = "../logging" }
+clippy = { version = "0.0.195", optional = true }
+log = "0.4.1"
+
+[features]
+default = []
+dev = ["clippy"]
