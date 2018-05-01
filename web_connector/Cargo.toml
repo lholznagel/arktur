@@ -9,11 +9,16 @@ actix-web = "0.5.6"
 base64 = "0.9.1"
 carina_logging = { path = "../logging" }
 clippy = { version = "0.0.195", optional = true }
+futures = "0.1.21"
 log = "0.4.1"
+r2d2 = "0.8.2"
+r2d2_sqlite = "0.5.0"
+rusqlite = "0.13.0"
 serde = "1.0.43"
 serde_derive = "1.0.43"
 serde_yaml = "0.7.3"
 sodiumoxide = "0.0.16"
+uuid = "0.6.3"
 
 [features]
 default = []
