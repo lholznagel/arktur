@@ -29,7 +29,7 @@ extern crate time;
 extern crate log;
 extern crate sodiumoxide;
 
-use carina_hooks::{as_number, as_enum, EventCodes, Hooks, HookRegister};
+use carina_hooks::{as_number, as_enum, HookCodes, Hooks, HookRegister};
 use carina_protocol::Protocol;
 use carina_protocol::payload::peers::Register;
 
@@ -85,7 +85,7 @@ fn connect(config: config::Config, hooks: Hooks<hooks::State>) {
     };
 
     let request = Protocol::<Register>::new()
-        .set_event_code(as_number(EventCodes::Register))
+        .set_event_code(as_number(HookCodes::Register))
         .set_payload(register)
         .build_unencrypted(&mut nacl);
 

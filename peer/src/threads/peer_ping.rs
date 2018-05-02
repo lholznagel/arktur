@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, EventCodes};
+use carina_hooks::{as_number, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::{EmptyPayload, Payload};
 
@@ -28,7 +28,7 @@ pub fn peer_ping(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -
                         state_lock.peers.insert(peer.clone(), (public_key, counter + 1, connected));
 
                         let message = Protocol::new()
-                            .set_event_code(as_number(EventCodes::Ping))
+                            .set_event_code(as_number(HookCodes::Ping))
                             .set_payload(EmptyPayload::new())
                             .build(&mut state_lock.nacl, &public_key);
 

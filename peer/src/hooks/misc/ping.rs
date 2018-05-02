@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::EmptyPayload;
 
@@ -17,7 +17,7 @@ pub fn ping(state: MessageState<State>) {
     let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
 
     let answer = Protocol::<EmptyPayload>::new()
-        .set_event_code(as_number(EventCodes::Pong))
+        .set_event_code(as_number(HookCodes::Pong))
         .build(&mut nacl, &contacting_peer.0);
     state.udp.send_to(&answer, state.source.clone())
         .expect("Sending using UDP should be successful.");

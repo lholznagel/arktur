@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::{GetBlocksAck, GetBlock};
 
@@ -26,7 +26,7 @@ pub fn get_blocks_ack(state: MessageState<State>) {
                 block
             };
             let message = Protocol::new()
-                .set_event_code(as_number(EventCodes::GetBlock))
+                .set_event_code(as_number(HookCodes::GetBlock))
                 .set_payload(payload)
                 .build(&mut nacl, &contacting_peer.0);
 

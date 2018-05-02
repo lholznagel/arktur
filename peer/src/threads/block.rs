@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, EventCodes};
+use carina_hooks::{as_number, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::BlockGen;
 
@@ -59,7 +59,7 @@ pub fn block(cpu_pool: &CpuPool, state: Arc<Mutex<State>>, udp: UdpSocket) -> Cp
 
                         for (peer, (public_key, _, _)) in state_lock.peers.clone() {
                             let message = Protocol::new()
-                                .set_event_code(as_number(EventCodes::BlockGen))
+                                .set_event_code(as_number(HookCodes::BlockGen))
                                 .set_payload(payload.clone())
                                 .build(&mut state_lock.nacl, &public_key);
                             udp.send_to(message.as_slice(), peer).unwrap();

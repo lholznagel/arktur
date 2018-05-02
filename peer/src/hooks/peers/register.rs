@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::peers::{RegisterAck, Register};
 
@@ -46,7 +46,7 @@ pub fn register(state: MessageState<State>) {
     if !connected {
         // send the message
         let answer = Protocol::new()
-                .set_event_code(as_number(EventCodes::RegisterAck))
+                .set_event_code(as_number(HookCodes::RegisterAck))
                 .set_payload(payload)
                 .build_unencrypted(&mut nacl);
         state.udp.send_to(&answer, state.source.clone())
@@ -57,7 +57,7 @@ pub fn register(state: MessageState<State>) {
             public_key: own_public_key
         };
         let result = Protocol::<Register>::new()
-            .set_event_code(as_number(EventCodes::Register))
+            .set_event_code(as_number(HookCodes::Register))
             .set_payload(register)
             .build_unencrypted(&mut nacl);
         debug!("[REGISTER_ACK] Registering at {}", state.source);

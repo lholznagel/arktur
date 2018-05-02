@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::Payload;
 use carina_protocol::payload::blocks::{BlockFound, HashValAck};
@@ -55,7 +55,7 @@ pub fn hash_val_ack(state: MessageState<State>) {
 
         for (peer, (public_key, _, _)) in state_lock.peers.clone() {
             let message = Protocol::new()
-                .set_event_code(as_number(EventCodes::BlockFound))
+                .set_event_code(as_number(HookCodes::BlockFound))
                 .set_payload(payload.clone())
                 .build(&mut nacl, &public_key);
 

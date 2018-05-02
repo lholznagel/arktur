@@ -1,7 +1,7 @@
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
-/// Every function that handles events gets the MessageState injected
+/// Every function that handles hooks gets the MessageState injected
 /// 
 /// The MessageState is Generic over the type T, where T should
 /// represent the global state of the application.

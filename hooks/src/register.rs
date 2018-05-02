@@ -3,7 +3,7 @@ use notification::HookNotification;
 
 use std::sync::{Arc, Mutex};
 
-/// Registers all events
+/// Registers all hooks
 #[derive(Debug)]
 pub struct HookRegister<T> where T: Send {
     hook: Hooks<T>,

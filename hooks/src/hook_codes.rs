@@ -1,11 +1,11 @@
-//! Enum for all available events
+//! Enum for all available hooks
 //!
 //! Has some helper to convert an integer to enum value
 //! and for converting a enum to an integer value
 
 /// See the fields for documentation
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum EventCodes {
+pub enum HookCodes {
     /// This event should be fired to check if another peer
     /// is active.
     ///
@@ -66,7 +66,7 @@ pub enum EventCodes {
     /// Code: 136
     HashValAck,
 
-    /// Fired when the umber does not match any events
+    /// Fired when the umber does not match any hooks
     ///
     /// Code: 255
     NotAValidType,
@@ -84,29 +84,29 @@ pub enum EventCodes {
 ///
 /// # Example
 /// ```
-/// use carina_hooks::{as_enum, EventCodes};
+/// use carina_hooks::{as_enum, HookCodes};
 ///
 /// match as_enum(0) {
-///     EventCodes::Ping => {},
+///     HookCodes::Ping => {},
 ///     _ => panic!("Wrong outcome")
 /// }
 /// ```
-pub fn as_enum(value: u8) -> EventCodes {
+pub fn as_enum(value: u8) -> HookCodes {
     match value {
-        0 => EventCodes::Ping,
-        1 => EventCodes::Pong,
-        64 => EventCodes::Register,
-        65 => EventCodes::RegisterAck,
-        128 => EventCodes::GetBlocks,
-        129 => EventCodes::GetBlocksAck,
-        130 => EventCodes::GetBlock,
-        131 => EventCodes::GetBlockAck,
-        132 => EventCodes::BlockData,
-        133 => EventCodes::BlockGen,
-        134 => EventCodes::BlockFound,
-        135 => EventCodes::HashVal,
-        136 => EventCodes::HashValAck,
-        _ => EventCodes::NotAValidType,
+        0 => HookCodes::Ping,
+        1 => HookCodes::Pong,
+        64 => HookCodes::Register,
+        65 => HookCodes::RegisterAck,
+        128 => HookCodes::GetBlocks,
+        129 => HookCodes::GetBlocksAck,
+        130 => HookCodes::GetBlock,
+        131 => HookCodes::GetBlockAck,
+        132 => HookCodes::BlockData,
+        133 => HookCodes::BlockGen,
+        134 => HookCodes::BlockFound,
+        135 => HookCodes::HashVal,
+        136 => HookCodes::HashValAck,
+        _ => HookCodes::NotAValidType,
     }
 }
 
@@ -122,26 +122,26 @@ pub fn as_enum(value: u8) -> EventCodes {
 ///
 /// # Example
 /// ```
-/// use carina_hooks::{as_number, EventCodes};
+/// use carina_hooks::{as_number, HookCodes};
 ///
-/// assert_eq!(as_number(EventCodes::Ping), 0);
+/// assert_eq!(as_number(HookCodes::Ping), 0);
 /// ```
-pub fn as_number(value: EventCodes) -> u8 {
+pub fn as_number(value: HookCodes) -> u8 {
     match value {
-        EventCodes::Ping => 0,
-        EventCodes::Pong => 1,
-        EventCodes::Register => 64,
-        EventCodes::RegisterAck => 65,
-        EventCodes::GetBlocks => 128,
-        EventCodes::GetBlocksAck => 129,
-        EventCodes::GetBlock => 130,
-        EventCodes::GetBlockAck => 131,
-        EventCodes::BlockData => 132,
-        EventCodes::BlockGen => 133,
-        EventCodes::BlockFound => 134,
-        EventCodes::HashVal => 135,
-        EventCodes::HashValAck => 136,
-        EventCodes::NotAValidType => 255,
+        HookCodes::Ping => 0,
+        HookCodes::Pong => 1,
+        HookCodes::Register => 64,
+        HookCodes::RegisterAck => 65,
+        HookCodes::GetBlocks => 128,
+        HookCodes::GetBlocksAck => 129,
+        HookCodes::GetBlock => 130,
+        HookCodes::GetBlockAck => 131,
+        HookCodes::BlockData => 132,
+        HookCodes::BlockGen => 133,
+        HookCodes::BlockFound => 134,
+        HookCodes::HashVal => 135,
+        HookCodes::HashValAck => 136,
+        HookCodes::NotAValidType => 255,
     }
 }
 
@@ -152,13 +152,13 @@ mod tests {
     #[test]
     fn get_enum() {
         match as_enum(0) {
-            EventCodes::Ping => {}
+            HookCodes::Ping => {}
             _ => panic!("Wrong outcome"),
         }
     }
 
     #[test]
     fn get_number() {
-        assert_eq!(as_number(EventCodes::Ping), 0);
+        assert_eq!(as_number(HookCodes::Ping), 0);
     }
 }

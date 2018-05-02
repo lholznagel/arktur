@@ -1,4 +1,4 @@
-use event_codes::EventCodes;
+use hook_codes::HookCodes;
 use hooks::Hooks;
 use message_state::MessageState;
 
@@ -36,7 +36,7 @@ impl<T: 'static> HookNotification<T> where T: Send {
     /// - `event` - Event code to check what event this is
     /// - `payload_buffer` - raw message
     /// - `source` - source this message comes from
-    pub fn notify(&mut self, udp: UdpSocket, event: EventCodes, payload_buffer: Vec<u8>, source: String) {
+    pub fn notify(&mut self, udp: UdpSocket, event: HookCodes, payload_buffer: Vec<u8>, source: String) {
         let udp_clone = udp.try_clone().expect("Cloning the current UDP connection should be successful");
 
         let state = MessageState {
@@ -47,20 +47,20 @@ impl<T: 'static> HookNotification<T> where T: Send {
         };
 
         let event_match = match event {
-            EventCodes::Ping => self.hook.ping,
-            EventCodes::Pong => self.hook.pong,
-            EventCodes::Register => self.hook.register,
-            EventCodes::RegisterAck => self.hook.register_ack,
-            EventCodes::GetBlocks => self.hook.get_blocks,
-            EventCodes::GetBlocksAck => self.hook.get_blocks_ack,
-            EventCodes::GetBlock => self.hook.get_block,
-            EventCodes::GetBlockAck => self.hook.get_block_ack,
-            EventCodes::BlockData => self.hook.block_data,
-            EventCodes::BlockGen => self.hook.block_gen,
-            EventCodes::BlockFound => self.hook.block_found,
-            EventCodes::HashVal => self.hook.hash_val,
-            EventCodes::HashValAck => self.hook.hash_val_ack,
-            EventCodes::NotAValidType => None,
+            HookCodes::Ping => self.hook.ping,
+            HookCodes::Pong => self.hook.pong,
+            HookCodes::Register => self.hook.register,
+            HookCodes::RegisterAck => self.hook.register_ack,
+            HookCodes::GetBlocks => self.hook.get_blocks,
+            HookCodes::GetBlocksAck => self.hook.get_blocks_ack,
+            HookCodes::GetBlock => self.hook.get_block,
+            HookCodes::GetBlockAck => self.hook.get_block_ack,
+            HookCodes::BlockData => self.hook.block_data,
+            HookCodes::BlockGen => self.hook.block_gen,
+            HookCodes::BlockFound => self.hook.block_found,
+            HookCodes::HashVal => self.hook.hash_val,
+            HookCodes::HashValAck => self.hook.hash_val_ack,
+            HookCodes::NotAValidType => None,
         };
 
         let thread = self.pool.spawn_fn(move || {

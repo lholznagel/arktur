@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::{BlockGen, BlockFound, HashVal};
 
@@ -80,7 +80,7 @@ pub fn block_gen(state: MessageState<State>) {
     debug!("[BLOCK GEN] Sending hash to other peers for validation.");
     for (peer, (public_key, _, _)) in peers {
         let message = Protocol::<HashVal>::new()
-            .set_event_code(as_number(EventCodes::HashVal))
+            .set_event_code(as_number(HookCodes::HashVal))
             .set_payload(payload.clone())
             .build(&mut nacl, &public_key);
 

@@ -1,4 +1,4 @@
-use carina_hooks::{as_number, MessageState, EventCodes};
+use carina_hooks::{as_number, MessageState, HookCodes};
 use carina_protocol::Protocol;
 use carina_protocol::payload::blocks::{HashVal, HashValAck};
 
@@ -31,7 +31,7 @@ pub fn hash_val(state: MessageState<State>) {
 
     let state_lock = state.state.lock()
         .expect("Locking the mutex should be successful.");
-    let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(EventCodes::HashValAck));
+    let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(HookCodes::HashValAck));
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
 
