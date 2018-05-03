@@ -12,16 +12,22 @@ pub fn get_blocks_ack(state: MessageState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
+    let peers = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
+    };
+    let storage = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.storage.clone()
+    };
 
     let message = Protocol::<GetBlocksAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-    let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
+    let contacting_peer = peers.get(&state.source.clone()).unwrap();
 
     for block in message.payload.blocks {
-        if !Path::new(&format!("{}/{}", state_lock.storage, block)).exists() {
+        if !Path::new(&format!("{}/{}", storage, block)).exists() {
             let payload = GetBlock {
                 block
             };

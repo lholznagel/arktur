@@ -12,16 +12,22 @@ pub fn get_blocks(state: MessageState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
+    let peers = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
+    };
+    let storage = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.storage.clone()
+    };
 
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-    let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
+    let contacting_peer = peers.get(&state.source.clone()).unwrap();
 
     info!("Syncing blocks.");
     let mut count = 0;
     let mut blocks = Vec::new();
 
-    for path in read_dir(&state_lock.storage).expect("Should be able to read path.") {
+    for path in read_dir(&storage).expect("Should be able to read path.") {
         let path = String::from(path.unwrap().path().file_name().unwrap().to_str().unwrap());
         blocks.push(path);
 

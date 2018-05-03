@@ -28,8 +28,10 @@ pub fn block_found(state: MessageState<State>) {
 }
 
 fn save_file(block: BlockFound, state: MessageState<State>) {
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
+    let storage = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.storage.clone()
+    };
 
     let mut filename = String::from("");
 
@@ -39,9 +41,9 @@ fn save_file(block: BlockFound, state: MessageState<State>) {
 
     if !Path::new(&filename).exists() {
         info!("Saving new block to disk.");
-        let mut file = File::create(format!("{}/{}", state_lock.storage, filename))
+        let mut file = File::create(format!("{}/{}", storage, filename))
             .expect("Could not create block file.");
-        let mut file_last = File::create(format!("{}/last", state_lock.storage))
+        let mut file_last = File::create(format!("{}/last", storage))
             .expect("Could not create block file.");
 
         let content = String::from(

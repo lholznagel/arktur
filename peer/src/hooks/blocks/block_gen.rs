@@ -9,21 +9,18 @@ use crypto::sha3::Sha3;
 
 pub fn block_gen(state: MessageState<State>) {
     let mut nacl = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
     let peers = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         state_lock.peers.clone()
     };
     let message = Protocol::<BlockGen>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
     {
-        let mut state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
 
         if state_lock.is_calculating {
             return;
@@ -56,17 +53,18 @@ pub fn block_gen(state: MessageState<State>) {
         }
     }
 
-    let mut state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-    state_lock.is_calculating = false;
-    state_lock.current_block = BlockFound {
-        content: message.payload.content.clone(),
-        timestamp: message.payload.timestamp.clone(),
-        index: message.payload.index.clone(),
-        prev: message.payload.prev.clone(),
-        nonce: nonce.clone(),
-        hash: hash.clone()
-    };
+    {
+        let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.is_calculating = false;
+        state_lock.current_block = BlockFound {
+            content: message.payload.content.clone(),
+            timestamp: message.payload.timestamp.clone(),
+            index: message.payload.index.clone(),
+            prev: message.payload.prev.clone(),
+            nonce: nonce.clone(),
+            hash: hash.clone()
+        };
+    }
 
     info!("[BLOCK GEN] Found hash! {:?}", hash);
     let payload = HashVal {

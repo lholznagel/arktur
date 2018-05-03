@@ -13,16 +13,18 @@ pub fn hash_val_ack(state: MessageState<State>) {
             .expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
     };
+    let peers = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
+    };
 
     let message = Protocol::<HashValAck>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
-    let mut state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-
+    let mut state_lock = state.state.lock().expect("Locking the mutex should be successful.");
     state_lock.hashes.push(message.payload.hash);
 
-    if state_lock.hashes.len() == state_lock.peers.len() {
+    if state_lock.hashes.len() == peers.len() {
         let mut hashes = HashMap::new();
 
         for hash in state_lock.hashes.clone() {

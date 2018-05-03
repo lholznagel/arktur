@@ -9,9 +9,12 @@ use crypto::sha3::Sha3;
 
 pub fn hash_val(state: MessageState<State>) {
     let mut nacl = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
+    };
+    let peers = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
     };
 
     let message = Protocol::<HashVal>::from_bytes(&state.payload_buffer)
@@ -29,13 +32,11 @@ pub fn hash_val(state: MessageState<State>) {
     let mut hasher = Sha3::sha3_256();
     hasher.input_str(generated_block.as_str());
 
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
     let mut message = Protocol::<HashValAck>::new().set_event_code(as_number(HookCodes::HashValAck));
     message.payload.index = message.payload.index;
     message.payload.hash = hasher.result_str();
 
-    for (peer, (public_key, _, _)) in state_lock.peers.clone() {
+    for (peer, (public_key, _, _)) in peers.clone() {
         let message = message.clone()
             .build(&mut nacl, &public_key);
         state.udp.send_to(message.as_slice(), peer).expect("Sending using UDP should be successful.");

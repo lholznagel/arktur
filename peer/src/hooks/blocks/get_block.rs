@@ -10,20 +10,25 @@ use std::io::Read;
 
 pub fn get_block(state: MessageState<State>) {
     let mut nacl = {
-        let state_lock = state.state.lock()
-            .expect("Locking the mutex should be successful.");
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
         state_lock.nacl.clone()
+    };
+    let peers = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.peers.clone()
+    };
+    let storage = {
+        let state_lock = state.state.lock().expect("Locking the mutex should be successful.");
+        state_lock.storage.clone()
     };
 
     let message = Protocol::<GetBlock>::from_bytes(&state.payload_buffer)
         .expect("Parsing the protocol should be successful.");
 
-    let state_lock = state.state.lock()
-        .expect("Locking the mutex should be successful.");
-    let contacting_peer = state_lock.peers.get(&state.source.clone()).unwrap();
+    let contacting_peer = peers.get(&state.source.clone()).unwrap();
 
-    if Path::new(&format!("{}/{}", state_lock.storage, message.payload.block)).exists() {
-        let mut file = File::open(format!("{}/{}", state_lock.storage, message.payload.block)).expect("Should be able to read the block");
+    if Path::new(&format!("{}/{}", storage, message.payload.block)).exists() {
+        let mut file = File::open(format!("{}/{}", storage, message.payload.block)).expect("Should be able to read the block");
         let mut content = String::new();
 
         file.read_to_string(&mut content).expect("Should be able to read block");
