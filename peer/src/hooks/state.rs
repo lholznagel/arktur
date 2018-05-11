@@ -29,7 +29,7 @@ impl State {
     pub fn new(config: Config) -> Self {
         let mut peers = HashMap::new();
         for peer in config.peers {
-            peers.insert(peer.address.clone(), (peer.public_key(), 0, false));
+            peers.insert(peer.address.clone(), (peer.public_key, 0, false));
         }
 
         Self {

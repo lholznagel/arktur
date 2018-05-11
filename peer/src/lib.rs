@@ -20,9 +20,6 @@ extern crate base64;
 extern crate carina_hooks;
 extern crate carina_protocol;
 extern crate crypto;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 extern crate futures_cpupool;
 extern crate time;
 #[macro_use]

@@ -13,7 +13,7 @@ test:
 
 # check that everything works before commiting
 commit: bench test
-	git add -p
+	git add -A
 	git commit
 
 # build a release for all binaries

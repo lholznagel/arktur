@@ -11,6 +11,7 @@ clap = "2.31.2"
 clippy = { version = "0.0.195", optional = true }
 log = { version = "0.4.1", features = ["std"] }
 serde = "1.0.43"
+serde_derive = "1.0.43"
 serde_yaml = "0.7.3"
 sodiumoxide = "0.0.16"
 
