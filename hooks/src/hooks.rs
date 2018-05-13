@@ -1,4 +1,5 @@
 use message_state::MessageState;
+use hook_codes::HookCodes;
 
 /// Struct for registering all available hooks
 #[derive(Clone, Debug)]
@@ -117,81 +118,24 @@ impl<T> Hooks<T> {
         }
     }
 
-    /// Registers a ping hook
-    pub fn set_ping(mut self, function: fn(MessageState<T>)) -> Self {
-        self.ping = Some(function);
-        self
-    }
-
-    /// Registers a pong hook
-    pub fn set_pong(mut self, function: fn(MessageState<T>)) -> Self {
-        self.pong = Some(function);
-        self
-    }
-
-    /// Registers a register hook
-    pub fn set_register(mut self, function: fn(MessageState<T>)) -> Self {
-        self.register = Some(function);
-        self
-    }
-
-    /// Registers a register_ack hook
-    pub fn set_register_ack(mut self, function: fn(MessageState<T>)) -> Self {
-        self.register_ack = Some(function);
-        self
-    }
-
-    /// Registers a get_blocks hook
-    pub fn set_get_blocks(mut self, function: fn(MessageState<T>)) -> Self {
-        self.get_blocks = Some(function);
-        self
-    }
-
-    /// Registers a get_blocks_ack hook
-    pub fn set_get_blocks_ack(mut self, function: fn(MessageState<T>)) -> Self {
-        self.get_blocks_ack = Some(function);
-        self
-    }
-
-    /// Registers a get_block hook
-    pub fn set_get_block(mut self, function: fn(MessageState<T>)) -> Self {
-        self.get_block = Some(function);
-        self
-    }
-
-    /// Registers a get_block_ack hook
-    pub fn set_get_block_ack(mut self, function: fn(MessageState<T>)) -> Self {
-        self.get_block_ack = Some(function);
-        self
-    }
-
-    /// Registers a block_data hook
-    pub fn set_block_data(mut self, function: fn(MessageState<T>)) -> Self {
-        self.block_data = Some(function);
-        self
-    }
-
-    /// Registers a block_gen hook
-    pub fn set_block_gen(mut self, function: fn(MessageState<T>)) -> Self {
-        self.block_gen = Some(function);
-        self
-    }
-
-    /// Registers a block_found hook
-    pub fn set_block_found(mut self, function: fn(MessageState<T>)) -> Self {
-        self.block_found = Some(function);
-        self
-    }
-
-    /// Registers a hash_val hook
-    pub fn set_hash_val(mut self, function: fn(MessageState<T>)) -> Self {
-        self.hash_val = Some(function);
-        self
-    }
-
-    /// Registers a hash_val_ack hook
-    pub fn set_hash_val_ack(mut self, function: fn(MessageState<T>)) -> Self {
-        self.hash_val_ack = Some(function);
+    /// Adds a new function to a hook
+    pub fn add(mut self, hook: HookCodes, function: fn(MessageState<T>)) -> Self {
+        match hook {
+            HookCodes::Ping => self.ping = Some(function),
+            HookCodes::Pong => self.pong = Some(function),
+            HookCodes::Register => self.register = Some(function),
+            HookCodes::RegisterAck => self.register_ack = Some(function),
+            HookCodes::GetBlocks => self.get_blocks = Some(function),
+            HookCodes::GetBlocksAck => self.get_blocks_ack = Some(function),
+            HookCodes::GetBlock => self.get_block = Some(function),
+            HookCodes::GetBlockAck => self.get_block_ack = Some(function),
+            HookCodes::BlockData => self.block_data = Some(function),
+            HookCodes::BlockGen => self.block_gen = Some(function),
+            HookCodes::BlockFound => self.block_found = Some(function),
+            HookCodes::HashVal => self.hash_val = Some(function),
+            HookCodes::HashValAck => self.hash_val_ack = Some(function),
+            HookCodes::NotAValidType => ()
+        };
         self
     }
 }
