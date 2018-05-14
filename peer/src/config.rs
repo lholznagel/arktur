@@ -9,7 +9,7 @@ pub struct Config {
     pub port: u16,
     /// Storage for the blocks
     pub storage: String,
-    /// Pirvate key
+    /// private key
     secret_key: SecretKey
 }
 

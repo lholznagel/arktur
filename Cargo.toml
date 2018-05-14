@@ -4,6 +4,7 @@ panic = 'abort'
 
 [workspace]
 members = [
+  "core",
   "hooks",
   "logging",
   "peer",

@@ -1,0 +1,17 @@
+[package]
+name = "core"
+version = "0.1.0"
+authors = ["lholznagel <contact@lholznagel.info>"]
+
+[dependencies]
+base64 = "0.9.1"
+clippy = { version = "0.0.195", optional = true }
+log = "0.4.1"
+serde = "1.0.55"
+serde_derive = "1.0.55"
+serde_yaml = "0.7.4"
+sodiumoxide = "0.0.16"
+
+[features]
+default = []
+dev = ["clippy"]
