@@ -9,6 +9,5 @@ members = [
   "logging",
   "peer",
   "peer_cli",
-  "protocol",
-  "web_connector"
+  "protocol"
 ]
