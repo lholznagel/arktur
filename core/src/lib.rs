@@ -19,6 +19,7 @@
 //! For a config file example see the struct Config
 
 extern crate base64;
+extern crate failure;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_yaml;

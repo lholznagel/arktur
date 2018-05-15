@@ -1,4 +1,5 @@
 use base64::decode;
+use failure::Error;
 use serde_yaml;
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{PublicKey, SecretKey};
 use std::fs::File;
@@ -41,25 +42,21 @@ impl Config {
         storage: String,
         uri: String,
         secret_key: SecretKey,
-    ) -> Self {
-        // TODO: remove unwrap
-        let mut file = File::open(peer_path.clone()).unwrap();
+    ) -> Result<Self, Error> {
+        let mut file = File::open(peer_path.clone())?;
         let mut content = String::new();
 
-        // TODO: remove unwrap
-        file.read_to_string(&mut content).unwrap();
+        file.read_to_string(&mut content)?;
+        let peers = serde_yaml::from_str(&content)?;
 
-        // TODO: remove unwrap
-        let peers = serde_yaml::from_str(&content).unwrap();
-
-        Self {
+        Ok(Self {
             socket,
             peer_path,
             storage,
             uri,
             peers,
             secret_key
-        }
+        })
     }
 }
 
@@ -77,10 +74,9 @@ pub struct Peer {
 
 impl Peer {
     /// gets the public key of the peer
-    pub fn get_public_key(self) -> PublicKey {
-        // TODO: remove unwrap
-        let decoded: Vec<u8> = decode(&self.public_key).unwrap();
-        PublicKey::from_slice(&decoded).unwrap()
+    pub fn get_public_key(self) -> Result<PublicKey, Error> {
+        let decoded: Vec<u8> = decode(&self.public_key)?;
+        Ok(PublicKey::from_slice(&decoded).expect(&format!("The public key {} is not valid", self.public_key)))
     }
 }
 
@@ -109,6 +105,5 @@ mod tests {
         
         assert_eq!(peer_1, deserialized[0]);
         assert_eq!(peer_2, deserialized[1]);
-
     }
 }
