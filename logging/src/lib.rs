@@ -1,6 +1,7 @@
 extern crate log;
 
 use log::{Log, Level, Metadata, Record, SetLoggerError};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 struct Logger {
     level: Level,
@@ -27,14 +28,17 @@ impl Log for Logger {
 
         let mut level_msg = String::new();
         match record.level() {
-            Level::Error => level_msg.push_str("\x1B[31mErr  "),
-            Level::Warn  => level_msg.push_str("\x1B[93mWarn "),
-            Level::Info  => level_msg.push_str("\x1B[34mInfo "),
-            Level::Debug => level_msg.push_str("\x1B[35mDebug"),
-            Level::Trace => level_msg.push_str("\x1B[35mTrace")
+            Level::Error => level_msg.push_str("\x1B[0;31mError"),
+            Level::Warn  => level_msg.push_str("\x1B[0;93mWarn "),
+            Level::Info  => level_msg.push_str("\x1B[0;34mInfo "),
+            Level::Debug => level_msg.push_str("\x1B[0;35mDebug"),
+            Level::Trace => level_msg.push_str("\x1B[0;36mTrace")
         };
 
-        println!("{} - {}\x1B[0m", level_msg, record.args());
+        let start = SystemTime::now();
+        let since = start.duration_since(UNIX_EPOCH).unwrap();
+
+        println!("\x1B[1;30m[{}] > \x1B {} \x1B[1;30m>\x1B[0m {}", since.as_secs(), level_msg, record.args());
     }
 
     fn flush(&self) {
