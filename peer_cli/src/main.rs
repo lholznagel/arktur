@@ -16,10 +16,10 @@
 
 //! Terminal client application for a peer
 extern crate base64;
-extern crate carina_logging;
 extern crate carina_peer;
 extern crate clap;
 extern crate log;
+extern crate loggify;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -29,14 +29,11 @@ extern crate sodiumoxide;
 mod console;
 mod key;
 
-use carina_logging::LogBuilder;
+use loggify::Loggify;
 use clap::{Arg, App, SubCommand};
 
 fn main() {
-    LogBuilder::new()
-        .set_level(log::Level::Trace)
-        .build()
-        .unwrap();
+    Loggify::init_with_level(log::Level::Trace).unwrap();
 
     let matches = App::new("Carina network cli")
         .version("0.1.0")

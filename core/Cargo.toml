@@ -7,7 +7,6 @@ authors = ["lholznagel <contact@lholznagel.info>"]
 base64 = "0.9.1"
 clippy = { version = "0.0.195", optional = true }
 failure = "0.1.1"
-log = "0.4.1"
 yaml-rust = "0.4.0"
 sodiumoxide = "0.0.16"
 

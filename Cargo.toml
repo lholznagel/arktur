@@ -7,7 +7,6 @@ members = [
   "cli",
   "core",
   "hooks",
-  "logging",
   "peer",
   "peer_cli",
   "protocol"

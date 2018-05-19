@@ -1,7 +1,0 @@
-[package]
-authors = ["lholznagel <contact@lholznagel.info>"]
-name = "carina_logging"
-version = "0.1.0"
-
-[dependencies]
-log = "0.4.1"
