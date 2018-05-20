@@ -26,3 +26,10 @@ extern crate sodiumoxide;
 
 /// structs for the config files
 pub mod config;
+mod state;
+
+/// Initialises the library
+pub fn init(config: config::Config) {
+
+    let _state = state::State::new(config);
+}
