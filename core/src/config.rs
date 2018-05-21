@@ -45,7 +45,10 @@ impl Config {
         secret_key: String,
     ) -> Result<Self, Error> {
         let decoded: Vec<u8> = decode(&secret_key)?;
-        let secret_key = SecretKey::from_slice(&decoded).expect("The secret key is not valid.");
+        let secret_key = match SecretKey::from_slice(&decoded) {
+            Some(v) => Ok(v),
+            None => Err(format_err!("Invalid secret key"))
+        }?;
 
         let mut config = Self {
             socket,
@@ -70,35 +73,44 @@ impl Config {
     pub fn from_str(config: &str) -> Result<Self, Error> {
         let yaml = &YamlLoader::load_from_str(&config)?[0];
 
-        let socket = yaml["socket"].as_str();
-        let peers = yaml["peers"].as_str();
-        let storage = yaml["storage"].as_str();
-        let uri = yaml["uri"].as_str();
-        let secret_key = yaml["uri"].as_str();
+        let socket = match yaml["socket"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Socket must be set"))
+        }?.to_string();
+        let peer_path = match yaml["peers"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Peers must be set"))
+        }?.to_string();
+        let storage = match yaml["storage"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Storage must be set"))
+        }?.to_string();
+        let uri = match yaml["uri"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Uri must be set"))
+        }?.to_string();
+        let secret_key = match yaml["secret_key"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Secret key must be set"))
+        }?;
 
-        if socket.is_some()
-            && peers.is_some()
-            && storage.is_some()
-            && uri.is_some()
-            && secret_key.is_some()
-        {
-            let decoded: Vec<u8> = decode(&secret_key.unwrap())?;
-            let secret_key = SecretKey::from_slice(&decoded).expect("The secret key is not valid.");
+        let decoded: Vec<u8> = decode(&secret_key)?;
+        let secret_key = match SecretKey::from_slice(&decoded) {
+            Some(v) => Ok(v),
+            None => Err(format_err!("Invalid secret key"))
+        }?;
 
-            let mut config = Self {
-                socket: socket.unwrap().to_string(),
-                peer_path: peers.unwrap().to_string(),
-                storage: storage.unwrap().to_string(),
-                uri: uri.unwrap().to_string(),
-                peers: Vec::new(),
-                secret_key,
-            };
+        let mut config = Self {
+            socket,
+            peer_path,
+            storage,
+            uri,
+            peers: Vec::new(),
+            secret_key,
+        };
 
-            config.load_peers()?;
-            Ok(config)
-        } else {
-            Err(format_err!("Config file not valid"))
-        }
+        config.load_peers()?;
+        Ok(config)
     }
 
     /// Loads the peer config file
@@ -137,28 +149,29 @@ pub struct Peer {
 
 impl Peer {
     /// Loads peer information from the given yaml document
-    pub fn from_config_file(config: Yaml) -> Result<Self, Error> {
-        let address = config["address"].as_str();
-        let public_key = config["public_key"].as_str();
+    pub fn from_config_file(yaml: Yaml) -> Result<Self, Error> {
+        let address = match yaml["address"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Address must be set"))
+        }?.to_string();
+        let public_key = match yaml["public_key"].as_str() {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Public key must be set"))
+        }?.to_string();
 
-        if address.is_some() && public_key.is_some() {
-            Ok(Peer {
-                // unwrap is save here -> validated
-                address: address.unwrap().to_string(),
-                public_key: public_key.unwrap().to_string(),
-            })
-        } else {
-            Err(format_err!(
-                "Error parsing address or public_key. Skipping peer."
-            ))
-        }
+        Ok(Peer {
+            address,
+            public_key,
+        })
     }
 
     /// gets the public key of the peer
     pub fn public_key(self) -> Result<PublicKey, Error> {
         let decoded: Vec<u8> = decode(&self.public_key)?;
-        Ok(PublicKey::from_slice(&decoded)
-            .expect(&format!("The public key {} is not valid", self.public_key)))
+        match PublicKey::from_slice(&decoded) {
+            Some(v) => Ok(v),
+            None    => Err(format_err!("Invalid secret key"))
+        }
     }
 }
 
@@ -168,6 +181,42 @@ mod tests {
 
     #[test]
     pub fn test_config() {
+        let config_file = r#"---
+socket: /tmp/carina.sock
+peers: ""
+storage: ./block_data
+uri: 0.0.0.0:45000
+secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
+
+        let config = Config::from_str(config_file).unwrap();
+
+        let decoded: Vec<u8> = decode("W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY=").unwrap();
+        let secret_key = SecretKey::from_slice(&decoded).unwrap();
+        let expected = Config {
+            socket: "/tmp/carina.sock".to_string(),
+            peer_path: "".to_string(),
+            storage: "./block_data".to_string(),
+            uri: "0.0.0.0:45000".to_string(),
+            peers: Vec::new(),
+            secret_key,
+        };
+
+        assert_eq!(expected, config);
+    }
+
+    #[test]
+    pub fn test_config_missing_storage() {
+        let config_file = r#"---
+socket: /tmp/carina.sock
+peers: ""
+uri: 0.0.0.0:45000
+secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
+
+        assert!(Config::from_str(config_file).is_err(), true);
+    }
+
+    #[test]
+    pub fn test_peer_config() {
         let config_file = r#"---
 - address: 127.0.0.1:45002
   public_key: OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=

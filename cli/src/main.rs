@@ -1,6 +1,6 @@
 extern crate carina_core;
 
-use carina_core::config::Config;
+use carina_core::Config;
 
 fn main() {
     let config = Config::from_str(r#"---

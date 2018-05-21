@@ -16,20 +16,35 @@
 
 //! Core implementation for a peer in the carina network
 //! 
-//! For a config file example see the struct Config
-
+//! # Usage
+//! ```
+//! extern crate carina_core;
+//! 
+//! fn main() {
+//!     let config_str = r#"---
+//! socket: /tmp/carina.sock
+//! peers: ""
+//! storage: ./block_data
+//! uri: 0.0.0.0:45000
+//! secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
+//!     let config = carina_core::Config::from_str(config_str).unwrap();
+//! 
+//!     carina_core::init(config);
+//! }
+//! ```
 extern crate base64;
 #[macro_use]
 extern crate failure;
 extern crate yaml_rust;
 extern crate sodiumoxide;
 
-/// structs for the config files
-pub mod config;
+/// See the config file struct for more information
+mod config;
 mod state;
 
-/// Initialises the library
-pub fn init(config: config::Config) {
+pub use config::Config;
 
+/// Initialises the library
+pub fn init(config: Config) {
     let _state = state::State::new(config);
 }
