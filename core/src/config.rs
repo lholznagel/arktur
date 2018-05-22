@@ -6,28 +6,35 @@ use std::io::Read;
 use std::path::Path;
 use yaml_rust::{Yaml, YamlLoader};
 
-/// Main configuration file
+/// Parses the configuration files.
+/// 
+/// # Example config
+/// ``` yaml
+/// ---
+/// socket: /tmp/carina.sock
+/// peers: ./example_peers.yml
+/// storage: ./block_data
+/// uri: 0.0.0.0:45000
+/// secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY=
+/// ```
+/// 
+/// # Example peers config
+/// ``` yaml
+/// ---
+///- address: 127.0.0.1:45002
+///  public_key: OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=
+///- address: 127.0.0.1:45003
+///  public_key: /gfCzCrTj02YA+dAXCY2EODAYZFELeKH1bec5nenbU0=
+/// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct Config {
     /// path to the socket file
-    ///
-    /// # Example
-    /// `/tmp/carina.sock`
     pub socket: String,
     /// path to the peers config file
-    ///
-    /// # Example
-    /// `./peers.yml`
     pub peer_path: String,
     /// block data storage location
-    ///
-    /// # Example
-    /// `./block_data`
     pub storage: String,
-    /// port to listen
-    ///
-    /// # Example
-    /// `0.0.0.0:45000`
+    /// uri to listen on
     pub uri: String,
     /// vector of all peers to connect
     pub peers: Vec<Peer>,
@@ -113,7 +120,7 @@ impl Config {
         Ok(config)
     }
 
-    /// Loads the peer config file
+    /// Loads the peer config file and parses the peers
     pub fn load_peers(&mut self) -> Result<(), Error> {
         let mut peers_storage = Vec::new();
 
@@ -135,7 +142,7 @@ impl Config {
     }
 }
 
-/// represents the peer config file
+/// Represents the peer config file
 #[derive(Clone, Debug, PartialEq)]
 pub struct Peer {
     /// uri of the peer

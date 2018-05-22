@@ -22,11 +22,11 @@
 //! 
 //! fn main() {
 //!     let config_str = r#"---
-//! socket: /tmp/carina.sock
-//! peers: ""
-//! storage: ./block_data
-//! uri: 0.0.0.0:45000
-//! secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
+//!         socket: /tmp/carina.sock
+//!         peers: ./peers.yml
+//!         storage: ./block_data
+//!         uri: 0.0.0.0:45000
+//!         secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
 //!     let config = carina_core::Config::from_str(config_str).unwrap();
 //! 
 //!     carina_core::init(config);
