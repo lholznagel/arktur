@@ -17,7 +17,7 @@
 //! Core implementation for a peer in the carina network
 //! 
 //! # Usage
-//! ```
+//! ``` no_run
 //! extern crate carina_core;
 //! 
 //! fn main() {
@@ -35,16 +35,34 @@
 extern crate base64;
 #[macro_use]
 extern crate failure;
+extern crate futures;
+extern crate futures_cpupool;
+#[macro_use]
+extern crate log;
 extern crate yaml_rust;
 extern crate sodiumoxide;
 
 /// See the config file struct for more information
 mod config;
 mod state;
+mod threads;
 
 pub use config::Config;
 
+use futures_cpupool::CpuPool;
+use futures::future::Future;
+use std::sync::{Arc, Mutex};
+
 /// Initialises the library
 pub fn init(config: Config) {
-    let _state = state::State::new(config);
+    let pool = CpuPool::new(1);
+    let mut thread_storage = Vec::new();
+    let state = Arc::new(Mutex::new(state::State::new(config)));
+
+    thread_storage.push(threads::udp::start(&pool, Arc::clone(&state)));
+
+    // wait for threads to finishe
+    for thread in thread_storage {
+        thread.wait().unwrap();
+    }
 }
