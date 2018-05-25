@@ -1,6 +1,7 @@
 use base64::decode;
 use failure::Error;
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{PublicKey, SecretKey};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -37,7 +38,7 @@ pub struct Config {
     /// uri to listen on
     pub uri: String,
     /// vector of all peers to connect
-    pub peers: Vec<Peer>,
+    pub peers: HashMap<String, Peer>,
     /// secret key of the peer
     secret_key: SecretKey,
 }
@@ -62,7 +63,7 @@ impl Config {
             peer_path,
             storage,
             uri,
-            peers: Vec::new(),
+            peers: HashMap::new(),
             secret_key,
         };
 
@@ -112,7 +113,7 @@ impl Config {
             peer_path,
             storage,
             uri,
-            peers: Vec::new(),
+            peers: HashMap::new(),
             secret_key,
         };
 
@@ -122,7 +123,7 @@ impl Config {
 
     /// Loads the peer config file and parses the peers
     pub fn load_peers(&mut self) -> Result<(), Error> {
-        let mut peers_storage = Vec::new();
+        let mut peers_storage = HashMap::new();
 
         if Path::new(&self.peer_path).exists() {
             let mut file = File::open(self.peer_path.clone())?;
@@ -133,7 +134,8 @@ impl Config {
 
             for peers in peer_file {
                 for peer in peers {
-                    peers_storage.push(Peer::from_config_file(peer)?);
+                    let read_peer = Peer::from_config_file(peer)?;
+                    peers_storage.insert(read_peer.address.clone(), read_peer);
                 }
             }
             self.peers = peers_storage;
@@ -204,7 +206,7 @@ secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
             peer_path: "".to_string(),
             storage: "./block_data".to_string(),
             uri: "0.0.0.0:45000".to_string(),
-            peers: Vec::new(),
+            peers: HashMap::new(),
             secret_key,
         };
 

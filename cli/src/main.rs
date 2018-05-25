@@ -14,10 +14,10 @@ peers: ./example_peers.yml
 
 storage: ./block_data
 
-uri: 0.0.0.0:45000
+uri: 127.0.0.1:45001
 
 secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY=
 "#).unwrap();
-    
+
     carina_core::init(config);
 }
