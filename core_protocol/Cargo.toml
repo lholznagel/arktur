@@ -1,18 +1,12 @@
 [package]
-name = "carina_core"
+name = "carina_core_protocol"
 version = "0.1.0"
 authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
-base64 = "0.9.1"
-carina_core_protocol = { path = "../core_protocol" }
 clippy = { version = "0.0.195", optional = true }
-failure = "0.1.1"
-futures = "0.1.21"
-futures-cpupool = "0.1.8"
-log = "0.4.1"
 sodiumoxide = "0.0.16"
-yaml-rust = "0.4.0"
+log = "0.4.1"
 
 [features]
 default = []

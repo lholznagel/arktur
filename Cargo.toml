@@ -6,6 +6,7 @@ panic = 'abort'
 members = [
   "cli",
   "core",
+  "core_protocol",
   "hooks",
   "peer",
   "peer_cli",

@@ -40,7 +40,7 @@ pub struct Config {
     /// vector of all peers to connect
     pub peers: HashMap<String, Peer>,
     /// secret key of the peer
-    secret_key: SecretKey,
+    pub(crate) secret_key: SecretKey,
 }
 
 impl Config {
@@ -153,7 +153,7 @@ pub struct Peer {
     /// `0.0.0.0:45001`
     pub address: String,
     /// public key of the peer
-    pub public_key: String,
+    pub public_key: PublicKey,
 }
 
 impl Peer {
@@ -164,23 +164,20 @@ impl Peer {
             None    => Err(format_err!("Address must be set"))
         }?.to_string();
         let public_key = match yaml["public_key"].as_str() {
-            Some(v) => Ok(v),
+            Some(v) => {
+                let decoded: Vec<u8> = decode(v)?;
+                match PublicKey::from_slice(&decoded) {
+                    Some(v) => Ok(v),
+                    None    => Err(format_err!("Invalid secret key"))
+                }
+            },
             None    => Err(format_err!("Public key must be set"))
-        }?.to_string();
+        }?;
 
         Ok(Peer {
             address,
             public_key,
         })
-    }
-
-    /// gets the public key of the peer
-    pub fn public_key(self) -> Result<PublicKey, Error> {
-        let decoded: Vec<u8> = decode(&self.public_key)?;
-        match PublicKey::from_slice(&decoded) {
-            Some(v) => Ok(v),
-            None    => Err(format_err!("Invalid secret key"))
-        }
     }
 }
 
@@ -240,13 +237,16 @@ secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
             }
         }
 
+        let public_key_1 = decode("OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=").unwrap();
+        let public_key_2 = decode("/gfCzCrTj02YA+dAXCY2EODAYZFELeKH1bec5nenbU0=").unwrap();
+
         let peer_1 = Peer {
             address: "127.0.0.1:45002".to_string(),
-            public_key: "OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=".to_string(),
+            public_key: PublicKey::from_slice(&public_key_1).unwrap(),
         };
         let peer_2 = Peer {
             address: "127.0.0.1:45003".to_string(),
-            public_key: "/gfCzCrTj02YA+dAXCY2EODAYZFELeKH1bec5nenbU0=".to_string(),
+            public_key: PublicKey::from_slice(&public_key_2).unwrap(),
         };
 
         assert_eq!(peer_1, deserialized[0]);
@@ -255,15 +255,16 @@ secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
 
     #[test]
     pub fn test_public_key() {
+        let public_key = decode("OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=").unwrap();
         let peer = Peer {
             address: "127.0.0.1:45002".to_string(),
-            public_key: "OYGxJI79O18BFSCx3QUVNryww5v4i8qC85sdcx6N1SQ=".to_string(),
+            public_key: PublicKey::from_slice(&public_key).unwrap(),
         };
 
         let expected = PublicKey::from_slice(&[
             57, 129, 177, 36, 142, 253, 59, 95, 1, 21, 32, 177, 221, 5, 21, 54, 188, 176, 195, 155,
             248, 139, 202, 130, 243, 155, 29, 115, 30, 141, 213, 36,
         ]).unwrap();
-        assert_eq!(expected, peer.public_key().unwrap());
+        assert_eq!(expected, peer.public_key);
     }
 }

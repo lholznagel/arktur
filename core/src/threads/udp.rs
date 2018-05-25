@@ -1,3 +1,4 @@
+use carina_core_protocol;
 use futures_cpupool::{CpuFuture, CpuPool};
 use state::State;
 use std::net::UdpSocket;
@@ -24,9 +25,17 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
 
             match socket.recv_from(&mut buffer) {
                 Ok((bytes, source)) => {
-                    info!("[THREAD_UDP] Received message from {}. Message: {}", source, bytes);
+                    let mut updated_buffer = Vec::new();
+                    for i in 0..bytes {
+                        updated_buffer.push(buffer[i])
+                    }
+
+                    info!("[THREAD_UDP] Received message from {}. Message: {:?}", source, updated_buffer);
                     match config.peers.get(&(source.to_string())) {
-                        Some(peer) => info!("[THREAD_UDP] {:?}", peer),
+                        Some(peer) => {
+                            let parsed = carina_core_protocol::parse_encrypted(&updated_buffer, &config.secret_key, &peer.public_key);
+                            info!("[THREAD_UDP] {:?}", parsed)
+                        },
                         None => info!("[THREAD_UDP] Didn´t find peer")
                     }
                 }

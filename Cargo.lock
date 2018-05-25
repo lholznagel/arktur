@@ -74,6 +74,7 @@ name = "carina_core"
 version = "0.1.0"
 dependencies = [
  "base64 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carina_core_protocol 0.1.0",
  "clippy 0.0.195 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -81,6 +82,15 @@ dependencies = [
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "sodiumoxide 0.0.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "yaml-rust 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "carina_core_protocol"
+version = "0.1.0"
+dependencies = [
+ "clippy 0.0.195 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sodiumoxide 0.0.16 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

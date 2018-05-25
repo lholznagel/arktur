@@ -16,7 +16,7 @@ storage: ./block_data
 
 uri: 127.0.0.1:45001
 
-secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY=
+secret_key: v+rETx4VtczK/QSvl9OBfJfgVPEdjNpquVUq/8GFmWo=
 "#).unwrap();
 
     carina_core::init(config);

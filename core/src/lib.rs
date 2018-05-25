@@ -33,6 +33,7 @@
 //! }
 //! ```
 extern crate base64;
+extern crate carina_core_protocol;
 #[macro_use]
 extern crate failure;
 extern crate futures;
@@ -55,6 +56,8 @@ use std::sync::{Arc, Mutex};
 
 /// Initialises the library
 pub fn init(config: Config) {
+    sodiumoxide::init();
+
     let pool = CpuPool::new(1);
     let mut thread_storage = Vec::new();
     let state = Arc::new(Mutex::new(state::State::new(config)));
