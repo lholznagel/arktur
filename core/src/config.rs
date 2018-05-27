@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+use carina_core_protocol::Nacl;
 use yaml_rust::{Yaml, YamlLoader};
 
 /// Parses the configuration files.
@@ -27,7 +28,7 @@ use yaml_rust::{Yaml, YamlLoader};
 ///- address: 127.0.0.1:45003
 ///  public_key: /gfCzCrTj02YA+dAXCY2EODAYZFELeKH1bec5nenbU0=
 /// ```
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Config {
     /// path to the socket file
     pub socket: String,
@@ -39,8 +40,8 @@ pub struct Config {
     pub uri: String,
     /// vector of all peers to connect
     pub peers: HashMap<String, Peer>,
-    /// secret key of the peer
-    pub(crate) secret_key: SecretKey,
+    /// nacl instance containing the secret key and the nonce
+    pub(crate) nacl: Nacl,
 }
 
 impl Config {
@@ -64,7 +65,7 @@ impl Config {
             storage,
             uri,
             peers: HashMap::new(),
-            secret_key,
+            nacl: Nacl::new(secret_key),
         };
 
         config.load_peers()?;
@@ -114,7 +115,7 @@ impl Config {
             storage,
             uri,
             peers: HashMap::new(),
-            secret_key,
+            nacl: Nacl::new(secret_key),
         };
 
         config.load_peers()?;
@@ -204,10 +205,14 @@ secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY="#;
             storage: "./block_data".to_string(),
             uri: "0.0.0.0:45000".to_string(),
             peers: HashMap::new(),
-            secret_key,
+            nacl: Nacl::new(secret_key),
         };
 
-        assert_eq!(expected, config);
+        assert_eq!(expected.socket, config.socket);
+        assert_eq!(expected.peer_path, config.peer_path);
+        assert_eq!(expected.storage, config.storage);
+        assert_eq!(expected.uri, config.uri);
+        assert_eq!(expected.peers, config.peers);
     }
 
     #[test]

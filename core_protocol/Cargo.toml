@@ -5,8 +5,9 @@ authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
 clippy = { version = "0.0.195", optional = true }
-sodiumoxide = "0.0.16"
+failure = "0.1.1"
 log = "0.4.1"
+sodiumoxide = "0.0.16"
 
 [features]
 default = []

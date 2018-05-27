@@ -33,7 +33,7 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
                     info!("[THREAD_UDP] Received message from {}. Message: {:?}", source, updated_buffer);
                     match config.peers.get(&(source.to_string())) {
                         Some(peer) => {
-                            let parsed = carina_core_protocol::parse_encrypted(&updated_buffer, &config.secret_key, &peer.public_key);
+                            let parsed = carina_core_protocol::decrypt(&updated_buffer, &config.nacl, &peer.public_key);
                             info!("[THREAD_UDP] {:?}", parsed)
                         },
                         None => info!("[THREAD_UDP] Didn´t find peer")
