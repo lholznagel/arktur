@@ -64,6 +64,8 @@ pub fn init(config: Config) {
 
     thread_storage.push(threads::udp::start(&pool, Arc::clone(&state)));
 
+
+
     // wait for threads to finishe
     for thread in thread_storage {
         thread.wait().unwrap();

@@ -12,7 +12,7 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
         let config = {
             let state = match state.lock() {
                 Ok(s) => s,
-                Err(e) => panic!("Error locking state: {}", e)
+                Err(e) => panic!("Error locking state: {}", e),
             };
             state.config.clone()
         };
@@ -30,13 +30,33 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
                         updated_buffer.push(buffer[i])
                     }
 
-                    info!("[THREAD_UDP] Received message from {}. Message: {:?}", source, updated_buffer);
-                    match config.peers.get(&(source.to_string())) {
+                    info!(
+                        "[THREAD_UDP] Received message from {}. Message: {:?}",
+                        source, updated_buffer
+                    );
+                    let parsed = match config.peers.get(&(source.to_string())) {
                         Some(peer) => {
-                            let parsed = carina_core_protocol::decrypt(&updated_buffer, &config.nacl, &peer.public_key);
-                            info!("[THREAD_UDP] {:?}", parsed)
+                            let parsed = carina_core_protocol::decrypt(
+                                &updated_buffer,
+                                &config.nacl,
+                                &peer.public_key,
+                            );
+                            info!("[THREAD_UDP] {:?}", parsed);
+                            Some(parsed)
+                        }
+                        None => {
+                            info!("[THREAD_UDP] Didn´t find peer");
+                            None
+                        }
+                    };
+
+                    match parsed {
+                        Some(parsed) => match parsed[0] {
+                            0 => debug!("[THREAD_UDP] Received ping"),
+                            1 => debug!("[THREAD_UDP] Received pong"),
+                            _ => (),
                         },
-                        None => info!("[THREAD_UDP] Didn´t find peer")
+                        None => (),
                     }
                 }
                 Err(e) => error!("Error: {:?}", e),
