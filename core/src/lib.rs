@@ -66,7 +66,7 @@ pub fn init(config: Config) {
 
 
 
-    // wait for threads to finishe
+    // wait for threads to finish
     for thread in thread_storage {
         thread.wait().unwrap();
     }

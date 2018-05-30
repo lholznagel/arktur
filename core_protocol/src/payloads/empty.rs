@@ -1,5 +1,5 @@
 use failure::Error;
-use payload::Payload;
+use payloads::Payload;
 
 /// Creates a new empty payload
 /// 

@@ -70,6 +70,15 @@ version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "carina_cli"
+version = "0.1.0"
+dependencies = [
+ "carina_core 0.1.0",
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "loggify 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "carina_core"
 version = "0.1.0"
 dependencies = [
@@ -166,15 +175,6 @@ dependencies = [
  "textwrap 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicode-width 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "vec_map 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "cli"
-version = "0.1.0"
-dependencies = [
- "carina_core 0.1.0",
- "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "loggify 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

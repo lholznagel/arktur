@@ -1,4 +1,5 @@
 use carina_core_protocol;
+use carina_core_protocol::{Payload, Protocol};
 use futures_cpupool::{CpuFuture, CpuPool};
 use state::State;
 use std::net::UdpSocket;
@@ -9,7 +10,7 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
     // the thread should run until the end
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
-        let config = {
+        let mut config = {
             let state = match state.lock() {
                 Ok(s) => s,
                 Err(e) => panic!("Error locking state: {}", e),
@@ -18,6 +19,18 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
         };
         let socket = UdpSocket::bind(&config.uri).unwrap();
         info!("[THREAD_UDP] Listening on  {}", config.uri);
+
+        for (_, peer) in &config.peers {
+            let message = Protocol::new()
+                .set_event_code(0)
+                .set_payload(carina_core_protocol::payloads::EmptyPayload::new())
+                .build(&mut config.nacl, &peer.public_key);
+
+            match socket.send_to(&message, &peer.address) {
+                Ok(_) => (),
+                Err(_) => ()
+            };
+        }
 
         debug!("[THREAD_UDP] Starting udp listener");
         loop {
