@@ -24,5 +24,7 @@ mod nacl;
 mod payload;
 mod protocol;
 
+/// Module that contains all avaiable payloads
+pub mod payloads;
 pub use self::nacl::Nacl;
 pub use self::protocol::decrypt;
