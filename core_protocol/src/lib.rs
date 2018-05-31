@@ -22,7 +22,7 @@
 //! extern crate carina_core_protocol;
 //! extern crate sodiumoxide;
 //! 
-//! use carina_core_protocol::{Nacl, Payload, Protocol};
+//! use carina_core_protocol::{Nacl, Payload, MessageBuilder};
 //! use carina_core_protocol::payloads::EmptyPayload;
 //! use sodiumoxide::crypto::box_;
 //! use std::net::UdpSocket;
@@ -39,7 +39,7 @@
 //!     // create a new empty payload wit the event code 0 (ping)
 //!     // in the build function we provide the nacl struct and the 
 //!     // public key of the other peer
-//!     let message = Protocol::new()
+//!     let message = MessageBuilder::new()
 //!         .set_event_code(0)
 //!         .set_payload(carina_core_protocol::payloads::EmptyPayload::new())
 //!         .build(&mut nacl, &therepk);
@@ -51,15 +51,18 @@
 //! }
 //! ```
 
+#[macro_use]
 extern crate failure;
 extern crate log;
 extern crate sodiumoxide;
 
 mod nacl;
-mod protocol;
+mod receive_message;
+mod send_message_builder;
 
 /// Module that contains all avaiable payloads
 pub mod payloads;
 pub use self::payloads::Payload;
 pub use self::nacl::Nacl;
-pub use self::protocol::{decrypt, Protocol};
+pub use self::receive_message::decrypt;
+pub use self::send_message_builder::MessageBuilder;

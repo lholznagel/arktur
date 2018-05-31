@@ -1,5 +1,5 @@
 use carina_core_protocol;
-use carina_core_protocol::{Payload, Protocol};
+use carina_core_protocol::{Payload, MessageBuilder};
 use futures_cpupool::{CpuFuture, CpuPool};
 use state::State;
 use std::net::UdpSocket;
@@ -22,7 +22,7 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
 
         // TODO: Put this into a seperate thread that executes this every x minutes
         for (_, peer) in &config.peers {
-            let message = Protocol::new()
+            let message = MessageBuilder::new()
                 .set_event_code(0)
                 .set_payload(carina_core_protocol::payloads::EmptyPayload::new())
                 .build(&mut config.nacl, &peer.public_key);
@@ -65,10 +65,15 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
                     };
 
                     match parsed {
-                        Some(parsed) => match parsed[0] {
-                            0 => debug!("[THREAD_UDP] Received ping"),
-                            1 => debug!("[THREAD_UDP] Received pong"),
-                            _ => (),
+                        Some(parsed) => match parsed {
+                            Ok(message) => {
+                                match message[1] {
+                                    0 => debug!("[THREAD_UDP] Received ping"),
+                                    1 => debug!("[THREAD_UDP] Received pong"),
+                                    _ => debug!("[THREAD_UDP] Unknown message")
+                                }
+                            }
+                            Err(e) => error!("Error: {:?}", e),
                         },
                         None => (),
                     }
