@@ -2,7 +2,7 @@ extern crate carina_core;
 extern crate log;
 extern crate loggify;
 
-use carina_core::Config;
+use carina_core::{Config, StateBuilder};
 
 fn main() {
     loggify::Loggify::init_with_level(log::Level::Debug).unwrap();
@@ -19,5 +19,6 @@ uri: 127.0.0.1:45001
 secret_key: v+rETx4VtczK/QSvl9OBfJfgVPEdjNpquVUq/8GFmWo=
 "#).unwrap();
 
-    carina_core::init(config);
+    let state_builder = StateBuilder::new().set_config(config);
+    carina_core::init(state_builder);
 }

@@ -1,15 +1,15 @@
 use base64::decode;
+use carina_core_protocol::Nacl;
 use failure::Error;
 use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{PublicKey, SecretKey};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use carina_core_protocol::Nacl;
 use yaml_rust::{Yaml, YamlLoader};
 
 /// Parses the configuration files.
-/// 
+///
 /// # Example config
 /// ``` yaml
 /// ---
@@ -19,7 +19,7 @@ use yaml_rust::{Yaml, YamlLoader};
 /// uri: 0.0.0.0:45000
 /// secret_key: W8TAQuFECexfADKJik6WBrh4G5qFaOhzX2eBZFIV8kY=
 /// ```
-/// 
+///
 /// # Example peers config
 /// ``` yaml
 /// ---
@@ -56,7 +56,7 @@ impl Config {
         let decoded: Vec<u8> = decode(&secret_key)?;
         let secret_key = match SecretKey::from_slice(&decoded) {
             Some(v) => Ok(v),
-            None => Err(format_err!("Invalid secret key"))
+            None => Err(format_err!("Invalid secret key")),
         }?;
 
         let mut config = Self {
@@ -84,29 +84,29 @@ impl Config {
 
         let socket = match yaml["socket"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Socket must be set"))
+            None => Err(format_err!("Socket must be set")),
         }?.to_string();
         let peer_path = match yaml["peers"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Peers must be set"))
+            None => Err(format_err!("Peers must be set")),
         }?.to_string();
         let storage = match yaml["storage"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Storage must be set"))
+            None => Err(format_err!("Storage must be set")),
         }?.to_string();
         let uri = match yaml["uri"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Uri must be set"))
+            None => Err(format_err!("Uri must be set")),
         }?.to_string();
         let secret_key = match yaml["secret_key"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Secret key must be set"))
+            None => Err(format_err!("Secret key must be set")),
         }?;
 
         let decoded: Vec<u8> = decode(&secret_key)?;
         let secret_key = match SecretKey::from_slice(&decoded) {
             Some(v) => Ok(v),
-            None => Err(format_err!("Invalid secret key"))
+            None => Err(format_err!("Invalid secret key")),
         }?;
 
         let mut config = Self {
@@ -145,6 +145,19 @@ impl Config {
     }
 }
 
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            socket: "/tmp/carina.sock".to_string(),
+            peer_path: "./peers.yml".to_string(),
+            storage: "./block_data".to_string(),
+            uri: "0.0.0.0:45000".to_string(),
+            peers: HashMap::new(),
+            nacl: Nacl::default(),
+        }
+    }
+}
+
 /// Represents the peer config file
 #[derive(Clone, Debug, PartialEq)]
 pub struct Peer {
@@ -162,17 +175,17 @@ impl Peer {
     pub fn from_config_file(yaml: Yaml) -> Result<Self, Error> {
         let address = match yaml["address"].as_str() {
             Some(v) => Ok(v),
-            None    => Err(format_err!("Address must be set"))
+            None => Err(format_err!("Address must be set")),
         }?.to_string();
         let public_key = match yaml["public_key"].as_str() {
             Some(v) => {
                 let decoded: Vec<u8> = decode(v)?;
                 match PublicKey::from_slice(&decoded) {
                     Some(v) => Ok(v),
-                    None    => Err(format_err!("Invalid secret key"))
+                    None => Err(format_err!("Invalid secret key")),
                 }
-            },
-            None    => Err(format_err!("Public key must be set"))
+            }
+            None => Err(format_err!("Public key must be set")),
         }?;
 
         Ok(Peer {

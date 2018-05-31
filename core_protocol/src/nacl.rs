@@ -7,7 +7,7 @@ use sodiumoxide::crypto::box_::curve25519xsalsa20poly1305::{Nonce, SecretKey};
 #[derive(Clone, Debug)]
 pub struct Nacl {
     secret_key: SecretKey,
-    nonce: Nonce
+    nonce: Nonce,
 }
 
 impl Nacl {
@@ -15,10 +15,7 @@ impl Nacl {
     pub fn new(secret_key: SecretKey) -> Self {
         let nonce = box_::gen_nonce();
 
-        Self {
-            secret_key,
-            nonce
-        }
+        Self { secret_key, nonce }
     }
 
     /// Gets the current nonce and increments it
@@ -29,5 +26,16 @@ impl Nacl {
     /// Gets the secret key
     pub(crate) fn get_secret_key(&self) -> SecretKey {
         self.secret_key.clone()
+    }
+}
+
+impl Default for Nacl {
+    fn default() -> Self {
+        let (_, sk) = box_::gen_keypair();
+
+        Self {
+            secret_key: sk,
+            nonce: box_::gen_nonce(),
+        }
     }
 }

@@ -20,6 +20,7 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
         let socket = UdpSocket::bind(&config.uri).unwrap();
         info!("[THREAD_UDP] Listening on  {}", config.uri);
 
+        // TODO: Put this into a seperate thread that executes this every x minutes
         for (_, peer) in &config.peers {
             let message = Protocol::new()
                 .set_event_code(0)
