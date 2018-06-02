@@ -48,6 +48,7 @@ pub use state::StateBuilder;
 
 use futures::future::Future;
 use futures_cpupool::CpuPool;
+use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
 /// Initialises the library
@@ -57,9 +58,16 @@ pub fn init(builder: StateBuilder) {
     let pool = CpuPool::new(1);
     let mut thread_storage = Vec::new();
     let state = builder.build();
+
+    let socket = UdpSocket::bind(&state.config.uri).unwrap();
+    info!("[THREAD_UDP] Listening on  {}", state.config.uri);
     let state = Arc::new(Mutex::new(state));
 
-    thread_storage.push(threads::udp::start(&pool, Arc::clone(&state)));
+    let socket_udp = socket.try_clone().unwrap();
+    thread_storage.push(threads::udp::start(&pool, Arc::clone(&state), socket_udp));
+
+    let socket_ping = socket.try_clone().unwrap();
+    thread_storage.push(threads::ping::start(&pool, Arc::clone(&state), socket_ping));
 
     // wait for threads to finish
     for thread in thread_storage {

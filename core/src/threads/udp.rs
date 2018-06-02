@@ -1,37 +1,25 @@
 use carina_core_protocol;
-use carina_core_protocol::{Payload, MessageBuilder};
 use futures_cpupool::{CpuFuture, CpuPool};
 use state::State;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
-pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()> {
+pub fn start(
+    cpu_pool: &CpuPool,
+    state: Arc<Mutex<State>>,
+    socket: UdpSocket,
+) -> CpuFuture<bool, ()> {
     debug!("[THREAD_UDP] Starting udp thread");
     // the thread should run until the end
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
-        let mut config = {
+        let config = {
             let state = match state.lock() {
                 Ok(s) => s,
                 Err(e) => panic!("Error locking state: {}", e),
             };
             state.config.clone()
         };
-        let socket = UdpSocket::bind(&config.uri).unwrap();
-        info!("[THREAD_UDP] Listening on  {}", config.uri);
-
-        // TODO: Put this into a seperate thread that executes this every x minutes
-        for (_, peer) in &config.peers {
-            let message = MessageBuilder::new()
-                .set_event_code(0)
-                .set_payload(carina_core_protocol::payloads::EmptyPayload::new())
-                .build(&mut config.nacl, &peer.public_key);
-
-            match socket.send_to(&message, &peer.address) {
-                Ok(_) => (),
-                Err(_) => ()
-            };
-        }
 
         debug!("[THREAD_UDP] Starting udp listener");
         loop {
@@ -66,13 +54,11 @@ pub fn start(cpu_pool: &CpuPool, state: Arc<Mutex<State>>) -> CpuFuture<bool, ()
 
                     match parsed {
                         Some(parsed) => match parsed {
-                            Ok(message) => {
-                                match message[1] {
-                                    0 => debug!("[THREAD_UDP] Received ping"),
-                                    1 => debug!("[THREAD_UDP] Received pong"),
-                                    _ => debug!("[THREAD_UDP] Unknown message")
-                                }
-                            }
+                            Ok(message) => match message[1] {
+                                0  => debug!("[THREAD_UDP] Received ping"),
+                                1  => debug!("[THREAD_UDP] Received pong"),
+                                _  => debug!("[THREAD_UDP] Unknown message"),
+                            },
                             Err(e) => error!("Error: {:?}", e),
                         },
                         None => (),
