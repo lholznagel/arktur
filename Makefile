@@ -21,28 +21,3 @@ release:
 	rm -rf target/release
 	cargo build --release
 	exec ./scripts/release.sh
-
-# generate the documentation
-doc:
-	rm -rf target/doc
-	cargo doc --all --frozen
-
-# start a peer
-peer:
-	clear
-	cd peer_cli; RUST_BACKTRACE=1 cargo run console
-
-# start a peer in a docker container
-peer_docker_run: peer_docker_build
-	docker run -it --net="host" --label peer carina_peer:latest
-
-# only build the docker image
-peer_docker_build:
-	clear
-	cd peer; cargo build
-	cp target/debug/carina_peer_cli docker/carina_peer
-	cd docker; docker build -t carina_peer .
-
-# remove all started peer containers
-docker_clean:
-	docker ps -aqf label=peer | xargs --no-run-if-empty docker rm -f 
