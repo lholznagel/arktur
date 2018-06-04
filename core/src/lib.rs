@@ -44,7 +44,7 @@ mod state;
 mod threads;
 
 pub use config::Config;
-pub use state::StateBuilder;
+pub use state::{StateBuilder, Event, Events};
 
 use futures::future::Future;
 use futures_cpupool::CpuPool;
@@ -65,9 +65,6 @@ pub fn init(builder: StateBuilder) {
 
     let socket_udp = socket.try_clone().unwrap();
     thread_storage.push(threads::udp::start(&pool, Arc::clone(&state), socket_udp));
-
-    let socket_ping = socket.try_clone().unwrap();
-    thread_storage.push(threads::ping::start(&pool, Arc::clone(&state), socket_ping));
 
     // wait for threads to finish
     for thread in thread_storage {

@@ -1,6 +1,6 @@
 use carina_core_protocol;
 use futures_cpupool::{CpuFuture, CpuPool};
-use state::State;
+use state::{Events, State};
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
@@ -53,14 +53,22 @@ pub fn start(
                     };
 
                     match parsed {
-                        Some(parsed) => match parsed {
-                            Ok(message) => match message[1] {
-                                0  => debug!("[THREAD_UDP] Received ping"),
-                                1  => debug!("[THREAD_UDP] Received pong"),
-                                _  => debug!("[THREAD_UDP] Unknown message"),
-                            },
-                            Err(e) => error!("Error: {:?}", e),
-                        },
+                        Some(_) => {
+                            let events = {
+                                let state = state.lock().unwrap();
+                                state.events.clone()
+                            };
+
+                            // TODO: implement event
+                            match events.get(&Events::B) {
+                                Some(events) => {
+                                    for event in events {
+                                        event.execute();
+                                    }
+                                },
+                                None    => ()
+                            };
+                        }
                         None => (),
                     }
                 }

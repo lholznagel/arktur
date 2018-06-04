@@ -1,6 +1,6 @@
 root = true
 
-[*]
+[*.rs]
 end_of_line = lf
 charset = utf-8
 trim_tailing_whitepsace = true
