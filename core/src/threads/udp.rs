@@ -1,6 +1,7 @@
 use carina_core_protocol;
+use event::as_enum;
 use futures_cpupool::{CpuFuture, CpuPool};
-use state::{Events, State};
+use state::State;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
@@ -44,7 +45,12 @@ pub fn start(
                                 &peer.public_key,
                             );
                             info!("[THREAD_UDP] {:?}", parsed);
-                            Some(parsed)
+                            
+                            if parsed.is_ok() {
+                                Some(parsed.unwrap())
+                            } else {
+                                None
+                            }
                         }
                         None => {
                             info!("[THREAD_UDP] Didn´t find peer");
@@ -53,14 +59,15 @@ pub fn start(
                     };
 
                     match parsed {
-                        Some(_) => {
+                        Some(buf) => {
                             let events = {
                                 let state = state.lock().unwrap();
                                 state.events.clone()
                             };
 
                             // TODO: implement event
-                            match events.get(&Events::B) {
+
+                            match events.get(&as_enum(buf[1])) {
                                 Some(events) => {
                                     for event in events {
                                         event.execute();

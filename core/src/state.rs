@@ -1,26 +1,10 @@
 use config::Config;
+use event::{Event, Events};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
-
-/// A
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
-pub enum Events {
-    ///
-    A,
-    ///
-    B,
-    ///
-    C,
-}
-
-/// B
-pub trait Event: Sync + Send {
-    ///
-    fn execute(&self);
-}
 
 pub struct State {
     pub config: Config,

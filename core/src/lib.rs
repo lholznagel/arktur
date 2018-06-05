@@ -42,9 +42,11 @@ extern crate yaml_rust;
 mod config;
 mod state;
 mod threads;
+mod event;
 
 pub use config::Config;
-pub use state::{StateBuilder, Event, Events};
+pub use event::{as_enum, Event, Events};
+pub use state::StateBuilder;
 
 use futures::future::Future;
 use futures_cpupool::CpuPool;
