@@ -1,13 +1,13 @@
 use carina_core_protocol;
 use event::as_enum;
 use futures_cpupool::{CpuFuture, CpuPool};
-use state::State;
+use carina_config::CarinaConfig;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
 pub fn start(
+    carina_config: Arc<Mutex<CarinaConfig>>,
     cpu_pool: &CpuPool,
-    state: Arc<Mutex<State>>,
     socket: UdpSocket,
 ) -> CpuFuture<bool, ()> {
     debug!("[THREAD_UDP] Starting udp thread");
@@ -15,11 +15,11 @@ pub fn start(
     #[allow(unreachable_code)]
     cpu_pool.spawn_fn(move || {
         let config = {
-            let state = match state.lock() {
+            let carina_config = match carina_config.lock() {
                 Ok(s) => s,
-                Err(e) => panic!("Error locking state: {}", e),
+                Err(e) => panic!("Error locking carina_config: {}", e),
             };
-            state.config.clone()
+            carina_config.config.clone()
         };
 
         debug!("[THREAD_UDP] Starting udp listener");
@@ -61,8 +61,8 @@ pub fn start(
                     match parsed {
                         Some(buf) => {
                             let events = {
-                                let state = state.lock().unwrap();
-                                state.events.clone()
+                                let carina_config = carina_config.lock().unwrap();
+                                carina_config.events.clone()
                             };
 
                             // TODO: implement event

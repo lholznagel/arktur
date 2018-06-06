@@ -13,7 +13,7 @@
 //! ``` no_run
 //! extern crate carina_core;
 //!
-//! use carina_core::{Config, StateBuilder};
+//! use carina_core::{CarinaConfigBuilder, Config};
 //!
 //! fn main() {
 //!     let config = Config::from_str(r#"---
@@ -23,8 +23,8 @@
 //!         uri: 127.0.0.1:45001
 //!         secret_key: v+rETx4VtczK/QSvl9OBfJfgVPEdjNpquVUq/8GFmWo=
 //!         "#).unwrap();
-//!     let state_builder = StateBuilder::new().set_config(config);
-//!     carina_core::init(state_builder);
+//!     let carina_config_builder = CarinaConfigBuilder::new().set_config(config);
+//!     carina_core::init(carina_config_builder);
 //! }
 //! ```
 extern crate base64;
@@ -39,14 +39,14 @@ extern crate sodiumoxide;
 extern crate yaml_rust;
 
 /// See the config file struct for more information
+mod carina_config;
 mod config;
-mod state;
 mod threads;
 mod event;
 
 pub use config::Config;
 pub use event::{as_enum, Event, Events};
-pub use state::StateBuilder;
+pub use carina_config::CarinaConfigBuilder;
 
 use futures::future::Future;
 use futures_cpupool::CpuPool;
@@ -54,19 +54,19 @@ use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
 /// Initialises the library
-pub fn init(builder: StateBuilder) {
+pub fn init(builder: CarinaConfigBuilder) {
     sodiumoxide::init();
 
     let pool = CpuPool::new(1);
     let mut thread_storage = Vec::new();
-    let state = builder.build();
+    let carina_config = builder.build();
 
-    let socket = UdpSocket::bind(&state.config.uri).unwrap();
-    info!("[THREAD_UDP] Listening on  {}", state.config.uri);
-    let state = Arc::new(Mutex::new(state));
+    let socket = UdpSocket::bind(&carina_config.config.uri).unwrap();
+    info!("[THREAD_UDP] Listening on  {}", carina_config.config.uri);
+    let state = Arc::new(Mutex::new(carina_config));
 
     let socket_udp = socket.try_clone().unwrap();
-    thread_storage.push(threads::udp::start(&pool, Arc::clone(&state), socket_udp));
+    thread_storage.push(threads::udp::start(Arc::clone(&state), &pool, socket_udp));
 
     // wait for threads to finish
     for thread in thread_storage {

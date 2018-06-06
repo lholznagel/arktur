@@ -6,30 +6,30 @@ use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
-pub struct State {
+pub struct CarinaConfig {
     pub config: Config,
     pub events: HashMap<Events, Vec<Arc<Event>>>,
 }
 
-impl State {
+impl CarinaConfig {
     pub fn new(config: Config, events: HashMap<Events, Vec<Arc<Event>>>) -> Self {
         Self { config, events }
     }
 }
 
-impl Debug for State {
+impl Debug for CarinaConfig {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "State: {{ config: {:?} }}", self.config)
+        write!(f, "CarinaConfig: {{ config: {:?} }}", self.config)
     }
 }
 
-/// Builder for constructing the application state
-pub struct StateBuilder {
+/// Builder for constructing the application carina config
+pub struct CarinaConfigBuilder {
     config: Config,
     events: HashMap<Events, Vec<Arc<Event>>>,
 }
 
-impl StateBuilder {
+impl CarinaConfigBuilder {
     /// Creates a default builder
     pub fn new() -> Self {
         Self {
@@ -56,14 +56,14 @@ impl StateBuilder {
         self
     }
 
-    /// Creates a new state
-    pub fn build(self) -> State {
-        State::new(self.config, self.events)
+    /// Creates a new carina config instance
+    pub fn build(self) -> CarinaConfig {
+        CarinaConfig::new(self.config, self.events)
     }
 }
 
-impl Debug for StateBuilder {
+impl Debug for CarinaConfigBuilder {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "State: {{ config: {:?} }}", self.config)
+        write!(f, "Carina: {{ config: {:?} }}", self.config)
     }
 }

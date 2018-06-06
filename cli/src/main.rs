@@ -5,7 +5,7 @@ extern crate loggify;
 
 mod events;
 
-use carina_core::{Config, Events, StateBuilder};
+use carina_core::{CarinaConfigBuilder, Config, Events};
 use std::sync::Arc;
 
 fn main() {
@@ -26,9 +26,9 @@ secret_key: v+rETx4VtczK/QSvl9OBfJfgVPEdjNpquVUq/8GFmWo=
     let ping_event = events::Ping{};
     let pong_event = events::Pong{};
 
-    let state_builder = StateBuilder::new()
+    let carina_config_builder = CarinaConfigBuilder::new()
         .add_event(Events::Ping, Arc::new(ping_event))
         .add_event(Events::Pong, Arc::new(pong_event))
         .set_config(config);
-    carina_core::init(state_builder);
+    carina_core::init(carina_config_builder);
 }
