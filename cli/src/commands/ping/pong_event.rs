@@ -1,9 +1,21 @@
-use carina_core::Event;
+use carina_core::{Config, Event};
+use std::net::UdpSocket;
 
-pub struct Pong;
+pub struct Pong {
+    answered: Vec<String>
+}
+
+impl Pong {
+    pub fn new() -> Self {
+        Self {
+            answered: Vec::new()
+        }
+    }
+}
 
 impl Event for Pong {
-    fn execute(&self) {
+    fn execute(&mut self, _: UdpSocket, source: String, _: &mut Config) {
         info!("[PONG] Received pong event");
+        self.answered.push(source);
     }
 }

@@ -1,3 +1,6 @@
+use config::Config;
+use std::net::UdpSocket;
+
 /// this enum contains all available events
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Events {
@@ -23,5 +26,5 @@ pub fn as_enum(value: u8) -> Events {
 /// Trait that every event handler must implement
 pub trait Event: Sync + Send {
     /// Called when a message comes in
-    fn execute(&self);
+    fn execute(&mut self, udp: UdpSocket, source: String, config: &mut Config);
 }

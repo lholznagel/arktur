@@ -14,11 +14,11 @@ pub fn execute(args: &ArgMatches) {
     file.read_to_string(&mut content).unwrap();
     let config: Config = match Config::from_str(&content) {
         Ok(val) => val,
-        Err(e)  => panic!("Error reading config file {:?}", e)
+        Err(e)  => panic!("[MISC_PING] Error reading config file {:?}", e)
     };
 
     let carina_config_builder = CarinaConfigBuilder::new()
-        .add_event(Events::Pong, Arc::new(Pong{}))
+        .add_event(Events::Pong, Arc::new(Pong::new()))
         .set_config(config);
     let (thread, socket, config) = carina_core::init(carina_config_builder);
 
@@ -38,8 +38,8 @@ pub fn execute(args: &ArgMatches) {
             .build(&mut nacl, &peer.public_key);
 
         match socket.send_to(&message, &peer.address) {
-            Ok(_)  => debug!("Send ping to peer {}", peer.address),
-            Err(e) => error!("Error sending ping to peer: {}. Error: {}", peer.address, e),
+            Ok(_)  => debug!("[MISC_PING] Send ping to peer {}", peer.address),
+            Err(e) => error!("[MISC_PING] Error sending ping to peer: {}. Error: {}", peer.address, e),
         };
     }
 

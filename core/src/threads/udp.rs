@@ -33,7 +33,7 @@ pub fn start(
                         updated_buffer.push(buffer[i])
                     }
 
-                    info!(
+                    debug!(
                         "[THREAD_UDP] Received message from {}. Message: {:?}",
                         source, updated_buffer
                     );
@@ -44,8 +44,7 @@ pub fn start(
                                 &config.nacl,
                                 &peer.public_key,
                             );
-                            info!("[THREAD_UDP] {:?}", parsed);
-                            
+
                             if parsed.is_ok() {
                                 Some(parsed.unwrap())
                             } else {
@@ -64,14 +63,18 @@ pub fn start(
                                 let carina_config = carina_config.lock().unwrap();
                                 carina_config.events.clone()
                             };
+                            let mut config = {
+                                let carina_config = carina_config.lock().unwrap();
+                                carina_config.config.clone()
+                            };
 
                             match events.get(&as_enum(buf[1])) {
                                 Some(events) => {
-                                    for event in events {
-                                        event.execute();
+                                    for event in events.as_mut() {
+                                        event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config);
                                     }
                                 },
-                                None    => ()
+                                None         => ()
                             };
                         }
                         None => (),

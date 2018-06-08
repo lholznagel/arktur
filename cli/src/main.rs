@@ -26,10 +26,21 @@ fn main() {
                 .long("config")
                 .default_value("./config.yml"))
             )
+        .subcommand(
+            SubCommand::with_name("console")
+            .about("Actual implementation.")
+            .arg(Arg::with_name("CONFIG")
+                .value_name("config")
+                .help("Sets the location of the config file.")
+                .takes_value(true)
+                .long("config")
+                .default_value("./config.yml"))
+            )
         .get_matches();
 
     match matches.subcommand() {
-        ("misc", Some(sub_matches)) => commands::ping::execute(sub_matches),
-        _                           => error!("Not valid")
+        ("misc", Some(sub_matches))    => commands::ping::execute(sub_matches),
+        ("console", Some(sub_matches)) => commands::console::execute(sub_matches),
+        _                              => error!("Not valid")
     }
 }
