@@ -1,34 +1,35 @@
+extern crate clap;
 extern crate carina_core;
+extern crate carina_core_protocol;
 #[macro_use]
 extern crate log;
 extern crate loggify;
 
-mod events;
+mod commands;
 
-use carina_core::{CarinaConfigBuilder, Config, Events};
-use std::sync::Arc;
+use clap::{App, Arg, SubCommand};
 
 fn main() {
     loggify::Loggify::init_with_level(log::Level::Debug).unwrap();
 
-    let config = Config::from_str(r#"---
-socket: /tmp/carina.sock
+        let matches = App::new("Carina network cli")
+        .version("0.1.0")
+        .author("Lars Holznagel")
+        .about("Client tool for carina")
+        .subcommand(
+            SubCommand::with_name("misc")
+            .about("Pings every peer.")
+            .arg(Arg::with_name("CONFIG")
+                .value_name("config")
+                .help("Sets the location of the config file.")
+                .takes_value(true)
+                .long("config")
+                .default_value("./config.yml"))
+            )
+        .get_matches();
 
-peers: ./example_peers.yml
-
-storage: ./block_data
-
-uri: 127.0.0.1:45001
-
-secret_key: v+rETx4VtczK/QSvl9OBfJfgVPEdjNpquVUq/8GFmWo=
-"#).unwrap();
-
-    let ping_event = events::Ping{};
-    let pong_event = events::Pong{};
-
-    let carina_config_builder = CarinaConfigBuilder::new()
-        .add_event(Events::Ping, Arc::new(ping_event))
-        .add_event(Events::Pong, Arc::new(pong_event))
-        .set_config(config);
-    carina_core::init(carina_config_builder);
+    match matches.subcommand() {
+        ("misc", Some(sub_matches)) => commands::ping::execute(sub_matches),
+        _                           => error!("Not valid")
+    }
 }

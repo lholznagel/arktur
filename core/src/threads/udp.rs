@@ -1,19 +1,19 @@
 use carina_core_protocol;
 use event::as_enum;
-use futures_cpupool::{CpuFuture, CpuPool};
 use carina_config::CarinaConfig;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::thread;
+use std::thread::JoinHandle;
 
 pub fn start(
     carina_config: Arc<Mutex<CarinaConfig>>,
-    cpu_pool: &CpuPool,
     socket: UdpSocket,
-) -> CpuFuture<bool, ()> {
+) -> JoinHandle<()> {
     debug!("[THREAD_UDP] Starting udp thread");
     // the thread should run until the end
     #[allow(unreachable_code)]
-    cpu_pool.spawn_fn(move || {
+    thread::spawn(move || {
         let config = {
             let carina_config = match carina_config.lock() {
                 Ok(s) => s,
@@ -65,8 +65,6 @@ pub fn start(
                                 carina_config.events.clone()
                             };
 
-                            // TODO: implement event
-
                             match events.get(&as_enum(buf[1])) {
                                 Some(events) => {
                                     for event in events {
@@ -82,8 +80,5 @@ pub fn start(
                 Err(e) => error!("Error: {:?}", e),
             };
         }
-
-        let res: Result<bool, ()> = Ok(true);
-        res
     })
 }

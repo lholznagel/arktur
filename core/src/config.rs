@@ -41,7 +41,7 @@ pub struct Config {
     /// vector of all peers to connect
     pub peers: HashMap<String, Peer>,
     /// nacl instance containing the secret key and the nonce
-    pub(crate) nacl: Nacl,
+    pub nacl: Nacl,
 }
 
 impl Config {
@@ -140,6 +140,8 @@ impl Config {
                 }
             }
             self.peers = peers_storage;
+        } else {
+            error!("The given peer path does not exist.");
         }
         Ok(())
     }

@@ -6,12 +6,16 @@ use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 
+/// Contains the configuration and all events
 pub struct CarinaConfig {
+    /// configuration of the peer
     pub config: Config,
+    /// events to listen
     pub events: HashMap<Events, Vec<Arc<Event>>>,
 }
 
 impl CarinaConfig {
+    /// creates a new instance
     pub fn new(config: Config, events: HashMap<Events, Vec<Arc<Event>>>) -> Self {
         Self { config, events }
     }

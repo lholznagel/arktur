@@ -74,6 +74,8 @@ name = "carina_cli"
 version = "0.1.0"
 dependencies = [
  "carina_core 0.1.0",
+ "carina_core_protocol 0.1.0",
+ "clap 2.31.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "loggify 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

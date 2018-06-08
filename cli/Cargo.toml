@@ -5,5 +5,7 @@ authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
 carina_core = { path = "../core" }
+carina_core_protocol = { path = "../core_protocol" }
+clap = "2.31.2"
 log = "0.4.1"
 loggify = "1.0.0"

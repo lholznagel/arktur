@@ -46,19 +46,16 @@ mod event;
 
 pub use config::Config;
 pub use event::{as_enum, Event, Events};
-pub use carina_config::CarinaConfigBuilder;
+pub use carina_config::{CarinaConfig, CarinaConfigBuilder};
 
-use futures::future::Future;
-use futures_cpupool::CpuPool;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
+use std::thread::JoinHandle;
 
 /// Initialises the library
-pub fn init(builder: CarinaConfigBuilder) {
+pub fn init(builder: CarinaConfigBuilder) -> (JoinHandle<()>, UdpSocket, Arc<Mutex<CarinaConfig>>) {
     sodiumoxide::init();
 
-    let pool = CpuPool::new(1);
-    let mut thread_storage = Vec::new();
     let carina_config = builder.build();
 
     let socket = UdpSocket::bind(&carina_config.config.uri).unwrap();
@@ -66,10 +63,7 @@ pub fn init(builder: CarinaConfigBuilder) {
     let state = Arc::new(Mutex::new(carina_config));
 
     let socket_udp = socket.try_clone().unwrap();
-    thread_storage.push(threads::udp::start(Arc::clone(&state), &pool, socket_udp));
+    let udp_handle = threads::udp::start(Arc::clone(&state), socket_udp);
 
-    // wait for threads to finish
-    for thread in thread_storage {
-        thread.wait().unwrap();
-    }
+    (udp_handle, socket.try_clone().unwrap(), Arc::clone(&state))
 }
