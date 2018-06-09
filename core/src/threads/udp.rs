@@ -59,18 +59,16 @@ pub fn start(
 
                     match parsed {
                         Some(buf) => {
-                            let events = {
-                                let carina_config = carina_config.lock().unwrap();
-                                carina_config.events.clone()
-                            };
                             let mut config = {
                                 let carina_config = carina_config.lock().unwrap();
                                 carina_config.config.clone()
                             };
 
-                            match events.get(&as_enum(buf[1])) {
-                                Some(events) => {
-                                    for event in events.as_mut() {
+                            let mut state = carina_config.lock().unwrap();
+                            match state.events.get_mut(&as_enum(buf[1])) {
+                                Some(ref mut events) => {
+                                    for i in 0..events.len() {
+                                        let mut event = Arc::get_mut(&mut events[i]).unwrap();
                                         event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config);
                                     }
                                 },
