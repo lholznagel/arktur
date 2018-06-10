@@ -6,7 +6,7 @@ version = "0.1.0"
 [dependencies]
 clippy = { version = "0.0.195", optional = true }
 failure = "0.1.1"
-sodiumoxide = "0.0.16"
+sodiumoxide = "0.1.0"
 time = "0.1.38"
 
 [dev-dependencies]

@@ -4,10 +4,10 @@ version = "0.1.0"
 authors = ["lholznagel <contact@lholznagel.info>"]
 
 [dependencies]
-clippy = { version = "0.0.195", optional = true }
+clippy = { version = "0.0.207", optional = true }
 failure = "0.1.1"
-log = "0.4.1"
-sodiumoxide = "0.0.16"
+log = "0.4.2"
+sodiumoxide = "0.1.0"
 
 [features]
 default = []

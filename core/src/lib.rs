@@ -54,7 +54,7 @@ use std::thread::JoinHandle;
 
 /// Initialises the library
 pub fn init(builder: CarinaConfigBuilder) -> (JoinHandle<()>, UdpSocket, Arc<Mutex<CarinaConfig>>) {
-    sodiumoxide::init();
+    sodiumoxide::init().unwrap();
 
     let carina_config = builder.build();
 

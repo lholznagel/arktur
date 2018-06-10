@@ -11,7 +11,7 @@ clippy = { version = "0.0.195", optional = true }
 futures-cpupool = "0.1.8"
 log = "0.4.1"
 rust-crypto = "0.2.36"
-sodiumoxide = "0.0.16"
+sodiumoxide = "0.1.0"
 time = "0.1.39"
 
 [features]
