@@ -4,19 +4,19 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 /// Contains the configuration and all events
 pub struct CarinaConfig {
     /// configuration of the peer
     pub config: Config,
     /// events to listen
-    pub events: HashMap<Events, Vec<Arc<Event>>>,
+    pub events: HashMap<Events, Vec<Arc<Mutex<Event>>>>,
 }
 
 impl CarinaConfig {
     /// creates a new instance
-    pub fn new(config: Config, events: HashMap<Events, Vec<Arc<Event>>>) -> Self {
+    pub fn new(config: Config, events: HashMap<Events, Vec<Arc<Mutex<Event>>>>) -> Self {
         Self { config, events }
     }
 }
@@ -30,7 +30,7 @@ impl Debug for CarinaConfig {
 /// Builder for constructing the application carina config
 pub struct CarinaConfigBuilder {
     config: Config,
-    events: HashMap<Events, Vec<Arc<Event>>>,
+    events: HashMap<Events, Vec<Arc<Mutex<Event>>>>,
 }
 
 impl CarinaConfigBuilder {
@@ -49,7 +49,7 @@ impl CarinaConfigBuilder {
     }
 
     /// Adds a new event
-    pub fn add_event(mut self, events: Events, event: Arc<Event>) -> Self {
+    pub fn add_event<T: Event + 'static>(mut self, events: Events, event: Arc<Mutex<T>>) -> Self {
         match self.events.entry(events) {
             Entry::Vacant(e)       => {
                 e.insert(vec![event]);

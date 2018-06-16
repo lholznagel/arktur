@@ -1,12 +1,14 @@
-use carina_core;
-use carina_core::{Config, CarinaConfigBuilder, Events};
 use carina_core_protocol::{MessageBuilder, Payload};
 use carina_core_protocol::payloads::EmptyPayload;
+use carina_core;
+use carina_core::{Config, CarinaConfigBuilder, Events};
 use clap::ArgMatches;
 use commands::ping::Pong;
 use std::fs::File;
 use std::io::Read;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 pub fn execute(args: &ArgMatches) {
     let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
@@ -17,10 +19,11 @@ pub fn execute(args: &ArgMatches) {
         Err(e)  => panic!("[MISC_PING] Error reading config file {:?}", e)
     };
 
+    let pong_event = Arc::new(Mutex::new(Pong::new()));
     let carina_config_builder = CarinaConfigBuilder::new()
-        .add_event(Events::Pong, Arc::new(Pong::new()))
+        .add_event(Events::Pong, Arc::clone(&pong_event))
         .set_config(config);
-    let (thread, socket, config) = carina_core::init(carina_config_builder);
+    let (_, socket, config) = carina_core::init(carina_config_builder);
 
     let peers = {
         let state = config.lock().unwrap();
@@ -43,5 +46,10 @@ pub fn execute(args: &ArgMatches) {
         };
     }
 
-    thread.join().unwrap();
+    info!("[MISC_PING] Waiting 30 seconds.");
+    thread::sleep(Duration::from_secs(30));
+    {
+        let event = pong_event.lock().unwrap();
+        info!("[MISC_PING] Following peers answered {:?}", event.answered);
+    }
 }

@@ -68,8 +68,10 @@ pub fn start(
                             match state.events.get_mut(&as_enum(buf[1])) {
                                 Some(ref mut events) => {
                                     for i in 0..events.len() {
-                                        let mut event = Arc::get_mut(&mut events[i]).unwrap();
-                                        event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config);
+                                        match events[i].lock() {
+                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config),
+                                            Err(_)        => error!("[THREAD_UDP] Error locking mutex.")
+                                        };
                                     }
                                 },
                                 None         => ()

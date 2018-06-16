@@ -4,7 +4,7 @@ use clap::ArgMatches;
 use commands::console::Ping;
 use std::fs::File;
 use std::io::Read;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 pub fn execute(args: &ArgMatches) {
     let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
@@ -16,7 +16,7 @@ pub fn execute(args: &ArgMatches) {
     };
 
     let carina_config_builder = CarinaConfigBuilder::new()
-        .add_event(Events::Ping, Arc::new(Ping{}))
+        .add_event(Events::Ping, Arc::new(Mutex::new(Ping{})))
         .set_config(config);
     let (thread, _, _) = carina_core::init(carina_config_builder);
 
