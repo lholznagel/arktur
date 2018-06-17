@@ -9,3 +9,4 @@ carina_core_protocol = { path = "../core_protocol" }
 clap = "2.31.2"
 log = "0.4.2"
 loggify = "1.0.0"
+prettytable-rs = "0.7.0"

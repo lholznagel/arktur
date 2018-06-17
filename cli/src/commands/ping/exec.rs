@@ -4,11 +4,14 @@ use carina_core;
 use carina_core::{Config, CarinaConfigBuilder, Events};
 use clap::ArgMatches;
 use commands::ping::Pong;
+use prettytable::cell::Cell;
+use prettytable::row::Row;
 use std::fs::File;
 use std::io::Read;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
+use prettytable::{Attr, color, Table};
 
 pub fn execute(args: &ArgMatches) {
     let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
@@ -19,7 +22,7 @@ pub fn execute(args: &ArgMatches) {
         Err(e)  => panic!("[MISC_PING] Error reading config file {:?}", e)
     };
 
-    let pong_event = Arc::new(Mutex::new(Pong::new()));
+    let pong_event = Arc::new(Mutex::new(Pong::new(config.peers.clone())));
     let carina_config_builder = CarinaConfigBuilder::new()
         .add_event(Events::Pong, Arc::clone(&pong_event))
         .set_config(config);
@@ -49,7 +52,23 @@ pub fn execute(args: &ArgMatches) {
     info!("[MISC_PING] Waiting 30 seconds.");
     thread::sleep(Duration::from_secs(30));
     {
-        let event = pong_event.lock().unwrap();
-        info!("[MISC_PING] Following peers answered {:?}", event.answered);
+        match pong_event.lock() {
+            Ok(event) => {
+                let mut table = Table::new();
+                table.add_row(row!["Address", "Status"]);
+
+                for (key, value) in &event.answered {
+                    let row = match value {
+                        true => Row::new(vec![Cell::new(key), Cell::new("true").with_style(Attr::ForegroundColor(color::GREEN))]),
+                        false => Row::new(vec![Cell::new(key), Cell::new("false").with_style(Attr::ForegroundColor(color::RED))])
+                    };
+                    table.add_row(row);
+                }
+
+                table.printstd();
+                ()
+            },
+            Err(_)    => error!("[MISC_PING] Error locking mutex.")
+        };
     }
 }

@@ -4,6 +4,8 @@ extern crate carina_core_protocol;
 #[macro_use]
 extern crate log;
 extern crate loggify;
+#[macro_use]
+extern crate prettytable;
 
 mod commands;
 

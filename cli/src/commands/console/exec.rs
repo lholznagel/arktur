@@ -12,7 +12,7 @@ pub fn execute(args: &ArgMatches) {
     file.read_to_string(&mut content).unwrap();
     let config: Config = match Config::from_str(&content) {
         Ok(val) => val,
-        Err(e)  => panic!("Error reading config file {:?}", e)
+        Err(e)  => panic!("[CONSOLE] Error reading config file {:?}", e)
     };
 
     let carina_config_builder = CarinaConfigBuilder::new()

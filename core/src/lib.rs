@@ -44,7 +44,7 @@ mod config;
 mod threads;
 mod event;
 
-pub use config::Config;
+pub use config::{Config, Peer};
 pub use event::{as_enum, Event, Events};
 pub use carina_config::{CarinaConfig, CarinaConfigBuilder};
 
