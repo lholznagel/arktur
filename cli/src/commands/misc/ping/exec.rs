@@ -3,7 +3,8 @@ use carina_core_protocol::payloads::EmptyPayload;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder, Events};
 use clap::ArgMatches;
-use commands::ping::Pong;
+use commands::misc::ping::Pong;
+use prettytable::{Attr, color, Table};
 use prettytable::cell::Cell;
 use prettytable::row::Row;
 use std::fs::File;
@@ -11,7 +12,6 @@ use std::io::Read;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
-use prettytable::{Attr, color, Table};
 
 pub fn execute(args: &ArgMatches) {
     let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
@@ -59,8 +59,8 @@ pub fn execute(args: &ArgMatches) {
 
                 for (key, value) in &event.answered {
                     let row = match value {
-                        true => Row::new(vec![Cell::new(key), Cell::new("true").with_style(Attr::ForegroundColor(color::GREEN))]),
-                        false => Row::new(vec![Cell::new(key), Cell::new("false").with_style(Attr::ForegroundColor(color::RED))])
+                        true => Row::new(vec![Cell::new(key), Cell::new("OK").with_style(Attr::ForegroundColor(color::GREEN))]),
+                        false => Row::new(vec![Cell::new(key), Cell::new("No response").with_style(Attr::ForegroundColor(color::RED))])
                     };
                     table.add_row(row);
                 }
