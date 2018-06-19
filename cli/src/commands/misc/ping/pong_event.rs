@@ -21,7 +21,7 @@ impl Pong {
 
 impl Event for Pong {
     fn execute(&mut self, _: UdpSocket, source: String, _: &mut Config) {
-        debug!("[PONG] Received pong event");
+        debug!("[MISC_PONG] Received pong event");
         self.answered.insert(source, true);
     }
 }

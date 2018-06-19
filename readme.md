@@ -6,17 +6,17 @@ The main purpose of this project is to learn rust and do something interesting.
 ## Goal
 
 There is no specific goal.
-I wanted to code something with rust and was very interested in blockchin.
+I wanted to code something with rust and was very interested in blockchain.
 This should not be another crypto currency, there are enough.
 
 ## Sub projects
 The main project consists of multiple sub projects.
 
-| Name         | Description                                    |
-| ------------ | ---------------------------------------------- |
-| cli          | Terminal interface to talk with the blockchain |
-| core         | Core that handles most things                  |
-| core_protcol | Protocol for communicating                     |
+| Name         | Description                                            |
+| ------------ | ------------------------------------------------------ |
+| cli          | Terminal interface to talk with the blockchain         |
+| core         | Core that listens to udp and handles event registering |
+| core_protcol | Protocol for communication                             |
 
 ## Old Sub projects
 

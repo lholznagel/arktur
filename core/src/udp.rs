@@ -12,12 +12,11 @@ pub fn start(
 ) -> JoinHandle<()> {
     debug!("[THREAD_UDP] Starting udp thread");
     // the thread should run until the end
-    #[allow(unreachable_code)]
     thread::spawn(move || {
         let config = {
             let carina_config = match carina_config.lock() {
-                Ok(s) => s,
-                Err(e) => panic!("Error locking carina_config: {}", e),
+                Ok(s)  => s,
+                Err(e) => panic!("[THREAD_UDP] Error locking carina_config: {}", e),
             };
             carina_config.config.clone()
         };

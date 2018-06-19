@@ -41,8 +41,8 @@ extern crate yaml_rust;
 /// See the config file struct for more information
 mod carina_config;
 mod config;
-mod threads;
 mod event;
+mod udp;
 
 pub use config::{Config, Peer};
 pub use event::{as_enum, Event, Events};
@@ -63,7 +63,7 @@ pub fn init(builder: CarinaConfigBuilder) -> (JoinHandle<()>, UdpSocket, Arc<Mut
     let state = Arc::new(Mutex::new(carina_config));
 
     let socket_udp = socket.try_clone().unwrap();
-    let udp_handle = threads::udp::start(Arc::clone(&state), socket_udp);
+    let udp_handle = udp::start(Arc::clone(&state), socket_udp);
 
     (udp_handle, socket.try_clone().unwrap(), Arc::clone(&state))
 }

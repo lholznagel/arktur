@@ -1,5 +1,4 @@
 mod exec;
-mod ping_event;
+mod events;
 
 pub use self::exec::execute;
-pub use self::ping_event::Ping;
