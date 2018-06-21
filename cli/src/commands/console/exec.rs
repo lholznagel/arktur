@@ -1,5 +1,6 @@
+use carina_core_protocol::events::Events;
 use carina_core;
-use carina_core::{Config, CarinaConfigBuilder, Events};
+use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
 use commands::console::events::{Ping, Pong};
 use std::fs::File;

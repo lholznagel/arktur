@@ -45,7 +45,7 @@ mod event;
 mod udp;
 
 pub use config::{Config, Peer};
-pub use event::{as_enum, Event, Events};
+pub use event::Event;
 pub use carina_config::{CarinaConfig, CarinaConfigBuilder};
 
 use std::net::UdpSocket;

@@ -1,5 +1,6 @@
+use carina_core_protocol::events::Events;
 use config::Config;
-use event::{Event, Events};
+use event::Event;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;

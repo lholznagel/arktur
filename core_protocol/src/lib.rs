@@ -62,6 +62,8 @@ mod send_message_builder;
 
 /// Module that contains all avaiable payloads
 pub mod payloads;
+/// Contains helper for events
+pub mod events;
 pub use self::payloads::Payload;
 pub use self::nacl::Nacl;
 pub use self::receive_message::decrypt;

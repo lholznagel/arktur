@@ -1,5 +1,5 @@
 use carina_core_protocol;
-use event::as_enum;
+use carina_core_protocol::events::as_enum;
 use carina_config::CarinaConfig;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
