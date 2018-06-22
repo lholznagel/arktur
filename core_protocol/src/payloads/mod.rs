@@ -21,5 +21,8 @@
 mod empty;
 mod payload;
 
+/// Contains payloads that have to do with blocks
+pub mod block;
+
 pub use self::empty::EmptyPayload;
 pub use self::payload::Payload;

@@ -54,7 +54,12 @@
 #[macro_use]
 extern crate failure;
 extern crate log;
+extern crate protocol_builder_parser;
 extern crate sodiumoxide;
+#[cfg(test)]
+#[macro_use]
+extern crate quickcheck;
+extern crate rand;
 
 mod nacl;
 mod receive_message;
