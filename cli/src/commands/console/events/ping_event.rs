@@ -1,5 +1,4 @@
-use carina_core_protocol::{MessageBuilder, Payload};
-use carina_core_protocol::events::{as_val, Events};
+use carina_core_protocol::{Events, MessageBuilder, Payload};
 use carina_core_protocol::payloads::EmptyPayload;
 use carina_core::Config;
 use carina_core::Event;
@@ -8,10 +7,10 @@ use std::net::UdpSocket;
 pub struct Ping;
 
 impl Event for Ping {
-    fn execute(&mut self, udp: UdpSocket, source: String, config: &mut Config) {
+    fn execute(&mut self, udp: UdpSocket, source: String, config: &mut Config, _: &[u8]) {
         info!("[CONSOLE_PING] Received ping event from {:?}", source);
         let message = MessageBuilder::new()
-            .set_event_code(as_val(Events::Pong))
+            .set_event_code(Events::as_val(Events::Pong))
             .set_payload(EmptyPayload::new())
             .build(&mut config.nacl, &config.peers.get(&source).unwrap().public_key);
 

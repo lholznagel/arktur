@@ -1,30 +1,34 @@
 /// this enum contains all available events
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Events {
-    /// Ping event
     /// Event: 0
     Ping,
-    /// Pong event
     /// Event: 1
     Pong,
+    /// Event: 64
+    NewBlockContent,
     /// An invalid event
     Invalid
 }
 
-/// Converts an number to a enum value
-pub fn as_enum(value: u8) -> Events {
-    match value {
-        0 => Events::Ping,
-        1 => Events::Pong,
-        _ => Events::Invalid,
+impl Events {
+    /// Converts the given enum value to a number
+    pub fn as_val(event: Events) -> u8 {
+        match event {
+            Events::Ping            => 0,
+            Events::Pong            => 1,
+            Events::NewBlockContent => 64,
+            _                       => 255
+        }
     }
-}
 
-/// Converts a `Event` to a u8 value
-pub fn as_val(value: Events) -> u8 {
-    match value {
-        Events::Ping => 0,
-        Events::Pong => 1,
-        _ => 255,
+    /// Converts the given value to the enum value
+    pub fn as_enum(value: u8) -> Events {
+        match value {
+            0  => Events::Ping,
+            1  => Events::Pong,
+            64 => Events::NewBlockContent,
+            _  => Events::Invalid
+        }
     }
 }

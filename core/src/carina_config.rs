@@ -1,4 +1,4 @@
-use carina_core_protocol::events::Events;
+use carina_core_protocol::Events;
 use config::Config;
 use event::Event;
 use std::collections::hash_map::Entry;

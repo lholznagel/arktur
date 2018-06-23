@@ -1,5 +1,4 @@
-use carina_core_protocol::{MessageBuilder, Payload};
-use carina_core_protocol::events::{as_val, Events};
+use carina_core_protocol::{Events, MessageBuilder, Payload};
 use carina_core_protocol::payloads::EmptyPayload;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
@@ -40,7 +39,7 @@ pub fn execute(args: &ArgMatches) {
 
     for (_, peer) in &peers {
         let message = MessageBuilder::new()
-            .set_event_code(as_val(Events::Ping))
+            .set_event_code(Events::as_val(Events::Ping))
             .set_payload(EmptyPayload::new())
             .build(&mut nacl, &peer.public_key);
 

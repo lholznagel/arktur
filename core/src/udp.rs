@@ -1,5 +1,4 @@
-use carina_core_protocol;
-use carina_core_protocol::events::as_enum;
+use carina_core_protocol::{decrypt, Events};
 use carina_config::CarinaConfig;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
@@ -38,7 +37,7 @@ pub fn start(
                     );
                     let parsed = match config.peers.get(&(source.to_string())) {
                         Some(peer) => {
-                            let parsed = carina_core_protocol::decrypt(
+                            let parsed = decrypt(
                                 &updated_buffer,
                                 &config.nacl,
                                 &peer.public_key,
@@ -64,11 +63,11 @@ pub fn start(
                             };
 
                             let mut state = carina_config.lock().unwrap();
-                            match state.events.get_mut(&as_enum(buf[1])) {
+                            match state.events.get_mut(&Events::as_enum(buf[1])) {
                                 Some(ref mut events) => {
                                     for i in 0..events.len() {
                                         match events[i].lock() {
-                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config),
+                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config, &buf),
                                             Err(_)        => error!("[THREAD_UDP] Error locking mutex.")
                                         };
                                     }
