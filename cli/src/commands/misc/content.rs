@@ -28,16 +28,14 @@ pub fn execute(args: &ArgMatches) {
         state.config.nacl.clone()
     };
 
-    for (_, peer) in &peers {
-        let mut payload = NewBlockContent::new();
-        payload.content = match args.value_of("CONTENT") {
-            Some(val) => String::from(val),
-            None      => String::new()
-        };
+    let mut payload = NewBlockContent::new();
+    // save, because it is forced by clap
+    payload.content = String::from(args.value_of("CONTENT").unwrap());
 
+    for (_, peer) in &peers {
         let message = MessageBuilder::new()
             .set_event_code(Events::as_val(Events::NewBlockContent))
-            .set_payload(payload)
+            .set_payload(payload.clone())
             .build(&mut nacl, &peer.public_key);
 
         match socket.send_to(&message, &peer.address) {

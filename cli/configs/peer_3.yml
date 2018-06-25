@@ -1,0 +1,5 @@
+socket: /tmp/carina_peer_3.sock
+peers: ./configs/peer_3_peers.yml
+storage: ./block_data
+uri: 127.0.0.1:45003
+secret_key: /z2Nj9Se79sABCgmiihIj3Rw/Ke+X8bgvxCEXIrZz5w=

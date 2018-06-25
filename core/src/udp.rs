@@ -1,5 +1,5 @@
-use carina_core_protocol::{decrypt, Events};
 use carina_config::CarinaConfig;
+use carina_core_protocol::{decrypt, Events};
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -67,7 +67,7 @@ pub fn start(
                                 Some(ref mut events) => {
                                     for i in 0..events.len() {
                                         match events[i].lock() {
-                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config, &buf),
+                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config, &buf[2..]),
                                             Err(_)        => error!("[THREAD_UDP] Error locking mutex.")
                                         };
                                     }

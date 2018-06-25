@@ -18,6 +18,7 @@ extern crate log;
 extern crate loggify;
 #[macro_use]
 extern crate prettytable;
+extern crate protocol_builder_parser;
 extern crate sodiumoxide;
 
 mod commands;
@@ -44,10 +45,8 @@ fn main() {
                             .long("config")
                             .default_value("./config.yml"))
                         .arg(Arg::with_name("CONTENT")
-                            .value_name("content")
                             .help("Sets the content.")
                             .takes_value(true)
-                            .long("content")
                             .required(true))
                 )
                 .subcommand(

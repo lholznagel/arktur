@@ -111,6 +111,7 @@ dependencies = [
  "log 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "loggify 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prettytable-rs 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "protocol_builder_parser 0.1.0 (git+https://github.com/lholznagel/rust-protocol-builder-parser)",
  "sodiumoxide 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
