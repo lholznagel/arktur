@@ -3,7 +3,7 @@ use carina_core_protocol::payloads::EmptyPayload;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
-use commands::misc::ping::Pong;
+use misc::ping::Pong;
 use prettytable::{Attr, color, Table};
 use prettytable::cell::Cell;
 use prettytable::row::Row;

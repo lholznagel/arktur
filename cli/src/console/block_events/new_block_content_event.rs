@@ -1,16 +1,16 @@
 use carina_core::Config;
 use carina_core::Event;
-use commands::console::InternalState;
+use console::block_events::BlockState;
 use protocol_builder_parser::Parser;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
 
 pub struct NewBlockContent {
-    internal_state: Arc<Mutex<InternalState>>
+    internal_state: Arc<Mutex<BlockState>>
 }
 
 impl NewBlockContent {
-    pub fn new(internal_state: Arc<Mutex<InternalState>>) -> Self {
+    pub fn new(internal_state: Arc<Mutex<BlockState>>) -> Self {
         Self {
             internal_state
         }

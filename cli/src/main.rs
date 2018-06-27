@@ -21,7 +21,8 @@ extern crate prettytable;
 extern crate protocol_builder_parser;
 extern crate sodiumoxide;
 
-mod commands;
+mod console;
+mod misc;
 
 use clap::{App, Arg, SubCommand};
 
@@ -82,8 +83,8 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        ("misc", Some(sub_matches))    => commands::misc::execute(sub_matches),
-        ("console", Some(sub_matches)) => commands::console::execute(sub_matches),
+        ("misc", Some(sub_matches))    => misc::execute(sub_matches),
+        ("console", Some(sub_matches)) => console::execute(sub_matches),
         _                              => error!("Not valid")
     }
 }

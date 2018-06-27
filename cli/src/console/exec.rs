@@ -2,14 +2,14 @@ use carina_core_protocol::Events;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
-use commands::console::events::{Ping, Pong, NewBlockContent};
-use commands::console::InternalState;
+use console::block_events::{BlockState, NewBlockContent};
+use console::misc_events::{Ping, Pong};
 use std::fs::File;
 use std::io::Read;
 use std::sync::{Arc, Mutex};
 
 pub fn execute(args: &ArgMatches) {
-    let internal_state = Arc::new(Mutex::new(InternalState::new()));
+    let internal_state = Arc::new(Mutex::new(BlockState::new()));
     let mut content = String::new();
 
     // unwrap ok. CONFIG has a default value
