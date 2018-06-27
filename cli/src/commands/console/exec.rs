@@ -10,10 +10,17 @@ use std::sync::{Arc, Mutex};
 
 pub fn execute(args: &ArgMatches) {
     let internal_state = Arc::new(Mutex::new(InternalState::new()));
-
-    let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
     let mut content = String::new();
-    file.read_to_string(&mut content).unwrap();
+
+    // unwrap ok. CONFIG has a default value
+    match File::open(args.value_of("CONFIG").unwrap().to_string()) {
+        Ok(mut file) => match file.read_to_string(&mut content) {
+            Ok(_)  => (),
+            Err(e) => panic!("[CONSOLE] Error readying config file. {}", e)
+        },
+        Err(e)     => panic!("[CONSOLE] Error readying config file. {}", e)
+    };
+
     let config: Config = match Config::from_str(&content) {
         Ok(val) => val,
         Err(e)  => panic!("[CONSOLE] Error reading config file {:?}", e)

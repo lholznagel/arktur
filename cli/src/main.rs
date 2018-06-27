@@ -28,7 +28,7 @@ use clap::{App, Arg, SubCommand};
 fn main() {
     loggify::Loggify::init_with_level(log::Level::Debug).unwrap();
 
-        let matches = App::new("Carina network cli")
+    let matches = App::new("Carina network cli")
         .version("0.1.0")
         .author("Lars Holznagel")
         .about("Client tool for carina")

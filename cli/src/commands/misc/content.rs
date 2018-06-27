@@ -3,13 +3,22 @@ use carina_core_protocol::payloads::block::NewBlockContent;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
 pub fn execute(args: &ArgMatches) {
-    let mut file = File::open(args.value_of("CONFIG").unwrap().to_string()).unwrap();
     let mut content = String::new();
-    file.read_to_string(&mut content).unwrap();
+
+    // unwrap ok. CONFIG has a default value
+    match File::open(args.value_of("CONFIG").unwrap().to_string()) {
+        Ok(mut file) => match file.read_to_string(&mut content) {
+            Ok(_)  => (),
+            Err(e) => panic!("[MISC_CONTENT] Error readying config file. {}", e)
+        },
+        Err(e)     => panic!("[MISC_CONTENT] Error readying config file. {}", e)
+    };
+
     let config: Config = match Config::from_str(&content) {
         Ok(val) => val,
         Err(e)  => panic!("[MISC_CONTENT] Error reading config file {:?}", e)
@@ -20,8 +29,13 @@ pub fn execute(args: &ArgMatches) {
     let (_, socket, config) = carina_core::init(carina_config_builder);
 
     let peers = {
-        let state = config.lock().unwrap();
-        state.config.peers.clone()
+        match config.lock() {
+            Ok(val) => val.config.peers.clone(),
+            Err(e)  => {
+                error!("[MISC_CONTENT] Error locking state. {}", e);
+                HashMap::new()
+            }
+        }
     };
     let mut nacl = {
         let state = config.lock().unwrap();

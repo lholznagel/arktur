@@ -20,12 +20,29 @@ impl NewBlockContent {
 impl Event for NewBlockContent {
     fn execute(&mut self, _: UdpSocket, _: String, _: &mut Config, buffer: &[u8]) {
         let parsed = Parser::parse_payload(&buffer);
-        let code = Parser::to_string(&parsed[0].clone()).unwrap();
-        let content = Parser::to_string(&parsed[1].clone()).unwrap();
+        let code = match Parser::to_string(&parsed[0].clone()) {
+            Ok(val) => val,
+            Err(e)  => {
+                error!("[CONSOLE_NEW_BLOCK_CONTENT] Error getting code {}", e);
+                String::new()
+            }
+        };
+        let content = match Parser::to_string(&parsed[1].clone()) {
+            Ok(val) => val,
+            Err(e)  => {
+                error!("[CONSOLE_NEW_BLOCK_CONTENT] Error getting content {}", e);
+                String::new()
+            }
+        };
 
-        let mut state = self.internal_state.lock().unwrap();
-        state.content.insert(code, content);
-
-        info!("[CONSOLE_NEW_BLOCK_CONTENT] Received new content {:?}", parsed);
+        if !code.is_empty() || !content.is_empty() {
+            match self.internal_state.lock() {
+                Ok(mut state) => {
+                    state.content.insert(code, content);
+                    debug!("[CONSOLE_NEW_BLOCK_CONTENT] Added new content");
+                },
+                Err(e)        => error!("[CONSOLE_NEW_BLOCK_CONTENT] Error locking state. {}", e)
+            };
+        }
     }
 }
