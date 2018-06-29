@@ -138,10 +138,11 @@ dependencies = [
  "criterion 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "protocol_builder_parser 0.1.0 (git+https://github.com/lholznagel/rust-protocol-builder-parser)",
+ "protocol_builder_parser 0.1.0 (git+https://github.com/lholznagel/rust-protocol-builder-parser?rev=28c2ca7)",
  "quickcheck 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sodiumoxide 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "time 0.1.40 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -705,6 +706,15 @@ version = "0.1.0"
 source = "git+https://github.com/lholznagel/rust-protocol-builder-parser#ab3fbf3a730ac5ef1d601b71ac556e668e619dbd"
 
 [[package]]
+name = "protocol_builder_parser"
+version = "0.1.0"
+source = "git+https://github.com/lholznagel/rust-protocol-builder-parser?rev=28c2ca7#28c2ca7160918ba04e8bb3b948f1b6d7ec897498"
+dependencies = [
+ "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "failure_derive 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "pulldown-cmark"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1240,6 +1250,7 @@ dependencies = [
 "checksum proc-macro2 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "77997c53ae6edd6d187fec07ec41b207063b5ee6f33680e9fa86d405cdd313d4"
 "checksum proc-macro2 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "effdb53b25cdad54f8f48843d67398f7ef2e14f12c1b4cb4effc549a6462a4d6"
 "checksum protocol_builder_parser 0.1.0 (git+https://github.com/lholznagel/rust-protocol-builder-parser)" = "<none>"
+"checksum protocol_builder_parser 0.1.0 (git+https://github.com/lholznagel/rust-protocol-builder-parser?rev=28c2ca7)" = "<none>"
 "checksum pulldown-cmark 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d6fdf85cda6cadfae5428a54661d431330b312bc767ddbc57adbedc24da66e32"
 "checksum quick-error 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "9274b940887ce9addde99c4eee6b5c44cc494b182b97e73dc8ffdcb3397fd3f0"
 "checksum quickcheck 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c01babc5ffd48a2a83744b3024814bb46dfd4f2a4705ccb44b1b60e644fdcab7"

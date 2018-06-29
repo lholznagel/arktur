@@ -60,6 +60,7 @@ extern crate sodiumoxide;
 #[macro_use]
 extern crate quickcheck;
 extern crate rand;
+extern crate time;
 
 mod events;
 mod nacl;
