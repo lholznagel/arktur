@@ -1,5 +1,5 @@
 use carina_core_protocol::{Events, MessageBuilder, Payload};
-use carina_core_protocol::payloads::block::NewBlockContent;
+use carina_core_protocol::payloads::block::NewBlockContentPayload;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
@@ -42,7 +42,7 @@ pub fn execute(args: &ArgMatches) {
         state.config.nacl.clone()
     };
 
-    let mut payload = NewBlockContent::new();
+    let mut payload = NewBlockContentPayload::new();
     // save, because it is forced by clap
     payload.content = String::from(args.value_of("CONTENT").unwrap());
 

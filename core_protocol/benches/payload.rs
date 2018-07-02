@@ -31,7 +31,7 @@ fn bench_block_data(c: &mut Criterion) {
         let (theirpk, _) = box_::gen_keypair();
         let mut nacl = Nacl::new(oursk);
 
-        let mut payload = NewBlockContent::new();
+        let mut payload = NewBlockContentPayload::new();
         payload.content = String::from("SomeCoolContent");
 
         MessageBuilder::new()
@@ -47,7 +47,7 @@ fn bench_calc_block(c: &mut Criterion) {
         let (theirpk, _) = box_::gen_keypair();
         let mut nacl = Nacl::new(oursk);
 
-        let payload = CalcBlock::block(0, "0".repeat(64), "a".repeat(100));
+        let payload = CalcBlockPayload::block(0, "0".repeat(64), "a".repeat(100));
         MessageBuilder::new()
             .set_event_code(64)
             .set_payload(payload)

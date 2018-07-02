@@ -15,3 +15,4 @@ prettytable-rs = "0.7.0"
 protocol_builder_parser = { git = "https://github.com/lholznagel/rust-protocol-builder-parser" }
 rust-crypto = "0.2.36"
 sodiumoxide = "0.1.0"
+time = "0.1.40"

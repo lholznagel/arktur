@@ -22,6 +22,7 @@ extern crate loggify;
 extern crate prettytable;
 extern crate protocol_builder_parser;
 extern crate sodiumoxide;
+extern crate time;
 
 mod console;
 mod misc;

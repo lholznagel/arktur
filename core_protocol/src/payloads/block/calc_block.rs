@@ -27,7 +27,7 @@ use time;
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct CalcBlock {
+pub struct CalcBlockPayload {
     /// Index of the block
     pub index: u64,
     /// Timestamp the block was created
@@ -38,23 +38,23 @@ pub struct CalcBlock {
     pub content: String
 }
 
-impl CalcBlock {
+impl CalcBlockPayload {
     /// Creates a new block
     pub fn block(index: u64, prev: String, content: String) -> Self {
         Self {
             index: index,
-            timestamp: time::now_utc().tm_nsec * 1000,
+            timestamp: time::now_utc().tm_nsec / 1000,
             prev: prev,
             content: content
         }
     }
 }
 
-impl Payload for CalcBlock {
+impl Payload for CalcBlockPayload {
     fn new() -> Self {
         Self {
             index: 0,
-            timestamp: time::now_utc().tm_nsec * 1000,
+            timestamp: time::now_utc().tm_nsec / 1000,
             prev: String::new(),
             content: String::new()
         }
@@ -87,7 +87,7 @@ impl Payload for CalcBlock {
             .add_u8(0) // empty
             .add_u8(0) // empty
             .add_u64(self.index)
-            .add_u32(self.timestamp as u32) // will always be positiv
+            .add_u32(self.timestamp as u32)
             .add_string(self.prev)
             .add_string_overflow(self.content)
             .build()
@@ -106,7 +106,7 @@ mod tests {
         let prev = String::from("ngiurengoiurehgbiuergneoigjoierhg");
         let content = String::from("Some string");
 
-        let new_block = CalcBlock {
+        let new_block = CalcBlockPayload {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -115,7 +115,7 @@ mod tests {
 
         let new_block = new_block.to_bytes();
         let complete = Parser::parse_payload(&new_block);
-        let parsed = CalcBlock::parse(complete).unwrap();
+        let parsed = CalcBlockPayload::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -130,7 +130,7 @@ mod tests {
         let prev = String::from("sdfsdgehherheherhefwt4wtttertertg");
         let content = "a".repeat(500);
 
-        let new_block = CalcBlock {
+        let new_block = CalcBlockPayload {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(new_block[1], 2);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = CalcBlock::parse(complete).unwrap();
+        let parsed = CalcBlockPayload::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -156,7 +156,7 @@ mod tests {
         let prev = String::from("gwegerhgerhgef2h6h4zh5j654mztkjh5");
         let content = "b".repeat(1000);
 
-        let new_block = CalcBlock {
+        let new_block = CalcBlockPayload {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -167,7 +167,7 @@ mod tests {
         assert_eq!(new_block[1], 4);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = CalcBlock::parse(complete).unwrap();
+        let parsed = CalcBlockPayload::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -183,7 +183,7 @@ mod tests {
             let prev = prev;
             let content = content;
 
-            let new_block = CalcBlock {
+            let new_block = CalcBlockPayload {
                 index: index.clone(),
                 timestamp: timestamp.clone(),
                 prev: prev.clone(),
@@ -193,7 +193,7 @@ mod tests {
             let new_block = new_block.to_bytes();
 
             let complete = Parser::parse_payload(&new_block);
-            let parsed = CalcBlock::parse(complete).unwrap();
+            let parsed = CalcBlockPayload::parse(complete).unwrap();
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);

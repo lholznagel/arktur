@@ -11,4 +11,8 @@ impl BlockState {
             content: HashMap::new()
         }
     }
+
+    pub fn reset(&mut self) {
+        self.content = HashMap::new();
+    }
 }

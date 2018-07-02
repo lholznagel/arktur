@@ -1,7 +1,7 @@
 use carina_core_protocol::Events;
 use carina_core_protocol::MessageBuilder;
 use carina_core_protocol::Payload;
-use carina_core_protocol::payloads::block::CalcBlock as CalcBlockPayload;
+use carina_core_protocol::payloads::block::CalcBlockPayload;
 use carina_core_protocol::payloads::EmptyPayload;
 use carina_core::Config;
 use carina_core::Event;
@@ -11,7 +11,17 @@ use failure::Error;
 use protocol_builder_parser::Parser;
 use std::net::UdpSocket;
 
-pub struct CalcBlock;
+pub struct CalcBlock {
+    is_calculating: bool
+}
+
+impl CalcBlock {
+    pub fn new() -> Self {
+        Self {
+            is_calculating: false
+        }
+    }
+}
 
 impl Event for CalcBlock {
     fn execute(&mut self, socket: UdpSocket, _: String, config: &mut Config, buffer: &[u8]) -> Result<(), Error> {
@@ -28,6 +38,7 @@ impl Event for CalcBlock {
         block_data.push_str(&parsed.content);
 
         info!("[CONSOLE_CALC_BLOCK] Starting generating a new block.");
+        self.is_calculating = true;
         loop {
             block_data.push_str(&nonce.to_string());
 
@@ -58,6 +69,7 @@ impl Event for CalcBlock {
             };
         }
 
+        self.is_calculating = false;
         Ok(())
     }
 }
