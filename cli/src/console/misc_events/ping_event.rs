@@ -2,12 +2,13 @@ use carina_core_protocol::{Events, MessageBuilder, Payload};
 use carina_core_protocol::payloads::EmptyPayload;
 use carina_core::Config;
 use carina_core::Event;
+use failure::Error;
 use std::net::UdpSocket;
 
 pub struct Ping;
 
 impl Event for Ping {
-    fn execute(&mut self, udp: UdpSocket, source: String, config: &mut Config, _: &[u8]) {
+    fn execute(&mut self, udp: UdpSocket, source: String, config: &mut Config, _: &[u8]) -> Result<(), Error> {
         info!("[CONSOLE_PING] Received ping event from {:?}", source);
         match config.peers.get(&source) {
             Some(peer) => {
@@ -23,5 +24,7 @@ impl Event for Ping {
             },
             None => error!("[CONSOLE_PING] Error getting peer")
         };
+
+        Ok(())
     }
 }

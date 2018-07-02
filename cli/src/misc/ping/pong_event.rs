@@ -1,4 +1,5 @@
 use carina_core::{Config, Event, Peer};
+use failure::Error;
 use std::net::UdpSocket;
 use std::collections::HashMap;
 
@@ -20,8 +21,9 @@ impl Pong {
 }
 
 impl Event for Pong {
-    fn execute(&mut self, _: UdpSocket, source: String, _: &mut Config, _: &[u8]) {
+    fn execute(&mut self, _: UdpSocket, source: String, _: &mut Config, _: &[u8]) -> Result<(), Error> {
         debug!("[MISC_PONG] Received pong event");
         self.answered.insert(source, true);
+        Ok(())
     }
 }

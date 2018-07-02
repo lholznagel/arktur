@@ -67,7 +67,12 @@ pub fn start(
                                 Some(ref mut events) => {
                                     for i in 0..events.len() {
                                         match events[i].lock() {
-                                            Ok(mut event) => event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config, &buf[2..]),
+                                            Ok(mut event) => {
+                                                match event.execute(socket.try_clone().unwrap(), source.to_string(), &mut config, &buf[2..]) {
+                                                    Err(e) => error!("[THREAD_UDP] Error calling execute {:?}", e),
+                                                    _      => ()
+                                                }
+                                            },
                                             Err(_)        => error!("[THREAD_UDP] Error locking mutex.")
                                         };
                                     }

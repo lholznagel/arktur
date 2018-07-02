@@ -1,6 +1,7 @@
 use carina_core::Config;
 use carina_core::Event;
 use console::block_events::BlockState;
+use failure::Error;
 use protocol_builder_parser::Parser;
 use std::net::UdpSocket;
 use std::sync::{Arc, Mutex};
@@ -18,7 +19,7 @@ impl NewBlockContent {
 }
 
 impl Event for NewBlockContent {
-    fn execute(&mut self, _: UdpSocket, _: String, _: &mut Config, buffer: &[u8]) {
+    fn execute(&mut self, _: UdpSocket, _: String, _: &mut Config, buffer: &[u8]) -> Result<(), Error> {
         let parsed = Parser::parse_payload(&buffer);
         let code = match Parser::to_string(&parsed[0].clone()) {
             Ok(val) => val,
@@ -44,5 +45,7 @@ impl Event for NewBlockContent {
                 Err(e)        => error!("[CONSOLE_NEW_BLOCK_CONTENT] Error locking state. {}", e)
             };
         }
+
+        Ok(())
     }
 }

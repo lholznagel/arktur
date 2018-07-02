@@ -2,7 +2,7 @@ use carina_core_protocol::Events;
 use carina_core;
 use carina_core::{Config, CarinaConfigBuilder};
 use clap::ArgMatches;
-use console::block_events::{BlockState, NewBlockContent};
+use console::block_events::{BlockState, CalcBlock, NewBlockContent};
 use console::misc_events::{Ping, Pong};
 use std::fs::File;
 use std::io::Read;
@@ -29,6 +29,7 @@ pub fn execute(args: &ArgMatches) {
     let carina_config_builder = CarinaConfigBuilder::new()
         .add_event(Events::Ping, Arc::new(Mutex::new(Ping{})))
         .add_event(Events::Pong, Arc::new(Mutex::new(Pong{})))
+        .add_event(Events::CalcBlock, Arc::new(Mutex::new(CalcBlock{})))
         .add_event(Events::NewBlockContent, Arc::new(Mutex::new(NewBlockContent::new(Arc::clone(&internal_state)))))
         .set_config(config);
     let (thread, _, _) = carina_core::init(carina_config_builder);

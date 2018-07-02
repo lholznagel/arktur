@@ -27,7 +27,7 @@ use time;
 /// // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct GenerateBlock {
+pub struct CalcBlock {
     /// Index of the block
     pub index: u64,
     /// Timestamp the block was created
@@ -38,7 +38,7 @@ pub struct GenerateBlock {
     pub content: String
 }
 
-impl GenerateBlock {
+impl CalcBlock {
     /// Creates a new block
     pub fn block(index: u64, prev: String, content: String) -> Self {
         Self {
@@ -50,7 +50,7 @@ impl GenerateBlock {
     }
 }
 
-impl Payload for GenerateBlock {
+impl Payload for CalcBlock {
     fn new() -> Self {
         Self {
             index: 0,
@@ -106,7 +106,7 @@ mod tests {
         let prev = String::from("ngiurengoiurehgbiuergneoigjoierhg");
         let content = String::from("Some string");
 
-        let new_block = GenerateBlock {
+        let new_block = CalcBlock {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -115,7 +115,7 @@ mod tests {
 
         let new_block = new_block.to_bytes();
         let complete = Parser::parse_payload(&new_block);
-        let parsed = GenerateBlock::parse(complete).unwrap();
+        let parsed = CalcBlock::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(timestamp, parsed.timestamp);
@@ -130,7 +130,7 @@ mod tests {
         let prev = String::from("sdfsdgehherheherhefwt4wtttertertg");
         let content = "a".repeat(500);
 
-        let new_block = GenerateBlock {
+        let new_block = CalcBlock {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(new_block[1], 2);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = GenerateBlock::parse(complete).unwrap();
+        let parsed = CalcBlock::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -156,7 +156,7 @@ mod tests {
         let prev = String::from("gwegerhgerhgef2h6h4zh5j654mztkjh5");
         let content = "b".repeat(1000);
 
-        let new_block = GenerateBlock {
+        let new_block = CalcBlock {
             index: index.clone(),
             timestamp: timestamp.clone(),
             prev: prev.clone(),
@@ -167,7 +167,7 @@ mod tests {
         assert_eq!(new_block[1], 4);
 
         let complete = Parser::parse_payload(&new_block);
-        let parsed = GenerateBlock::parse(complete).unwrap();
+        let parsed = CalcBlock::parse(complete).unwrap();
 
         assert_eq!(index, parsed.index);
         assert_eq!(content, parsed.content);
@@ -183,7 +183,7 @@ mod tests {
             let prev = prev;
             let content = content;
 
-            let new_block = GenerateBlock {
+            let new_block = CalcBlock {
                 index: index.clone(),
                 timestamp: timestamp.clone(),
                 prev: prev.clone(),
@@ -193,7 +193,7 @@ mod tests {
             let new_block = new_block.to_bytes();
 
             let complete = Parser::parse_payload(&new_block);
-            let parsed = GenerateBlock::parse(complete).unwrap();
+            let parsed = CalcBlock::parse(complete).unwrap();
 
             assert_eq!(index, parsed.index);
             assert_eq!(content, parsed.content);

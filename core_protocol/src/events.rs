@@ -7,6 +7,8 @@ pub enum Events {
     Pong,
     /// Event: 64
     NewBlockContent,
+    /// Event: 65
+    CalcBlock,
     /// An invalid event
     Invalid
 }
@@ -18,6 +20,7 @@ impl Events {
             Events::Ping            => 0,
             Events::Pong            => 1,
             Events::NewBlockContent => 64,
+            Events::CalcBlock       => 64,
             _                       => 255
         }
     }
@@ -28,6 +31,7 @@ impl Events {
             0  => Events::Ping,
             1  => Events::Pong,
             64 => Events::NewBlockContent,
+            65 => Events::CalcBlock,
             _  => Events::Invalid
         }
     }

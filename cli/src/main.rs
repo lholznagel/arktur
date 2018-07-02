@@ -13,6 +13,8 @@ extern crate base64;
 extern crate clap;
 extern crate carina_core;
 extern crate carina_core_protocol;
+extern crate crypto;
+extern crate failure;
 #[macro_use]
 extern crate log;
 extern crate loggify;
